@@ -1,0 +1,570 @@
+<h1 class="chapter">نمایش داده‌ها (<span class="en">Data Representation</span>)</h1>
+<div class="chapter-intro">
+در این فصل (جلسهٔ چهارم) می‌بینیم اطلاعات چگونه در کامپیوتر به صورت بیت نمایش داده می‌شوند: <b>سیستم‌های عددی موضعی و تبدیل مبناها</b>، <b>نمایش اعداد علامت‌دار</b> (علامت-مقدار، مکمل یک، مکمل دو و افزونی)، <b>اعداد حقیقی</b> در قالب ممیز ثابت و <b>ممیز شناور</b> (از جمله استاندارد <b>IEEE 754</b>)، و در پایان <b>کدهای دهدهی</b> (BCD، افزونی ۳، گری و …) و <b>کدهای کاراکتری</b> (ASCII، EBCDIC و یونی‌کد). تکلیف‌های اثبات جمع در مکمل یک و مکمل دو هم به‌طور کامل حل شده‌اند.
+</div>
+
+<h2>دسته‌بندی اطلاعات</h2>
+<p>اطلاعاتی که در کامپیوتر نگه داشته می‌شود دو نوع است: <b>کد</b> (دستورها، که طبق قالب دستور ماشین کد می‌شوند) و <b>داده</b>. داده‌ها می‌توانند <b>غیرعددی</b> (رشتهٔ بیتی یا کاراکتر) یا <b>عددی</b> باشند. اعداد هم از چند جهت دسته‌بندی می‌شوند: علامت‌دار یا بدون علامت؛ دودویی یا دهدهی؛ صحیح یا حقیقی (و اعداد حقیقی به صورت ممیز ثابت یا ممیز شناور).</p>
+{{fig:data_tree}}
+
+<h2>سیستم اعداد دودویی</h2>
+<ul>
+<li>داده‌ها در کامپیوتر به صورت دنباله‌ای از <b>بیت‌ها</b> (<span class="en"><b>bi</b>nary digi<b>t</b>s</span>) نمایش داده می‌شوند.</li>
+<li>واحدهای دیگر: <b>بایت</b> = ۸ بیت؛ <b>نیبل</b> = ۴ بیت (امروزه کم‌کاربرد)؛ <b>کلمه</b> = مضربی از بایت (مثلاً ۲ یا ۴ بایت) بسته به معماری.</li>
+<li>در سیستم دودویی، <b>n بیت می‌تواند تا <span class="m">2<sup>n</sup></span> مقدار</b> را نشان دهد؛ مثلاً ۲ بیت ۴ مقدار (00، 01، 10، 11) و ۴ بیت ۱۶ مقدار (0000 تا 1111).</li>
+<li>برای نمایش <b>M مقدار</b>، <span class="m">⌈log<sub>2</sub>M⌉</span> بیت لازم است؛ مثلاً ۳۲ مقدار ۵ بیت و ۱۰۰۰ مقدار ۱۰ بیت (<span class="m">2<sup>10</sup> = 1024 ≥ 1000</span>).</li>
+</ul>
+<div class="box hw"><span class="t">تمرین ۴-۱ (حل‌شده)</span>
+برای نمایش هر یک از موارد زیر حداقل چند بیت لازم است؟ (الف) ۲۶ حرف انگلیسی (ب) یک میلیون مقدار مختلف (ج) شمارهٔ دانشجویی ۱۵۰ دانشجوی یک کلاس.
+<div class="sol"><span class="t">حل</span>
+(الف) <span class="m">⌈log<sub>2</sub>26⌉ = 5</span> (چون <span class="m">2<sup>4</sup> = 16 &lt; 26 ≤ 32 = 2<sup>5</sup></span>). (ب) <span class="m">2<sup>19</sup> = 524288 &lt; 10<sup>6</sup> ≤ 1048576 = 2<sup>20</sup></span> ⇐ ۲۰ بیت. (ج) <span class="m">2<sup>7</sup> = 128 &lt; 150 ≤ 256</span> ⇐ ۸ بیت.
+</div></div>
+
+<h2>سیستم‌های عددی موضعی و تبدیل مبنا</h2>
+<h3>سیستم دهدهی (مبنای ۱۰)</h3>
+<p>یک سیستم <b>موضعی-وزن‌دار</b> (<span class="en">weighted-positional</span>) است: <b>مبنا</b> (<span class="en">base/radix</span>) ۱۰ است، ارقام <span class="m">{0, 1, …, 9}</span> هستند و هر موقعیت وزنی برابر توانی از ۱۰ دارد. مثال:</p>
+<p class="center"><span class="m">(7594.36)<sub>10</sub> = 7×10<sup>3</sup> + 5×10<sup>2</sup> + 9×10<sup>1</sup> + 4×10<sup>0</sup> + 3×10<sup>−1</sup> + 6×10<sup>−2</sup></span></p>
+<p>به‌طور کلی برای یک عدد دهدهی با <span class="m">n + m</span> رقم (n رقم صحیح و m رقم کسری):</p>
+<p class="center"><span class="m">(a<sub>n−1</sub>a<sub>n−2</sub>…a<sub>0</sub>.f<sub>1</sub>f<sub>2</sub>…f<sub>m</sub>)<sub>10</sub> = a<sub>n−1</sub>×10<sup>n−1</sup> + … + a<sub>0</sub>×10<sup>0</sup> + f<sub>1</sub>×10<sup>−1</sup> + … + f<sub>m</sub>×10<sup>−m</sup></span></p>
+<h3>سیستم‌های عددی دیگر</h3>
+<ul>
+<li><b>هشت‌هشتی (مبنای ۸)</b>: وزن‌ها توان‌های ۸؛ ارقام 0 تا 7.</li>
+<li><b>شانزده‌شانزدهی (مبنای ۱۶)</b>: وزن‌ها توان‌های ۱۶؛ ارقام 0 تا 9 و A تا F (A = 10، …، F = 15).</li>
+<li><b>مبنای R</b>: وزن‌ها توان‌های R؛ ارقام 0، 1، …، R−1.</li>
+<li>در بعضی زبان‌ها نمادهای خاصی به کار می‌رود: در زبان C پیشوند <code>0x</code> برای شانزده‌شانزدهی (<code>0xF2</code> یعنی <span class="m">(F2)<sub>16</sub></span>)؛ در Verilog، <code>8'b11110000</code>، <code>8'hF0</code> و <code>8'd240</code> همگی عدد دودویی ۸ بیتی 11110000 را نشان می‌دهند.</li>
+</ul>
+
+<h3>تبدیل مبنای R به دهدهی</h3>
+<p>ساده است! برای عدد <span class="m">a<sub>n−1</sub>…a<sub>1</sub>a<sub>0</sub>.a<sub>−1</sub>a<sub>−2</sub>…a<sub>−m</sub></span> در مبنای R کافی است <span class="m">Σ<sub>k=−m</sub><sup>n−1</sup> R<sup>k</sup>·a<sub>k</sub></span> را حساب کنیم.</p>
+<div class="box ex"><span class="t">مثال‌های اسلاید</span>
+<ul>
+<li><span class="m">1101.101<sub>2</sub> = 1×2<sup>3</sup> + 1×2<sup>2</sup> + 0×2<sup>1</sup> + 1×2<sup>0</sup> + 1×2<sup>−1</sup> + 0×2<sup>−2</sup> + 1×2<sup>−3</sup> = 8+4+1+0.5+0.125 = 13.625<sub>10</sub></span></li>
+<li><span class="m">572.6<sub>8</sub> = 5×8<sup>2</sup> + 7×8<sup>1</sup> + 2×8<sup>0</sup> + 6×8<sup>−1</sup> = 320+56+2+0.75 = 378.75</span></li>
+<li><span class="m">2A.8<sub>16</sub> = 2×16<sup>1</sup> + 10×16<sup>0</sup> + 8×16<sup>−1</sup> = 32+10+0.5 = 42.5</span></li>
+<li><span class="m">341.24<sub>5</sub> = 3×5<sup>2</sup> + 4×5<sup>1</sup> + 1×5<sup>0</sup> + 2×5<sup>−1</sup> + 4×5<sup>−2</sup> = 75+20+1+0.4+0.16 = 96.56</span></li>
+</ul>
+</div>
+
+<h3>تبدیل دهدهی به مبنای R</h3>
+<ul>
+<li><b>برای بخش صحیح</b>: روش <b>تقسیم‌های متوالی بر R</b>.</li>
+<li><b>برای بخش کسری</b>: روش <b>ضرب‌های متوالی در R</b>.</li>
+</ul>
+<h4>تقسیم‌های متوالی بر ۲</h4>
+<p>برای تبدیل یک عدد صحیح به دودویی، آن را پشت‌سرهم بر ۲ تقسیم می‌کنیم تا خارج‌قسمت 0 شود. <b>باقی‌مانده‌ها جواب را می‌سازند: اولین باقی‌مانده کم‌ارزش‌ترین بیت (LSB) و آخرین باقی‌مانده پرارزش‌ترین بیت (MSB) است.</b></p>
+<div class="twocol">
+<table class="ltrt small"><thead><tr><th>تقسیم</th><th>خارج‌قسمت</th><th>باقی‌مانده</th></tr></thead><tbody>
+<tr><td>43 ÷ 2</td><td>21</td><td>1 ← LSB</td></tr>
+<tr><td>21 ÷ 2</td><td>10</td><td>1</td></tr>
+<tr><td>10 ÷ 2</td><td>5</td><td>0</td></tr>
+<tr><td>5 ÷ 2</td><td>2</td><td>1</td></tr>
+<tr><td>2 ÷ 2</td><td>1</td><td>0</td></tr>
+<tr><td>1 ÷ 2</td><td>0</td><td>1 ← MSB</td></tr>
+</tbody></table>
+<div style="align-self:center"><p>با خواندن باقی‌مانده‌ها از پایین به بالا:</p><p class="center"><span class="m">(43)<sub>10</sub> = (101011)<sub>2</sub></span></p><p class="small">بررسی: <span class="m">32+8+2+1 = 43</span> ✓</p></div>
+</div>
+<h4>ضرب‌های متوالی در ۲</h4>
+<p>برای تبدیل یک عدد کسری به دودویی، آن را پشت‌سرهم در ۲ ضرب می‌کنیم تا بخش کسری حاصل‌ضرب 0 شود (یا به تعداد رقم دلخواه برسیم). <b>رقم‌های صحیح تولیدشده (Carry) جواب را می‌سازند: اولین آن‌ها MSB و آخرین LSB است.</b></p>
+<div class="twocol">
+<table class="ltrt small"><thead><tr><th>ضرب</th><th>حاصل</th><th>Carry</th></tr></thead><tbody>
+<tr><td>0.3125 × 2</td><td>0.625</td><td>0 ← MSB</td></tr>
+<tr><td>0.625 × 2</td><td>1.25</td><td>1</td></tr>
+<tr><td>0.25 × 2</td><td>0.50</td><td>0</td></tr>
+<tr><td>0.5 × 2</td><td>1.00</td><td>1 ← LSB</td></tr>
+</tbody></table>
+<div style="align-self:center"><p class="center"><span class="m">(0.3125)<sub>10</sub> = (0.0101)<sub>2</sub></span></p><p class="small">بررسی: <span class="m">0.25 + 0.0625 = 0.3125</span> ✓</p></div>
+</div>
+<div class="box hw long"><span class="t">تمرین ۴-۲ (حل‌شده)</span>
+(الف) <span class="m">43.3125<sub>10</sub></span> را به دودویی، (ب) <span class="m">156<sub>10</sub></span> را به شانزده‌شانزدهی، (ج) <span class="m">0.8125<sub>10</sub></span> را به هشت‌هشتی و (د) <span class="m">0.1<sub>10</sub></span> را به دودویی تبدیل کنید.
+<div class="sol"><span class="t">حل</span>
+(الف) بخش صحیح و کسری جداگانه تبدیل می‌شوند: <span class="m">101011.0101<sub>2</sub></span>.<br>
+(ب) <span class="m">156 ÷ 16 = 9</span> باقی‌ماندهٔ 12 (C)، <span class="m">9 ÷ 16 = 0</span> باقی‌ماندهٔ 9 ⇐ <span class="m">9C<sub>16</sub></span> (بررسی: <span class="m">9×16 + 12 = 156</span>).<br>
+(ج) <span class="m">0.8125×8 = 6.5</span> ⇐ 6؛ <span class="m">0.5×8 = 4.0</span> ⇐ 4 ⇐ <span class="m">0.64<sub>8</sub></span> (بررسی: <span class="m">6/8 + 4/64 = 0.8125</span>).<br>
+(د) <span class="m">0.1→0.2</span> (0)، <span class="m">0.2→0.4</span> (0)، <span class="m">0.4→0.8</span> (0)، <span class="m">0.8→1.6</span> (1)، <span class="m">0.6→1.2</span> (1)، <span class="m">0.2→0.4</span> (0) و از اینجا الگو تکرار می‌شود: <span class="m">0.1<sub>10</sub> = 0.0001100110011…<sub>2</sub></span>. پس <b>0.1 در دودویی با تعداد محدود بیت دقیقاً قابل نمایش نیست</b>؛ این همان دلیل خطای گرد کردن در محاسبات ممیز شناور است.
+</div></div>
+
+<h3>تبدیل میان مبناها</h3>
+<p>در حالت کلی تبدیل از مبنای i به مبنای j از راه دهدهی انجام می‌شود: <b>مبنای i ← دهدهی ← مبنای j</b>. اما برای مبناهایی که توان ۲ هستند (2، 4، 8، 16) میان‌بر وجود دارد: <span class="m">2<sup>i</sup> → 2<sup>j</sup></span>:</p>
+<ol>
+<li>هر رقم عدد ورودی را با i بیت بنویسید.</li>
+<li>از سمت راست (از ممیز به چپ برای بخش صحیح، و از ممیز به راست برای بخش کسری) بیت‌ها را در گروه‌های j بیتی دسته کنید.</li>
+<li>معادل هر گروه را در مبنای <span class="m">2<sup>j</sup></span> بنویسید.</li>
+</ol>
+<div class="box ex"><span class="t">مثال اسلاید: <span class="m">(7452)<sub>8</sub></span> را به شانزده‌شانزدهی تبدیل کنید.</span>
+<div class="sol"><span class="t">حل</span>
+<span class="bits">7452₈ → 111 100 101 010 → 1111 0010 1010 → F2A₁₆</span>
+</div></div>
+<div class="box hw"><span class="t">تمرین ۴-۳ (حل‌شده)</span>
+(الف) <span class="m">3AF.C<sub>16</sub></span> را به هشت‌هشتی و (ب) <span class="m">10110111<sub>2</sub></span> را به مبنای ۴ تبدیل کنید.
+<div class="sol"><span class="t">حل</span>
+(الف) <span class="bits">0011 1010 1111 . 1100</span> ⇐ گروه‌های ۳ تایی: <span class="bits">001 110 101 111 . 110</span> ⇐ <span class="m">1657.6<sub>8</sub></span>. بررسی: هر دو برابر 943.75 هستند.<br>
+(ب) گروه‌های ۲ تایی: <span class="bits">10 11 01 11</span> ⇐ <span class="m">2313<sub>4</sub></span> (هر دو = 183).
+</div></div>
+
+<h2>اعداد منفی</h2>
+<p><b>اعداد بدون علامت</b> فقط مقدارهای نامنفی را دارند و <b>اعداد علامت‌دار</b> همهٔ مقدارها (مثبت و منفی). چهار روش برای نمایش اعداد دودویی علامت‌دار وجود دارد:</p>
+<ul>
+<li>علامت-مقدار (<span class="en">Sign-Magnitude</span>)</li>
+<li>مکمل یک (<span class="en">1s-Complement</span>)</li>
+<li>مکمل دو (<span class="en">2s-Complement</span>)</li>
+<li>افزونی (<span class="en">Excess-Number</span>) — کم‌کاربردتر ولی در بعضی جاها (مثل نمای اعداد ممیز شناور) استفاده می‌شود.</li>
+</ul>
+
+<h3>علامت-مقدار (<span class="en">Sign-Magnitude</span>)</h3>
+<p>علامت با یک <b>بیت علامت</b> نشان داده می‌شود (0 برای + و 1 برای −) و بقیهٔ بیت‌ها <b>اندازه</b> (قدر مطلق) را نشان می‌دهند. مثلاً قالب ۸ بیتی: ۱ بیت علامت و ۷ بیت اندازه.</p>
+<div class="box ex"><span class="t">مثال‌ها</span>
+<span class="bits"><span class="hl">0</span>0110100</span> ⇐ <span class="m">+110100<sub>2</sub> = +52<sub>10</sub></span> &nbsp;&nbsp;&nbsp; <span class="bits"><span class="hl">1</span>0010011</span> ⇐ <span class="m">−10011<sub>2</sub> = −19<sub>10</sub></span>
+</div>
+<ul>
+<li>بزرگ‌ترین مقدار (۸ بیت): <span class="bits">01111111</span> = +127؛ کوچک‌ترین مقدار: <span class="bits">11111111</span> = −127.</li>
+<li><b>دو صفر</b> داریم: <span class="bits">00000000</span> = +0 و <span class="bits">10000000</span> = −0.</li>
+<li>گسترهٔ ۸ بیتی: −127 تا +127.</li>
+</ul>
+<div class="box ex"><span class="t">پرسش اسلاید: گسترهٔ نمایش علامت-مقدار n بیتی چیست؟</span>
+<div class="sol"><span class="t">پاسخ</span>
+<span class="m">−(2<sup>n−1</sup> − 1)</span> تا <span class="m">2<sup>n−1</sup> − 1</span>؛ چون اندازه <span class="m">n−1</span> بیت دارد و بزرگ‌ترین اندازه <span class="m">2<sup>n−1</sup> − 1</span> است. (در مجموع <span class="m">2<sup>n</sup> − 1</span> مقدار متمایز، چون صفر دو نمایش دارد.)
+</div></div>
+<p><b>منفی کردن</b> یک عدد: کافی است <b>بیت علامت را معکوس کنیم</b>. مثال: منفی <span class="bits">00100001<sub>sm</sub></span> (33) برابر <span class="bits">10100001<sub>sm</sub></span> (−33) و منفی <span class="bits">10000101<sub>sm</sub></span> (−5) برابر <span class="bits">00000101<sub>sm</sub></span> (+5) است.</p>
+
+<h4>محاسبه در علامت-مقدار</h4>
+<p><b>جمع</b> <span class="m">S = A + B</span> که <span class="m">A = (A<sub>s</sub>|A<sub>m</sub>)</span> و <span class="m">B = (B<sub>s</sub>|B<sub>m</sub>)</span> (s علامت و m اندازه):</p>
+<pre class="code">if As = Bs then return S(As | Am+Bm)
+else
+    if As=1 & Am<Bm then return S(0 | Bm-Am)
+    if As=1 & Am>Bm then return S(1 | Am-Bm)
+    if As=0 & Am<Bm then return S(1 | Bm-Am)
+    if As=0 & Am>Bm then return S(0 | Am-Bm)</pre>
+<p>یعنی اگر هم‌علامت باشند اندازه‌ها جمع می‌شوند و علامت حفظ می‌شود؛ اگر ناهم‌علامت باشند، اندازهٔ کوچک‌تر از بزرگ‌تر کم می‌شود و علامت عدد با اندازهٔ بزرگ‌تر به نتیجه داده می‌شود.</p>
+<p><b>تفریق</b> <span class="m">S = A − B</span> مشابه است با این تفاوت که شرط اول <span class="m">A<sub>s</sub> ≠ B<sub>s</sub></span> است (تفریق دو عدد ناهم‌علامت یعنی جمع اندازه‌ها) و در غیر این صورت همان چهار حالت بالا بررسی می‌شود.</p>
+<p><b>ضرب و تقسیم</b> ساده‌اند: <span class="m">S = (A<sub>s</sub> ⊕ B<sub>s</sub> | A<sub>m</sub> × B<sub>m</sub>)</span> و <span class="m">S = (A<sub>s</sub> ⊕ B<sub>s</sub> | A<sub>m</sub> / B<sub>m</sub>)</span>.</p>
+<div class="box warn"><span class="t">نکتهٔ مهم اسلاید</span>
+محاسبه در علامت-مقدار (به‌ویژه جمع و تفریق) <b>پیچیده است و نسبت به مکمل یک و مکمل دو سخت‌افزار بیشتری لازم دارد</b> (مقایسهٔ اندازه‌ها، جمع‌کننده و تفریق‌کننده، و انتخاب علامت). همچنین حالت <span class="m">A<sub>m</sub> = B<sub>m</sub></span> در الگوریتم بالا جداگانه باید به +0 نگاشته شود.
+</div>
+<div class="box ex"><span class="t">مثال ۴-۱</span>
+در قالب ۸ بیتی علامت-مقدار: (الف) <span class="m">(+5) + (−3)</span>، (ب) <span class="m">(−5) − (+3)</span> و (ج) <span class="m">(−6) × (+7)</span> را حساب کنید.
+<div class="sol"><span class="t">حل</span>
+(الف) <span class="bits">0|0000101 + 1|0000011</span>: علامت‌ها متفاوت، <span class="m">A<sub>s</sub> = 0</span> و <span class="m">A<sub>m</sub> = 5 &gt; B<sub>m</sub> = 3</span> ⇐ <span class="bits">0|0000010</span> = +2.<br>
+(ب) تفریق با علامت‌های متفاوت ⇐ <span class="m">(A<sub>s</sub> | A<sub>m</sub>+B<sub>m</sub>) = (1 | 8)</span> ⇐ <span class="bits">1|0001000</span> = −8.<br>
+(ج) علامت: <span class="m">1 ⊕ 0 = 1</span>؛ اندازه: <span class="m">6×7 = 42 = 0101010</span> ⇐ <span class="bits">1|0101010</span> = −42.
+</div></div>
+
+<h3>مکمل یک (<span class="en">1s-Complement</span>)</h3>
+<div class="box def"><span class="t">تعریف</span>
+اگر x یک عدد n بیتی باشد، مقدار منفی آن در مکمل یک چنین نمایش داده می‌شود: <span class="m"><b>−x = 2<sup>n</sup> − x − 1</b></span>.
+</div>
+<div class="box ex"><span class="t">مثال اسلاید</span>
+با ۸ بیت، منفیِ <span class="bits">00001100</span> (12) در مکمل یک: <span class="m">2<sup>8</sup> − 12 − 1 = 243 = 11110011<sub>2</sub></span>. یعنی <span class="m">−12<sub>10</sub></span> در مکمل یک ۸ بیتی <span class="bits">11110011</span> نوشته می‌شود.
+</div>
+<ul>
+<li><b>روش منفی کردن: همهٔ بیت‌ها را معکوس کنید</b> (چون <span class="m">2<sup>n</sup> − 1</span> همهٔ بیت‌هایش ۱ است، کم کردن x از آن یعنی معکوس کردن بیت‌ها).</li>
+<li>بزرگ‌ترین مقدار (۸ بیت): <span class="bits">01111111</span> = +127؛ کوچک‌ترین: <span class="bits">10000000</span> = −127.</li>
+<li>دو صفر: <span class="bits">00000000</span> = +0 و <span class="bits">11111111</span> = −0.</li>
+<li>گستره: ۸ بیت −127 تا +127؛ n بیت <span class="m">−(2<sup>n−1</sup> − 1)</span> تا <span class="m">2<sup>n−1</sup> − 1</span>.</li>
+<li>پرارزش‌ترین بیت (MSB) همچنان علامت را نشان می‌دهد: 0 برای + و 1 برای −.</li>
+</ul>
+<h4>جمع و تفریق در مکمل یک</h4>
+<p><b>الگوریتم جمع A + B:</b></p>
+<ol>
+<li>دو عدد را با جمع‌کنندهٔ دودویی معمولی جمع کنید.</li>
+<li><b>رقم نقلی خروجی از MSB را به نتیجه اضافه کنید</b> (نقلی چرخشی، <span class="en">end-around carry</span>).</li>
+<li>سرریز را بررسی کنید: <b>سرریز وقتی رخ می‌دهد که علامت نتیجه مخالف علامت A و B (که هم‌علامت‌اند) باشد</b>.</li>
+</ol>
+<p>اگر نتیجهٔ جمع/تفریق از گسترهٔ نمایش بیرون بزند <b>سرریز (Overflow)</b> رخ داده است. سرریز به‌سادگی تشخیص داده می‌شود: <span class="m">مثبت + مثبت → منفی</span> یا <span class="m">منفی + منفی → مثبت</span>. (جمع دو عدد ناهم‌علامت هرگز سرریز نمی‌کند.)</p>
+<p><b>الگوریتم تفریق A − B:</b> <span class="m">A − B = A + (−B) = A + مکمل‌یکِ(B)</span>؛ یعنی مکمل یک B را بگیرید و به A اضافه کنید.</p>
+<div class="box ex long"><span class="t">مثال‌های اسلاید: جمع در سیستم ۴ بیتی مکمل یک (آیا سرریزی هست؟)</span>
+<table class="ltrt small"><thead><tr><th>دهدهی</th><th>محاسبهٔ دودویی</th><th>نتیجه</th><th class="fa">وضعیت</th></tr></thead><tbody>
+<tr><td>(+3) + (+4)</td><td class="bits">0011 + 0100 = 0111</td><td>+7</td><td class="fa">بدون سرریز</td></tr>
+<tr><td>(+5) + (−5)</td><td class="bits">0101 + 1010 = 1111</td><td>−0</td><td class="fa">بدون سرریز (نتیجه −0 است)</td></tr>
+<tr><td>(−2) + (−5)</td><td class="bits">1101 + 1010 = 1 0111 → 0111 + 1 = 1000</td><td>−7</td><td class="fa">بدون سرریز (با نقلی چرخشی)</td></tr>
+<tr><td>(−3) + (−7)</td><td class="bits">1100 + 1000 = 1 0100 → 0100 + 1 = 0101</td><td>+5 ✗</td><td class="fa"><b class="hl">سرریز!</b> منفی + منفی = مثبت (‎−10 در گسترهٔ ‎−7..+7 نیست)</td></tr>
+</tbody></table>
+</div>
+
+<h3>مکمل دو (<span class="en">2s-Complement</span>)</h3>
+<div class="box def"><span class="t">تعریف</span>
+اگر x یک عدد n بیتی باشد، مقدار منفی آن در مکمل دو: <span class="m"><b>−x = 2<sup>n</sup> − x = مکمل‌یکِ(x) + 1</b></span>.
+</div>
+<div class="box ex"><span class="t">مثال اسلاید</span>
+با ۸ بیت، منفیِ <span class="bits">00001100</span> (12): <span class="m">2<sup>8</sup> − 12 = 244 = 11110100<sub>2</sub></span>. یعنی <span class="m">−12<sub>10</sub></span> در مکمل دو ۸ بیتی <span class="bits">11110100</span> است.
+</div>
+<ul>
+<li><b>روش منفی کردن</b>: همهٔ بیت‌ها را معکوس و سپس <b>۱ اضافه کنید</b>. یا از راست به چپ، <b>بیت‌ها را تا اولین ۱ (خود آن ۱ هم) همان‌طور بنویسید و بقیه را معکوس کنید</b>. مثلاً <span class="bits">0000 1100</span> ⇐ <span class="bits">1111 0100</span> (بیت‌های <span class="bits">100</span> سمت راست ثابت ماندند).</li>
+<li>بزرگ‌ترین مقدار (۸ بیت): <span class="bits">01111111</span> = +127؛ کوچک‌ترین: <span class="bits">10000000</span> = <b>−128</b>.</li>
+<li><b>فقط یک صفر</b>: <span class="bits">00000000</span> = +0.</li>
+<li>گستره: ۸ بیت −128 تا +127؛ n بیت <span class="m">−2<sup>n−1</sup></span> تا <span class="m">2<sup>n−1</sup> − 1</span>.</li>
+<li>MSB همچنان علامت است.</li>
+</ul>
+<h4>جمع و تفریق در مکمل دو</h4>
+<p><b>الگوریتم جمع A + B:</b> (۱) دو عدد را جمع کنید؛ (۲) <b>رقم نقلی خروجی از MSB را دور بریزید</b>؛ (۳) سرریز را بررسی کنید: <b>سرریز وقتی رخ می‌دهد که نقلی ورودی به MSB و نقلی خروجی از MSB متفاوت باشند</b>، یا (به‌طور معادل) نتیجه علامتی مخالف هر دو عملوند داشته باشد.</p>
+<p><b>الگوریتم تفریق A − B:</b> <span class="m">A − B = A + (−B) = A + مکمل‌دوِ(B)</span>.</p>
+<div class="box ex long"><span class="t">مثال‌های اسلاید: جمع ۴ بیتی مکمل دو (کدام سرریز است؟)</span>
+<table class="ltrt small"><thead><tr><th>دهدهی</th><th>محاسبهٔ دودویی</th><th>Cin/Cout MSB</th><th>نتیجه</th><th class="fa">وضعیت</th></tr></thead><tbody>
+<tr><td>(+3) + (+4)</td><td class="bits">0011 + 0100 = 0111</td><td>0 / 0</td><td>+7</td><td class="fa">بدون سرریز</td></tr>
+<tr><td>(−2) + (−6)</td><td class="bits">1110 + 1010 = <span class="hl">1</span>1000</td><td>1 / 1</td><td>−8</td><td class="fa">بدون سرریز (نقلی دور ریخته می‌شود)</td></tr>
+<tr><td>(+6) + (−3)</td><td class="bits">0110 + 1101 = <span class="hl">1</span>0011</td><td>1 / 1</td><td>+3</td><td class="fa">بدون سرریز</td></tr>
+<tr><td>(+4) + (−7)</td><td class="bits">0100 + 1001 = 1101</td><td>0 / 0</td><td>−3</td><td class="fa">بدون سرریز</td></tr>
+<tr><td>(−3) + (−6)</td><td class="bits">1101 + 1010 = <span class="hl">1</span>0111</td><td><b>0 / 1</b></td><td>+7 ✗</td><td class="fa"><b class="hl">سرریز!</b> (‎−9 خارج از ‎−8..+7)</td></tr>
+<tr><td>(+5) + (+6)</td><td class="bits">0101 + 0110 = 1011</td><td><b>1 / 0</b></td><td>−5 ✗</td><td class="fa"><b class="hl">سرریز!</b> (+11 خارج از گستره)</td></tr>
+</tbody></table>
+</div>
+<div class="box ex"><span class="t">مثال‌های اسلاید: تفریق ۴ بیتی مکمل دو</span>
+<table class="ltrt small"><thead><tr><th>عبارت</th><th>تبدیل</th><th>محاسبه</th><th>نتیجه</th><th class="fa">وضعیت</th></tr></thead><tbody>
+<tr><td>4 − 7</td><td>4 + (−7)</td><td class="bits">0100 + 1001 = 1101</td><td>−3</td><td class="fa">بدون سرریز</td></tr>
+<tr><td>6 − 1</td><td>6 + (−1)</td><td class="bits">0110 + 1111 = <span class="hl">1</span>0101</td><td>+5</td><td class="fa">بدون سرریز</td></tr>
+<tr><td>−5 − 4</td><td>−5 + (−4)</td><td class="bits">1011 + 1100 = <span class="hl">1</span>0111</td><td>+7 ✗</td><td class="fa"><b class="hl">سرریز!</b> (نقلی ورودی MSB = 0، خروجی = 1)</td></tr>
+</tbody></table>
+</div>
+
+<h3>مقایسهٔ روش‌ها</h3>
+<div class="twocol">
+<table class="ltrt small"><thead><tr><th>مقدار</th><th>علامت-مقدار</th><th>مکمل ۱</th><th>مکمل ۲</th></tr></thead><tbody>
+<tr><td>+7</td><td>0111</td><td>0111</td><td>0111</td></tr><tr><td>+6</td><td>0110</td><td>0110</td><td>0110</td></tr>
+<tr><td>+5</td><td>0101</td><td>0101</td><td>0101</td></tr><tr><td>+4</td><td>0100</td><td>0100</td><td>0100</td></tr>
+<tr><td>+3</td><td>0011</td><td>0011</td><td>0011</td></tr><tr><td>+2</td><td>0010</td><td>0010</td><td>0010</td></tr>
+<tr><td>+1</td><td>0001</td><td>0001</td><td>0001</td></tr><tr><td>+0</td><td>0000</td><td>0000</td><td>0000</td></tr>
+</tbody></table>
+<table class="ltrt small"><thead><tr><th>مقدار</th><th>علامت-مقدار</th><th>مکمل ۱</th><th>مکمل ۲</th></tr></thead><tbody>
+<tr><td>−0</td><td>1000</td><td>1111</td><td>—</td></tr><tr><td>−1</td><td>1001</td><td>1110</td><td>1111</td></tr>
+<tr><td>−2</td><td>1010</td><td>1101</td><td>1110</td></tr><tr><td>−3</td><td>1011</td><td>1100</td><td>1101</td></tr>
+<tr><td>−4</td><td>1100</td><td>1011</td><td>1100</td></tr><tr><td>−5</td><td>1101</td><td>1010</td><td>1011</td></tr>
+<tr><td>−6</td><td>1110</td><td>1001</td><td>1010</td></tr><tr><td>−7</td><td>1111</td><td>1000</td><td>1001</td></tr>
+<tr><td>−8</td><td>—</td><td>—</td><td>1000</td></tr>
+</tbody></table>
+</div>
+<div class="tcap">جدول: مقایسهٔ سه روش برای اعداد ۴ بیتی (چپ: مقدارهای مثبت، راست: منفی)</div>
+<p><b>نمایش پیمانه‌ای:</b> اگر الگوهای n بیتی را روی یک دایره بچینیم، هر روش مقدارهای متفاوتی به نقاط دایره نسبت می‌دهد. در مکمل دو، حرکت در جهت ساعت (جمع با ۱) همیشه مقدار را یکی زیاد می‌کند، جز در گذر از <span class="bits">0111</span> (+7) به <span class="bits">1000</span> (−8) که همان نقطهٔ سرریز است. همین خاصیت پیمانه‌ای است که اجازه می‌دهد جمع‌کنندهٔ معمولی (بدون علامت) برای اعداد مکمل دو هم درست کار کند.</p>
+{{fig:wheel}}
+
+<div class="box hw long"><span class="t">تکلیف ۱: اثبات درستی جمع در مکمل یک</span>
+ثابت کنید جمع دو عدد A و B در سیستم مکمل یک با یک جمع‌کنندهٔ دودویی و سپس افزودن نقلی تولیدشده (نقلی چرخشی) به نتیجه، حاصل A+B را در سیستم مکمل یک می‌دهد. (همهٔ حالت‌ها را بررسی کنید؛ فرض: سرریز رخ نمی‌دهد.)
+<div class="sol"><span class="t">اثبات</span>
+<p>نمایش n بیتی: عدد نامنفی x با خودش و عدد منفی <span class="m">−|x|</span> با <span class="m">2<sup>n</sup> − 1 − |x|</span> نمایش داده می‌شود. جمع‌کننده مقدار خام <span class="m">R = a + b</span> را حساب می‌کند (a و b الگوهای بیتی‌اند). اگر <span class="m">R ≥ 2<sup>n</sup></span> باشد نقلی 1 تولید می‌شود و n بیت خروجی <span class="m">R − 2<sup>n</sup></span> است؛ با افزودن نقلی، نتیجه <span class="m">R − 2<sup>n</sup> + 1</span> می‌شود. یعنی افزودن نقلی چرخشی معادل کم کردن <span class="m">2<sup>n</sup> − 1</span> است. فرض عدم سرریز: <span class="m">|A + B| ≤ 2<sup>n−1</sup> − 1</span>.</p>
+<p><b>حالت ۱: <span class="m">A ≥ 0, B ≥ 0</span>.</b> <span class="m">R = A + B ≤ 2<sup>n−1</sup> − 1 &lt; 2<sup>n</sup></span> ⇐ نقلی ندارد و نتیجه <span class="m">A + B</span> است که نمایش درست عدد مثبت <span class="m">A+B</span> است. ✓</p>
+<p><b>حالت ۲: <span class="m">A ≥ 0, B &lt; 0</span>.</b> <span class="m">R = A + 2<sup>n</sup> − 1 − |B| = (2<sup>n</sup> − 1) + (A − |B|)</span>.</p>
+<ul>
+<li>اگر <span class="m">A &gt; |B|</span> (حاصل مثبت): <span class="m">R ≥ 2<sup>n</sup></span> ⇐ نقلی 1؛ نتیجه <span class="m">R − 2<sup>n</sup> + 1 = A − |B| = A + B</span> که مثبت و درست است. ✓</li>
+<li>اگر <span class="m">A ≤ |B|</span> (حاصل صفر یا منفی): <span class="m">R = 2<sup>n</sup> − 1 − (|B| − A) &lt; 2<sup>n</sup></span> ⇐ نقلی ندارد؛ نتیجه <span class="m">2<sup>n</sup> − 1 − (|B| − A)</span> که دقیقاً نمایش مکمل یک عدد منفی <span class="m">−(|B| − A) = A + B</span> است (اگر <span class="m">A = |B|</span>، نتیجه <span class="m">11…1 = −0</span>). ✓</li>
+</ul>
+<p><b>حالت ۳: <span class="m">A &lt; 0, B ≥ 0</span>.</b> با جابه‌جایی A و B همان حالت ۲ است (جمع جابه‌جایی است). ✓</p>
+<p><b>حالت ۴: <span class="m">A &lt; 0, B &lt; 0</span>.</b> <span class="m">R = (2<sup>n</sup> − 1 − |A|) + (2<sup>n</sup> − 1 − |B|) = 2<sup>n</sup> + (2<sup>n</sup> − 2 − (|A| + |B|))</span>. چون <span class="m">|A| + |B| ≤ 2<sup>n−1</sup> − 1</span>، عبارت داخل پرانتز نامنفی است و <span class="m">R ≥ 2<sup>n</sup></span> ⇐ نقلی 1؛ نتیجه <span class="m">2<sup>n</sup> − 2 − (|A|+|B|) + 1 = 2<sup>n</sup> − 1 − (|A| + |B|)</span> که نمایش درست <span class="m">−(|A|+|B|) = A + B</span> است. ✓ (این همان مثال اسلاید است: <span class="m">2<sup>n</sup>−|A|−1 + 2<sup>n</sup>−|B|−1 = <span class="muted">2<sup>n</sup></span> + 2<sup>n</sup>−(|A|+|B|)−2</span> و با افزودن نقلی ۱، <span class="m">2<sup>n</sup>−(|A|+|B|)−1</span>.)</p>
+<p><b>صفرها:</b> اگر یکی از عملوندها <span class="m">−0 = 2<sup>n</sup> − 1</span> باشد، همان فرمول‌ها با <span class="m">|x| = 0</span> برقرارند (مثلاً <span class="m">A + (−0)</span> در حالت ۲ با <span class="m">|B| = 0</span> به A می‌رسد). بنابراین در همهٔ حالت‌ها نتیجه درست است. ∎</p>
+</div></div>
+
+<div class="box hw long"><span class="t">تکلیف ۲: اثبات درستی جمع در مکمل دو</span>
+ثابت کنید جمع A و B در مکمل دو با یک جمع‌کنندهٔ دودویی (با دور ریختن نقلی خروجی) حاصل A+B را در مکمل دو می‌دهد.
+<div class="sol"><span class="t">اثبات</span>
+<p>نمایش: x نامنفی با خودش و <span class="m">−|x|</span> با <span class="m">2<sup>n</sup> − |x|</span>. جمع‌کننده با دور ریختن نقلی، <span class="m">(a + b) mod 2<sup>n</sup></span> را می‌دهد. فرض عدم سرریز: <span class="m">−2<sup>n−1</sup> ≤ A + B ≤ 2<sup>n−1</sup> − 1</span>.</p>
+<p><b>حالت ۱: <span class="m">A, B ≥ 0</span>.</b> <span class="m">a + b = A + B &lt; 2<sup>n</sup></span> ⇐ نتیجه A+B. ✓</p>
+<p><b>حالت ۲: <span class="m">A ≥ 0, B &lt; 0</span>.</b> <span class="m">a + b = 2<sup>n</sup> + (A − |B|)</span>.</p>
+<ul>
+<li>اگر <span class="m">A ≥ |B|</span>: مقدار <span class="m">≥ 2<sup>n</sup></span> است، نقلی دور ریخته می‌شود و نتیجه <span class="m">A − |B| = A + B</span> (نامنفی). ✓</li>
+<li>اگر <span class="m">A &lt; |B|</span>: مقدار <span class="m">2<sup>n</sup> − (|B| − A) &lt; 2<sup>n</sup></span> است که نمایش مکمل دو <span class="m">−(|B| − A) = A + B</span> است. ✓</li>
+</ul>
+<p><b>حالت ۳:</b> قرینهٔ حالت ۲. ✓</p>
+<p><b>حالت ۴: <span class="m">A, B &lt; 0</span>.</b> <span class="m">a + b = 2<sup>n</sup> − |A| + 2<sup>n</sup> − |B| = 2<sup>n</sup> + (2<sup>n</sup> − (|A| + |B|))</span>. چون <span class="m">1 ≤ |A|+|B| ≤ 2<sup>n−1</sup></span>، داریم <span class="m">2<sup>n−1</sup> ≤ 2<sup>n</sup> − (|A|+|B|) &lt; 2<sup>n</sup></span>؛ پس با دور ریختن نقلی نتیجه <span class="m">2<sup>n</sup> − (|A| + |B|)</span> است که نمایش درست <span class="m">−(|A|+|B|) = A + B</span> است. ✓ (مثال اسلاید: <span class="m">2<sup>n</sup>−|A| + 2<sup>n</sup>−|B| = <span class="muted">2<sup>n</sup></span> + 2<sup>n</sup>−(|A|+|B|)</span>.) ∎</p>
+<p><b>تکمیل: چرا قاعدهٔ سرریز درست است؟</b> سرریز فقط در جمع دو عدد هم‌علامت ممکن است. اگر هر دو مثبت باشند، نقلی خروجی MSB صفر است (هر دو MSB صفرند)، پس نتیجه فقط وقتی منفی می‌شود (MSB = 1) که نقلی ورودی به MSB یک باشد ⇐ ورودی ≠ خروجی. اگر هر دو منفی باشند، نقلی خروجی MSB همیشه ۱ است و نتیجه فقط وقتی مثبت می‌شود که نقلی ورودی MSB صفر باشد ⇐ باز هم ورودی ≠ خروجی.</p>
+</div></div>
+
+<h3>مکمل در اعداد کسری</h3>
+<p>ایدهٔ مکمل را می‌توان به بخش کسری هم گسترش داد؛ در مکمل دو، «افزودن ۱» یعنی افزودن ۱ به <b>کم‌ارزش‌ترین موقعیت</b> (مثلاً <span class="m">2<sup>−3</sup></span>).</p>
+<div class="box ex"><span class="t">مثال‌های اسلاید</span>
+<table class="ltrt small"><thead><tr><th>منفی کردن</th><th>در روش</th><th>پاسخ</th><th class="fa">توضیح</th></tr></thead><tbody>
+<tr><td class="bits">01011.011</td><td>Sign-Magnitude</td><td class="bits">11011.011</td><td class="fa">فقط بیت علامت معکوس می‌شود</td></tr>
+<tr><td class="bits">11000.010</td><td>1s-complement</td><td class="bits">00111.101</td><td class="fa">همهٔ بیت‌ها معکوس می‌شوند</td></tr>
+<tr><td class="bits">01001.011</td><td>2s-complement</td><td class="bits">10110.101</td><td class="fa">معکوس: 10110.100، به اضافهٔ 0.001</td></tr>
+</tbody></table>
+بررسی آخری: <span class="m">01001.011 = 9.375</span> و <span class="m">2<sup>5</sup> − 9.375 = 22.625 = 10110.101</span> ✓.
+</div>
+
+<h2>نمایش افزونی (<span class="en">Excess Representation</span>)</h2>
+<p>علاوه بر علامت-مقدار و روش‌های مکمل، <b>نمایش افزونی</b> روش دیگری است. این روش با یک <b>جابه‌جایی سطح ساده</b> (جمع یا تفریق یک عدد ثابت K) گسترهٔ مقدارها را <b>به‌طور یکنواخت</b> میان مثبت‌ها و منفی‌ها پخش می‌کند: <span class="m">کد = مقدار + K</span> و <span class="m">مقدار = کد − K</span>.</p>
+<div class="twocol">
+<table class="ltrt small"><thead><tr><th>Excess-4</th><th>مقدار</th></tr></thead><tbody>
+<tr><td>000</td><td>−4</td></tr><tr><td>001</td><td>−3</td></tr><tr><td>010</td><td>−2</td></tr><tr><td>011</td><td>−1</td></tr>
+<tr><td>100</td><td>0</td></tr><tr><td>101</td><td>1</td></tr><tr><td>110</td><td>2</td></tr><tr><td>111</td><td>3</td></tr>
+</tbody></table>
+<div style="max-width:95mm"><p>مثال: <b>Excess-4</b> روی اعداد ۳ بیتی (جدول کنار). به‌طور کلی برای توزیع یکنواخت کدها از <b>Excess-<span class="m">2<sup>n−1</sup></span></b> یا <b>Excess-<span class="m">(2<sup>n−1</sup> − 1)</span></b> استفاده می‌کنیم؛ مثلاً برای اعداد ۴ بیتی Excess-8 یا Excess-7. <b>مقدارهای دیگر K توزیع ناهمسانی می‌سازند</b>؛ مثلاً Excess-5 در ۴ بیت گسترهٔ −5 تا +10 را می‌دهد.</p>
+<p class="small">نکته: Excess-<span class="m">2<sup>n−1</sup></span> همان مکمل دو با MSB معکوس‌شده است؛ مثلاً −3 در ۴ بیت: مکمل دو <span class="bits">1101</span> و Excess-8 <span class="bits">0101</span>.</p></div>
+</div>
+<table class="ltrt small"><thead><tr><th>مقدار</th><th>Excess-8</th><th>Excess-7</th><th>Excess-5</th><th>مقدار</th><th>Excess-8</th><th>Excess-7</th><th>Excess-5</th></tr></thead><tbody>
+<tr><td>−8</td><td>0000</td><td>—</td><td>—</td><td>2</td><td>1010</td><td>1001</td><td>0111</td></tr>
+<tr><td>−7</td><td>0001</td><td>0000</td><td>—</td><td>3</td><td>1011</td><td>1010</td><td>1000</td></tr>
+<tr><td>−6</td><td>0010</td><td>0001</td><td>—</td><td>4</td><td>1100</td><td>1011</td><td>1001</td></tr>
+<tr><td>−5</td><td>0011</td><td>0010</td><td>0000</td><td>5</td><td>1101</td><td>1100</td><td>1010</td></tr>
+<tr><td>−4</td><td>0100</td><td>0011</td><td>0001</td><td>6</td><td>1110</td><td>1101</td><td>1011</td></tr>
+<tr><td>−3</td><td>0101</td><td>0100</td><td>0010</td><td>7</td><td>1111</td><td>1110</td><td>1100</td></tr>
+<tr><td>−2</td><td>0110</td><td>0101</td><td>0011</td><td>8</td><td>—</td><td>1111</td><td>1101</td></tr>
+<tr><td>−1</td><td>0111</td><td>0110</td><td>0100</td><td>9</td><td>—</td><td>—</td><td>1110</td></tr>
+<tr><td>0</td><td>1000</td><td>0111</td><td>0101</td><td>10</td><td>—</td><td>—</td><td>1111</td></tr>
+<tr><td>1</td><td>1001</td><td>1000</td><td>0110</td><td></td><td></td><td></td><td></td></tr>
+</tbody></table>
+<div class="tcap">Excess-8 و Excess-7 توزیع یکنواخت دارند (۸ مقدار منفی و ۷ مثبت، یا برعکس)؛ Excess-5 ناهمسان است.</div>
+<div class="box hw"><span class="t">تمرین ۴-۴ (حل‌شده)</span>
+(الف) عدد −20 را در Excess-127 هشت‌بیتی بنویسید. (ب) کد <span class="bits">10000101</span> در Excess-127 چه مقداری است؟
+<div class="sol"><span class="t">حل</span>
+(الف) <span class="m">−20 + 127 = 107 = 01101011</span>. (ب) <span class="m">133 − 127 = 6</span>. (این همان روش نمایش نما در IEEE 754 تک‌دقتی است.)
+</div></div>
+
+<h2>اعداد حقیقی: ممیز ثابت</h2>
+<p>بسیاری از کاربردها علاوه بر اعداد صحیح، روی <b>اعداد حقیقی</b> هم محاسبه دارند. <b>به دلیل محدود بودن تعداد بیت‌ها، اعداد حقیقی اغلب با مقدار تقریبی‌شان نمایش داده می‌شوند.</b> دو شکل نمایش داریم: <b>ممیز ثابت</b> و <b>ممیز شناور</b>.</p>
+<p>در <b>نمایش ممیز ثابت</b>، تعداد بیت‌های بخش صحیح و بخش کسری ثابت است و ممیز در جای مشخصی «فرض» می‌شود (ذخیره نمی‌شود).</p>
+<div class="box ex"><span class="t">مثال اسلاید: قالب ۸ بیتی با ۶ بیت صحیح و ۲ بیت کسری</span>
+اگر از مکمل دو استفاده شود:
+<ul>
+<li><span class="m"><span class="bits">011010.11</span> = 16+8+2+0.5+0.25 = 26.75<sub>10</sub></span></li>
+<li><span class="bits">111110.11</span> منفی است؛ قرینهٔ آن (معکوس و افزودن 0.01): <span class="bits">000001.01</span> = 1.25 ⇐ مقدار <span class="m">−1.25<sub>10</sub></span>.</li>
+</ul>
+</div>
+<div class="box hw"><span class="t">تمرین ۴-۵ (حل‌شده)</span>
+در همین قالب، (الف) گسترهٔ اعداد و دقت (فاصلهٔ دو عدد متوالی) چیست؟ (ب) −5.5 را نمایش دهید.
+<div class="sol"><span class="t">حل</span>
+(الف) مانند عدد صحیح ۸ بیتی مکمل دو تقسیم بر ۴: از <span class="m">−128/4 = −32</span> تا <span class="m">127/4 = 31.75</span> با گام <span class="m">2<sup>−2</sup> = 0.25</span>.<br>
+(ب) <span class="m">5.5 = 000101.10</span> ⇐ معکوس <span class="m"><span class="bits">111010.01</span> + <span class="bits">0.01</span> = <span class="bits">111010.10</span></span>.
+</div></div>
+
+<h2>اعداد حقیقی: ممیز شناور</h2>
+<p>نمایش ممیز ثابت <b>گسترهٔ محدودی</b> دارد. جایگزین آن <b>اعداد ممیز شناور</b> است که امکان نمایش اعداد بسیار بزرگ و بسیار کوچک را می‌دهد؛ مثلاً <span class="m">+0.23×10<sup>23</sup></span> (عدد مثبت بسیار بزرگ)، <span class="m">+0.5×10<sup>−37</sup></span> (عدد مثبت بسیار کوچک) و <span class="m">−0.2397×10<sup>−18</sup></span> (عدد منفی بسیار کوچک).</p>
+<p>یک عدد ممیز شناور دو بخش دارد: <b>مانتیس</b> (کسر، <span class="en">mantissa/fraction</span>) و <b>نما</b> (<span class="en">exponent</span>): <span class="m">value = mantissa × b<sup>exponent</sup></span>.</p>
+<ul>
+<li>در بیشتر سیستم‌ها مبنا <span class="m">b = 2</span> فرض می‌شود (IBM 360/370 از <span class="m">b = 16</span> استفاده می‌کند).</li>
+<li>هرچند برای مانتیس و نما هر روش نمایشی را می‌توان به کار برد، قالب رایج و پذیرفته‌شده این است: <b>مانتیس m بیتی به صورت علامت-مقدار</b> و <b>نمای e بیتی به صورت Excess-<span class="m">2<sup>e−1</sup></span> (بایاس‌دار)</b>:</li>
+</ul>
+<div class="fmt"><div>S<small>sign</small></div><div style="min-width:34mm">M<small>mantissa (m bits)</small></div><div style="min-width:26mm">E<small>exponent (e bits)</small></div></div>
+<p class="center"><span class="m">Value = (−1)<sup>S</sup> × 0.M × 2<sup>E − Bias</sup></span></p>
+
+<h3>یک قالب ۱۲ بیتی نمونه</h3>
+<div class="fmt"><div>S<small>1 bit</small></div><div style="min-width:30mm">M<small>7 bits</small></div><div style="min-width:22mm">E<small>4 bits</small></div></div>
+<p class="center"><span class="m">Value = (−1)<sup>S</sup> × 0.M × 2<sup>E − 8</sup></span> &nbsp; (نما در Excess-8)</p>
+<p>مانتیس را <b>نرمال</b> می‌کنیم: اولین بیت بعد از ممیز باید 1 باشد (<span class="m">0.1xxxxxx</span>)، مگر برای عدد صفر.</p>
+<table class="ltrt small full"><thead><tr><th class="fa">مورد</th><th>الگو (S M E)</th><th>محاسبه</th><th>مقدار</th></tr></thead><tbody>
+<tr><td class="fa">بزرگ‌ترین عدد</td><td class="bits">0 1111111 1111</td><td class="mt">+0.1111111 × 2<sup>15−8</sup> = 1111111<sub>2</sub></td><td>127</td></tr>
+<tr><td class="fa">کوچک‌ترین عدد</td><td class="bits">1 1111111 1111</td><td class="mt">−0.1111111 × 2<sup>15−8</sup></td><td>−127</td></tr>
+<tr><td class="fa">بزرگ‌ترین عدد منفی</td><td class="bits">1 0000001 0000</td><td class="mt">−2<sup>−7</sup> × 2<sup>0−8</sup> = −2<sup>−15</sup></td><td>−0.0000305176</td></tr>
+<tr><td class="fa">کوچک‌ترین عدد مثبت</td><td class="bits">0 0000001 0000</td><td class="mt">2<sup>−7</sup> × 2<sup>0−8</sup> = 2<sup>−15</sup></td><td>0.0000305176</td></tr>
+</tbody></table>
+<p class="small">(دو سطر آخر بدون شرط نرمال بودن است؛ کوچک‌ترین عدد مثبت <b>نرمال</b>، <span class="m">0.1 × 2<sup>−8</sup> = 2<sup>−9</sup></span> است.)</p>
+<div class="box ex"><span class="t">مثال اسلاید: نمایش −3.625</span>
+<div class="sol"><span class="t">حل</span>
+<span class="m">−3.625 = −11.101<sub>2</sub> = −0.11101 × 2<sup>2</sup></span> ⇐ <span class="m">S = 1</span>، <span class="m">M = 1110100</span>، <span class="m">E = 2 + 8 = 10 = 1010</span> ⇐ <span class="bits"><b>1 1110100 1010</b></span> (نرمال).<br>
+شکل‌های غیرنرمال هم ممکن‌اند: <span class="m">−0.011101 × 2<sup>3</sup></span> ⇐ <span class="bits">1 0111010 1011</span> یا <span class="m">−0.0011101 × 2<sup>4</sup></span> ⇐ <span class="bits">1 0011101 1100</span>. نرمال‌سازی نمایش را یکتا می‌کند.
+</div></div>
+<div class="box ex"><span class="t">مثال اسلاید: نمایش 25.375</span>
+<div class="sol"><span class="t">حل</span>
+<span class="m">25.375 = 11001.011<sub>2</sub> = 0.11001011 × 2<sup>5</sup></span>. مانتیس ۸ بیت لازم دارد ولی فقط ۷ بیت داریم؛ پس بیت آخر <b>بریده (truncate)</b> می‌شود: <span class="m">M = 1100101</span>، <span class="m">E = 13 = 1101</span> ⇐ <span class="bits">0 1100101 1101</span> که مقدار <span class="m">11001.01 = 25.25</span> را نشان می‌دهد!!! LSB مانتیس (به ارزش 0.125 در این عدد) از دست رفت.
+</div></div>
+
+<h3>جمع و تفریق ممیز شناور</h3>
+<p>برای جمع دو عدد ممیز شناور: (۱) <b>هم‌ترازی</b>: مانتیس عدد با نمای کوچک‌تر را به اندازهٔ اختلاف نماها به راست شیفت می‌دهیم و نمایش را برابر نمای بزرگ‌تر می‌کنیم؛ (۲) مانتیس‌ها را جمع/تفریق می‌کنیم؛ (۳) نتیجه را نرمال می‌کنیم (اگر سرریز شد یک شیفت به راست و افزایش نما؛ اگر صفرهای پیشرو داشت شیفت به چپ و کاهش نما) و بیت‌های اضافه بریده می‌شوند.</p>
+<div class="box ex long"><span class="t">مثال اسلاید: جمع <span class="m">11.5 + 23.25</span></span>
+<div class="sol"><span class="t">حل</span>
+<span class="m">11.5 = 1011.1 = 0.10111 × 2<sup>4</sup></span> ⇐ <span class="bits">0 1011100 1100</span>؛ <span class="m">23.25 = 10111.01 = 0.1011101 × 2<sup>5</sup></span> ⇐ <span class="bits">0 1011101 1101</span>.
+<ol>
+<li>هم‌ترازی: برای حفظ MSB عدد 23.25، مانتیس 11.5 را یک بیت به راست شیفت می‌دهیم (یعنی تقسیم بر ۲) و یکی به نمای آن اضافه می‌کنیم (ضرب در ۲) تا مقدار 11.5 تغییر نکند: <span class="bits">0 0101110 1101</span>.</li>
+<li>جمع مانتیس‌ها: <span class="bits">0101110 + 1011101 = 10001011</span> (۸ بیت؛ سرریز مانتیس).</li>
+<li>برای جا شدن در ۷ بیت، LSB (اینجا ۱) <b>بریده</b> می‌شود: <span class="bits">1000101</span> و یکی به نمای <span class="bits">1101</span> اضافه می‌شود: <span class="bits">1110</span>.</li>
+</ol>
+نتیجه: <span class="m"><span class="bits">0 1000101 1110</span> = 0.1000101 × 2<sup>6</sup> = 100010.1 = <b>+34.5</b></span> و نه <span class="m">+34.75</span>!
+</div></div>
+<div class="box ex long"><span class="t">مثال اسلاید: جمع <span class="m">0.6015625 + 12.375</span></span>
+با قلم و کاغذ: <span class="m">0.6015625 + 12.375 = 12.9765625</span>.
+<div class="sol"><span class="t">حل در سیستم ۱۲ بیتی</span>
+<span class="m">0.6015625 = 0.1001101<sub>2</sub> × 2<sup>0</sup></span> ⇐ <span class="m">E = 0 + 8 = 1000</span> ⇐ <span class="bits">0 1001101 1000</span>.<br>
+<span class="m">12.375 = 1100.011 = 0.1100011 × 2<sup>4</sup></span> ⇐ <span class="bits">0 1100011 1100</span>.<br>
+هم‌ترازی: اختلاف نماها ۴ است؛ مانتیس عدد کوچک‌تر ۴ بیت به راست می‌رود: <span class="m">0.1001101 → 0.0000100|1101</span> ⇐ <span class="bits">0 0000100 1100</span> (چهار بیت <span class="bits">1101</span> از دست رفت).<br>
+جمع: <span class="bits">0000100 + 1100011 = 1100111</span> ⇐ <span class="m"><span class="bits">0 1100111 1100</span> = 0.1100111 × 2<sup>4</sup> = 1100.111 = <b>12.875</b></span> !!! (خطا ≈ 0.1)
+</div>
+<div class="box warn" style="margin-bottom:0"><span class="t">توجه (تفاوت با اسلاید)</span>
+در اسلاید، 0.6015625 به صورت <span class="bits">0 1001101 0111</span> (یعنی با نمای 0111) نوشته شده که در واقع <span class="m">0.1001101 × 2<sup>−1</sup> = 0.30078125</span> است؛ با آن نما شیفت ۵ بیتی و نتیجهٔ 12.625 به دست می‌آید. نمای درست 1000 است و نتیجه 12.875 می‌شود. <b>پیام اصلی مثال تغییر نمی‌کند: در جمع/تفریق ممیز شناور، عدد کوچک‌تر فدای عدد بزرگ‌تر می‌شود (و هرچه اختلاف نماها بیشتر باشد، جریمه بزرگ‌تر است).</b>
+</div>
+</div>
+<div class="box ex long"><span class="t">مثال اسلاید: مشکل نمایش صفر</span>
+چهار ثبات R0 = 10.75، R1 = −12.25، R2 = −23.0 و R3 = 0.248046875 داریم و کد زیر اجرا می‌شود:
+<pre class="code">FSUB R0,R1
+FADD R2,R0
+FADD R3,R2</pre>
+<div class="sol"><span class="t">حل</span>
+نمایش‌ها: <span class="bits">R0 = 0 1010110 1100</span> (10.75 = 0.101011×2⁴)، <span class="bits">R1 = 1 1100010 1100</span> (−12.25)، <span class="bits">R2 = 1 1011100 1101</span> (−23.0 = −0.10111×2⁵)، <span class="bits">R3 = 0 1111111 0110</span> (0.248046875 = 0.1111111×2⁻²).
+<ul>
+<li><code>FSUB R0,R1</code> ⇐ <span class="m">10.75 − (−12.25) = 23.0</span> ⇐ <span class="bits">R0 = 0 1011100 1101</span>.</li>
+<li><code>FADD R2,R0</code> ⇐ <span class="m">−23 + 23 = 0</span> ⇐ مانتیس صفر ولی نما همان 1101 می‌ماند: <span class="m"><span class="bits">R2 = 0 0000000 1101</span> = 0.0 × 2<sup>5</sup></span>.</li>
+<li><code>FADD R3,R2</code>: برای هم‌ترازی، عدد با نمای کوچک‌تر (R3 با نمای 0110) باید <b>۷ بیت</b> به راست شیفت داده شود تا به نمای 1101 برسد؛ همهٔ بیت‌های مانتیس آن بیرون می‌ریزد و حاصل <span class="bits">0 0000000 1101</span> = <b>0.0 !!!</b> می‌شود، در حالی که جواب درست 0.248046875 است.</li>
+</ul>
+<b>راه‌حل:</b> به صفر ممیز شناور <b>کوچک‌ترین نمای ممکن</b> را بدهیم: <span class="m"><span class="bits">0 0000000 0000</span> = 0.0 × 2<sup>−8</sup></span>. در این صورت در جمع با هر عددی، مانتیس <b>صفر</b> است که شیفت داده می‌شود ⇐ <b>بدون خطا</b> ☺. یعنی هر گاه مانتیس نتیجه صفر شد، سخت‌افزار باید نما را هم صفر (کوچک‌ترین) کند.
+</div></div>
+
+<h3>پرسش‌های مفهومی اسلاید</h3>
+<div class="box ex"><span class="t">پرسش ۱: نرمال‌سازی چه فایده‌ای دارد؟</span>
+(۱) <b>بهترین استفاده از بیت‌های مانتیس</b>: صفرهای پیشرو بیت‌ها را هدر می‌دهند؛ در نرمال، همهٔ بیت‌ها رقم بامعنا هستند و دقت بیشینه است. (۲) <b>یکتا شدن نمایش هر عدد</b>: مثلاً −3.625 سه نمایش داشت ولی فقط یک نمایش نرمال دارد (مقایسهٔ برابری ساده می‌شود).
+</div>
+<div class="box ex"><span class="t">پرسش ۲: چرا برای صفر کوچک‌ترین نمای ممکن را در نظر بگیریم؟</span>
+برای <b>کمینه کردن خطای محاسبات</b>؛ همان‌طور که در مثال ثبات‌ها دیدیم، صفر با نمای بزرگ هنگام هم‌ترازی عددهای دیگر را از بین می‌برد.
+</div>
+<div class="box ex"><span class="t">پرسش ۳: نمای بایاس‌دار (Excess) چه مزایا و معایبی دارد؟</span>
+<b>مزایا:</b>
+<ol>
+<li>عدد ممیز شناور 0.0 با الگوی تمام‌صفر نمایش داده می‌شود (کوچک‌ترین نما = 0000).</li>
+<li>مقایسهٔ نماها ساده‌تر است؛ چون نمای بایاس‌دار عددی بدون علامت است و ترتیب کدها همان ترتیب مقدارهاست.</li>
+<li>بررسی صفر یا ناصفر بودن یک عدد ممیز شناور با همان مدار اعداد صحیح انجام می‌شود (همهٔ بیت‌ها صفر؟).</li>
+<li>برای پرش‌های شرطی صفر/ناصفر روی اعداد ممیز شناور به کد عمل جداگانه نیازی نیست.</li>
+</ol>
+<b>معایب:</b> (۱) در <b>ضرب</b> ممیز شناور، نماها جمع می‌شوند و بایاس دو بار می‌آید: <span class="m">(e<sub>1</sub>+B) + (e<sub>2</sub>+B) = e<sub>1</sub>+e<sub>2</sub>+2B</span> ⇐ باید یک B کم شود (بایاس اضافه). (۲) در <b>تقسیم</b>، نماها کم می‌شوند و بایاس حذف می‌شود: <span class="m">(e<sub>1</sub>+B) − (e<sub>2</sub>+B) = e<sub>1</sub>−e<sub>2</sub></span> ⇐ باید B اضافه شود (بایاس حذف‌شده).
+</div>
+<div class="box hw"><span class="t">تمرین ۴-۶ (حل‌شده): ضرب در قالب ۱۲ بیتی</span>
+<span class="m">3.0 × 2.5</span> را در قالب ۱۲ بیتی بالا حساب کنید.
+<div class="sol"><span class="t">حل</span>
+<span class="m">3 = 0.11×2<sup>2</sup></span> ⇐ <span class="bits">0 1100000 1010</span>؛ <span class="m">2.5 = 0.101×2<sup>2</sup></span> ⇐ <span class="bits">0 1010000 1010</span>. علامت: <span class="m">0⊕0 = 0</span>. مانتیس: <span class="m">0.11 × 0.101 = 0.01111</span>. نما: <span class="m">1010 + 1010 − 1000 = 1100</span> (حذف بایاس اضافه). نرمال‌سازی: <span class="m">0.01111 = 0.1111 × 2<sup>−1</sup></span> ⇐ نما <span class="m">1100 − 1 = 1011</span> ⇐ <span class="m"><span class="bits">0 1111000 1011</span> = 0.1111 × 2<sup>3</sup> = 7.5</span> ✓.
+</div></div>
+
+<h2>استاندارد IEEE 754</h2>
+<p>این استاندارد سه فیلد دارد: <b>علامت</b>، <b>نما</b> و <b>کسر</b> (اندازهٔ مانتیس):</p>
+<div class="fmt"><div>S</div><div style="min-width:22mm">E</div><div style="min-width:46mm">F</div></div>
+<p class="center"><span class="m">Value = (−1)<sup>S</sup> × 1.F × 2<sup>E − Bias</sup></span></p>
+<ul>
+<li><b>دقت ساده (Single, 32 بیت)</b>: ۱ بیت علامت، ۸ بیت نما (بایاس = ۱۲۷) و ۲۳ بیت کسر.</li>
+<li><b>دقت مضاعف (Double, 64 بیت)</b>: ۱ بیت علامت، ۱۱ بیت نما (بایاس = ۱۰۲۳) و ۵۲ بیت کسر.</li>
+<li>مانتیس با یک <b>بیت ۱ ضمنی (پنهان)</b> نرمال می‌شود: <span class="m">1.xxxx</span>؛ چون بیت اول همیشه ۱ است ذخیره نمی‌شود و یک بیت دقت مجانی به دست می‌آید. مثال: <span class="m">110.1<sub>2</sub> → 1.101<sub>2</sub> × 2<sup>2</sup></span> ⇐ فقط <span class="bits">101</span> در فیلد کسر ذخیره می‌شود؛ <span class="m">0.00101101<sub>2</sub> → 1.01101<sub>2</sub> × 2<sup>−3</sup></span> ⇐ فقط <span class="bits">01101</span> ذخیره می‌شود.</li>
+</ul>
+<div class="box ex"><span class="t">مثال اسلاید: −6.5 در IEEE 754 دقت ساده</span>
+<div class="sol"><span class="t">حل</span>
+<span class="m">−6.5<sub>10</sub> = −110.1<sub>2</sub> = −1.101<sub>2</sub> × 2<sup>2</sup></span> ⇐ <span class="m">S = 1</span>؛ نما <span class="m">2 + 127 = 129 = 10000001</span>؛ کسر <span class="bits">10100000000000000000000</span>.
+<p class="center"><span class="bits">1 10000001 10100000000000000000000<sub>2</sub> = C0D00000<sub>16</sub></span></p>
+</div></div>
+<h3>گستره و مقدارهای ویژه</h3>
+<table class="ltrt small full"><thead><tr><th></th><th>Denormalized</th><th>Normalized</th><th>Approx. decimal</th></tr></thead><tbody>
+<tr><th>Single</th><td>± 2<sup>−149</sup> to (1−2<sup>−23</sup>)×2<sup>−126</sup></td><td>± 2<sup>−126</sup> to (2−2<sup>−23</sup>)×2<sup>127</sup></td><td>± ≈10<sup>−44.85</sup> to ≈10<sup>38.53</sup></td></tr>
+<tr><th>Double</th><td>± 2<sup>−1074</sup> to (1−2<sup>−52</sup>)×2<sup>−1022</sup></td><td>± 2<sup>−1022</sup> to (2−2<sup>−52</sup>)×2<sup>1023</sup></td><td>± ≈10<sup>−323.3</sup> to ≈10<sup>308.3</sup></td></tr>
+</tbody></table>
+<p><b>مقدارهای ویژه</b> وقتی رخ می‌دهند که بیت‌های فیلد نما همه 0 یا همه 1 باشند:</p>
+<ol>
+<li><b>عدد غیرنرمال (<span class="en">Denormalized</span>)</b>: وقتی نما تمام‌صفر است، عدد غیرنرمال است و مقدار آن <span class="m">(−1)<sup>s</sup> × 0.f × 2<sup>−126</sup></span> (دقت ساده) یا <span class="m">(−1)<sup>s</sup> × 0.f × 2<sup>−1022</sup></span> (دقت مضاعف) است. این اعداد فاصلهٔ میان صفر و کوچک‌ترین عدد نرمال را پر می‌کنند (سرریز تدریجی به پایین).</li>
+<li><b>صفر</b>: عدد غیرنرمالی که f آن تمام‌صفر است. +0 و −0 داریم که در مقایسه برابرند.</li>
+<li><b>بی‌نهایت</b>: <span class="m">+∞</span> و <span class="m">−∞</span> با نمای تمام‌یک و کسر تمام‌صفر.</li>
+<li><b>NaN (عدد نیست)</b>: برای مقداری که عدد حقیقی نیست؛ نمای تمام‌یک و کسر ناصفر.</li>
+</ol>
+<div class="twocol">
+<table class="ltrt small"><thead><tr><th>Operation</th><th>Result</th></tr></thead><tbody>
+<tr><td>n ÷ ±∞</td><td>0</td></tr><tr><td>±∞ × ±∞</td><td>±∞</td></tr><tr><td>±nonZero ÷ ±0</td><td>±∞</td></tr>
+<tr><td>±finite × ±∞</td><td>±∞</td></tr><tr><td>∞ + ∞ ، ∞ − (−∞)</td><td>+∞</td></tr><tr><td>−∞ − ∞ ، −∞ + (−∞)</td><td>−∞</td></tr>
+<tr><td>∞ − ∞ ، −∞ + ∞</td><td>NaN</td></tr><tr><td>±0 ÷ ±0</td><td>NaN</td></tr><tr><td>±∞ ÷ ±∞</td><td>NaN</td></tr>
+<tr><td>±∞ × 0</td><td>NaN</td></tr><tr><td>NaN == NaN</td><td>false</td></tr>
+</tbody></table>
+<table class="ltrt small"><thead><tr><th>Sign</th><th>Exponent (e)</th><th>Fraction (f)</th><th>Value</th></tr></thead><tbody>
+<tr><td>0</td><td>00…00</td><td>00…00</td><td>+0</td></tr>
+<tr><td>0</td><td>00…00</td><td>00…01 … 11…11</td><td>+Denormalized: 0.f × 2<sup>(−b+1)</sup></td></tr>
+<tr><td>0</td><td>00…01 … 11…10</td><td>XX…XX</td><td>+Normalized: 1.f × 2<sup>(e−b)</sup></td></tr>
+<tr><td>0</td><td>11…11</td><td>00…00</td><td>+∞</td></tr>
+<tr><td>0</td><td>11…11</td><td>00…01 … 11…11</td><td>NaN</td></tr>
+<tr><td>1</td><td>00…00</td><td>00…00</td><td>−0</td></tr>
+<tr><td>1</td><td>00…00</td><td>00…01 … 11…11</td><td>−Denormalized</td></tr>
+<tr><td>1</td><td>00…01 … 11…10</td><td>XX…XX</td><td>−Normalized</td></tr>
+<tr><td>1</td><td>11…11</td><td>00…00</td><td>−∞</td></tr>
+<tr><td>1</td><td>11…11</td><td>00…01 … 11…11</td><td>NaN</td></tr>
+</tbody></table>
+</div>
+<div class="tcap">چپ: عملیات با مقدارهای ویژه — راست: خلاصهٔ قالب IEEE 754 (b = بایاس). برای اطلاعات بیشتر: steve.hollasch.net/cgindex/coding/ieeefloat.html</div>
+
+<div class="box hw long"><span class="t">تمرین ۴-۷ (حل‌شده): IEEE 754 دقت ساده</span>
+(الف) 0.15625، (ب) 85.125 و (ج) 0.1 را به IEEE 754 دقت ساده (هگز) تبدیل کنید. (د) <code>C2F00000h</code> چه عددی است؟
+<div class="sol"><span class="t">حل</span>
+(الف) <span class="m">0.15625 = 0.00101<sub>2</sub> = 1.01 × 2<sup>−3</sup></span>؛ نما <span class="m">−3 + 127 = 124 = 01111100</span>؛ کسر <span class="bits">0100…0</span> ⇐ <span class="bits">0 01111100 0100000…</span> = <code>3E200000h</code>.<br>
+(ب) <span class="m">85.125 = 1010101.001<sub>2</sub> = 1.010101001 × 2<sup>6</sup></span>؛ نما <span class="m">133 = 10000101</span> ⇐ <span class="bits">0 10000101 01010100100…</span> = <code>42AA4000h</code>.<br>
+(ج) <span class="m">0.1 = 1.100110011001…<sub>2</sub> × 2<sup>−4</sup></span>؛ نما <span class="m">123 = 01111011</span>؛ کسر ۲۳ بیتی با گرد کردن به نزدیک‌ترین: <span class="bits">10011001100110011001101</span> ⇐ <code>3DCCCCCDh</code> (که دقیقاً 0.1 نیست: ≈ 0.100000001490116).<br>
+(د) <span class="bits">1 10000101 1110000…</span> ⇐ منفی؛ نما <span class="m">133 − 127 = 6</span>؛ مانتیس <span class="m">1.111<sub>2</sub></span> ⇐ <span class="m">−1.111 × 2<sup>6</sup> = −1111000<sub>2</sub> = −120</span>.
+</div></div>
+
+<h2>اعداد دهدهی و کدهای دهدهی</h2>
+<p>قالب مشهور نمایش اعداد دهدهی <b>BCD</b> (<span class="en">Binary Coded Decimal</span>) است که در آن معادل دودویی <b>هر رقم</b> (۴ بیت) جداگانه نوشته می‌شود.</p>
+<div class="box ex"><span class="t">مثال اسلاید: BCD عدد 7089652</span>
+<p class="center"><span class="bits">7 0 8 9 6 5 2 → 0111 0000 1000 1001 0110 0101 0010</span></p>
+(برای مقایسه، همین عدد در دودویی خالص <span class="m">⌈log<sub>2</sub>7089652⌉ = 23</span> بیت لازم دارد ولی در BCD ۲۸ بیت.)
+</div>
+<p><b>دسته‌بندی کدهای دهدهی:</b> از نظر وزن: <b>وزن‌دار</b> (با وزن‌های همه‌مثبت مثل 8421 یا وزن‌های مختلط/منفی مثل 84-2-1) و <b>بی‌وزن</b> (مثل افزونی ۳ و گری)؛ از نظر طول: <b>۴ بیتی</b>، <b>۵ بیتی</b> و <b>بیشتر از ۵ بیت</b>.</p>
+<table class="ltrt small full"><thead><tr><th>رقم</th><th>8421 (BCD)</th><th>Excess-3</th><th>5421</th><th>84-2-1</th><th>7421</th><th>5311</th><th>631-1</th><th>2421</th></tr></thead><tbody>
+<tr><td>0</td><td>0000</td><td>0011</td><td>0000</td><td>0000</td><td>0000</td><td>0000</td><td>0011</td><td>0000</td></tr>
+<tr><td>1</td><td>0001</td><td>0100</td><td>0001</td><td>0111</td><td>0001</td><td>0001</td><td>0010</td><td>0001</td></tr>
+<tr><td>2</td><td>0010</td><td>0101</td><td>0010</td><td>0110</td><td>0010</td><td>0011</td><td>0101</td><td>0010</td></tr>
+<tr><td>3</td><td>0011</td><td>0110</td><td>0011</td><td>0101</td><td>0011</td><td>0100</td><td>0111</td><td>0011</td></tr>
+<tr><td>4</td><td>0100</td><td>0111</td><td>0100</td><td>0100</td><td>0100</td><td>0101</td><td>0110</td><td>0100</td></tr>
+<tr><td>5</td><td>0101</td><td>1000</td><td>0101</td><td>1011</td><td>0101</td><td>1000</td><td>1001</td><td>1011</td></tr>
+<tr><td>6</td><td>0110</td><td>1001</td><td>0110</td><td>1010</td><td>0110</td><td>1001</td><td>1000</td><td>1100</td></tr>
+<tr><td>7</td><td>0111</td><td>1010</td><td>0111</td><td>1001</td><td>1000</td><td>1011</td><td>1010</td><td>1101</td></tr>
+<tr><td>8</td><td>1000</td><td>1011</td><td>1011</td><td>1000</td><td>1001</td><td>1100</td><td>1101</td><td>1110</td></tr>
+<tr><td>9</td><td>1001</td><td>1100</td><td>1100</td><td>1111</td><td>1010</td><td>1101</td><td>1100</td><td>1111</td></tr>
+</tbody></table>
+<div class="tcap">چند کد دهدهی ۴ بیتی. در کدهای وزن‌دار، مقدار رقم = جمع وزن بیت‌های ۱ (مثلاً در 84-2-1: <span class="m">1011 = 8 − 2 − 1 = 5</span>). Excess-3 = BCD + 3.</div>
+<div class="box def"><span class="t">کد خودمکمل (<span class="en">Self-complementing</span>)</span>
+کدی که در آن <b>مکمل ۹ هر رقم با NOT بیتی کد آن به دست می‌آید</b>؛ مثلاً در Excess-3: کد 3 = <span class="bits">0110</span> و NOT آن <span class="bits">1001</span> = کد 6 = <span class="m">9 − 3</span>. طبق اسلاید Excess-3، 631-1 و 2421 خودمکمل‌اند. (کد 84-2-1 هم خودمکمل است: <span class="bits">0111</span> (1) ↔ <span class="bits">1000</span> (8). شرط لازم برای خودمکمل بودن یک کد وزن‌دار این است که جمع وزن‌هایش ۹ باشد.) این ویژگی تفریق دهدهی را با سخت‌افزار ساده ممکن می‌کند.
+</div>
+<table class="ltrt small"><thead><tr><th>رقم</th><th>2-out-of-5</th><th>63210</th><th>Shift-counter</th><th>86421</th><th>51111</th></tr></thead><tbody>
+<tr><td>0</td><td>00011</td><td>00001</td><td>00000</td><td>00000</td><td>00000</td></tr>
+<tr><td>1</td><td>00101</td><td>00011</td><td>00001</td><td>00001</td><td>00001</td></tr>
+<tr><td>2</td><td>00110</td><td>00101</td><td>00011</td><td>00010</td><td>00011</td></tr>
+<tr><td>3</td><td>01001</td><td>01001</td><td>00111</td><td>00011</td><td>00111</td></tr>
+<tr><td>4</td><td>01010</td><td>01010</td><td>01111</td><td>00100</td><td>01111</td></tr>
+<tr><td>5</td><td>01100</td><td>01100</td><td>11111</td><td>00101</td><td>10000</td></tr>
+<tr><td>6</td><td>10001</td><td>10001</td><td>11110</td><td>01000</td><td>11000</td></tr>
+<tr><td>7</td><td>10010</td><td>10010</td><td>11100</td><td>01001</td><td>11100</td></tr>
+<tr><td>8</td><td>10100</td><td>10100</td><td>11000</td><td>10000</td><td>11110</td></tr>
+<tr><td>9</td><td>11000</td><td>11000</td><td>10000</td><td>10001</td><td>11111</td></tr>
+</tbody></table>
+<div class="tcap">چند کد دهدهی ۵ بیتی. کد 51111 خودمکمل است. در 2-out-of-5 هر کد دقیقاً دو بیت ۱ دارد؛ Shift-counter همان شمارندهٔ جانسون است.</div>
+<table class="ltrt small"><thead><tr><th>رقم</th><th>50 43210 (biquinary)</th><th>543210</th><th>9876543210 (one-hot)</th></tr></thead><tbody>
+<tr><td>0</td><td>01 00001</td><td>000001</td><td>0000000001</td></tr>
+<tr><td>1</td><td>01 00010</td><td>000010</td><td>0000000010</td></tr>
+<tr><td>2</td><td>01 00100</td><td>000100</td><td>0000000100</td></tr>
+<tr><td>3</td><td>01 01000</td><td>001000</td><td>0000001000</td></tr>
+<tr><td>4</td><td>01 10000</td><td>010000</td><td>0000010000</td></tr>
+<tr><td>5</td><td>10 00001</td><td>100001</td><td>0000100000</td></tr>
+<tr><td>6</td><td>10 00010</td><td>100010</td><td>0001000000</td></tr>
+<tr><td>7</td><td>10 00100</td><td>100100</td><td>0010000000</td></tr>
+<tr><td>8</td><td>10 01000</td><td>101000</td><td>0100000000</td></tr>
+<tr><td>9</td><td>10 10000</td><td>110000</td><td>1000000000</td></tr>
+</tbody></table>
+<div class="tcap">چند کد دهدهی با بیش از ۵ بیت</div>
+<h3>کد گری (<span class="en">Gray code</span>)</h3>
+<div class="twocol">
+<table class="ltrt small"><thead><tr><th>رقم</th><th>BCD 8421</th><th>Gray</th></tr></thead><tbody>
+<tr><td>0</td><td>0000</td><td>0000</td></tr><tr><td>1</td><td>0001</td><td>0001</td></tr><tr><td>2</td><td>0010</td><td>0011</td></tr>
+<tr><td>3</td><td>0011</td><td>0010</td></tr><tr><td>4</td><td>0100</td><td>0110</td></tr><tr><td>5</td><td>0101</td><td>0111</td></tr>
+<tr><td>6</td><td>0110</td><td>0101</td></tr><tr><td>7</td><td>0111</td><td>0100</td></tr><tr><td>8</td><td>1000</td><td>1100</td></tr>
+<tr><td>9</td><td>1001</td><td>1101</td></tr>
+</tbody></table>
+<div style="max-width:100mm"><p><b>ویژگی:</b> کدهای دو عدد متوالی فقط در <b>یک بیت</b> اختلاف دارند؛ برای همین در رمزگذارهای موقعیت (encoder) و انتقال داده میان حوزه‌های کلاک استفاده می‌شود تا در لحظهٔ تغییر، مقدار نادرست خوانده نشود.</p>
+<p><b>تبدیل دودویی به گری:</b> <span class="m">g<sub>n−1</sub> = b<sub>n−1</sub></span> و <span class="m">g<sub>i</sub> = b<sub>i+1</sub> ⊕ b<sub>i</sub></span>. مثال: <span class="m">1001 (9) → 1, 1⊕0, 0⊕0, 0⊕1 = 1101</span> ✓.</p>
+<p><b>تبدیل گری به دودویی:</b> <span class="m">b<sub>n−1</sub> = g<sub>n−1</sub></span> و <span class="m">b<sub>i</sub> = b<sub>i+1</sub> ⊕ g<sub>i</sub></span>.</p></div>
+</div>
+<div class="box hw long"><span class="t">تمرین ۴-۸ (حل‌شده): کدهای دهدهی</span>
+(الف) عدد 395 را در Excess-3 بنویسید. (ب) جمع BCD <span class="m">27 + 15</span> را انجام دهید. (ج) چرا کد 2-out-of-5 خطای تک‌بیتی را آشکار می‌کند؟
+<div class="sol"><span class="t">حل</span>
+(الف) هر رقم + 3: <span class="m">3→0110، 9→1100، 5→1000</span> ⇐ <span class="bits">0110 1100 1000</span>.<br>
+(ب) <span class="bits">0010 0111 + 0001 0101 = 0011 1100</span>. رقم کم‌ارزش <span class="bits">1100</span> (12) بزرگ‌تر از ۹ است، پس 6 (<span class="bits">0110</span>) به آن اضافه می‌کنیم: <span class="bits">1100 + 0110 = 1 0010</span> و نقلی به رقم بعد: <span class="bits">0011 + 1 = 0100</span> ⇐ <span class="bits">0100 0010</span> = 42 ✓. (قاعده: اگر رقمی بیش از ۹ شد یا نقلی تولید کرد، ۶ اضافه کن.)<br>
+(ج) هر کد معتبر دقیقاً دو بیت ۱ دارد؛ تغییر هر یک بیت، تعداد ۱ها را به ۱ یا ۳ می‌رساند که کد نامعتبر است و آشکار می‌شود.
+</div></div>
+
+<h2>کدهای کاراکتری</h2>
+<p>برای نمایش و ذخیرهٔ داده‌های الفبایی از کدهای کاراکتری استفاده می‌شود.</p>
+{{fig:ascii_table}}
+<ul>
+<li><b>ASCII</b> (<span class="en">American Standard Code for Information Interchange</span>): کدی ۸ بیتی (۷ بیت کد + ۱ بیت توازن) که در کامپیوترهای شخصی رایج است.</li>
+<li><b>EBCDIC</b> (<span class="en">Extended Binary Coded Decimal Interchange Code</span>): کد کاراکتری ۸ بیتی استاندارد IBM (در خانوادهٔ IBM 360/370 استفاده می‌شود).</li>
+<li><b>یونی‌کد (Unicode)</b>: برای نمایش همهٔ کاراکترهای همهٔ زبان‌ها؛ با قالب‌های UTF-8 (واحدهای ۸ بیتی)، UTF-16 و UTF-32 کدگذاری می‌شود. (در اسلاید به اشتباه UFT نوشته شده است.)</li>
+</ul>
+<div class="box hw long"><span class="t">تمرین ۴-۹ (حل‌شده): کدهای کاراکتری</span>
+(الف) رشتهٔ «CSL» را در ASCII (هگز) بنویسید. (ب) تفاوت کد 'a' و 'A' چیست و چگونه حروف کوچک و بزرگ را تبدیل کنیم؟ (ج) کد کاراکتر '7' را به مقدار عددی 7 تبدیل کنید. (د) بیت توازن زوج را برای 'A' و 'C' اضافه کنید. (هـ) حرف فارسی «س» (<span class="en">U+0633</span>) در UTF-8 چه بایت‌هایی است؟
+<div class="sol"><span class="t">حل</span>
+(الف) <span class="m">C = 43h، S = 53h، L = 4Ch</span> ⇐ <code>43 53 4C</code>.<br>
+(ب) <span class="m">'a' = 61h = 97</span> و <span class="m">'A' = 41h = 65</span>؛ اختلاف ۳۲ یعنی فقط <b>بیت ۵</b>. با <span class="m">OR 20h</span> حرف کوچک، با <span class="m">AND DFh</span> حرف بزرگ و با <span class="m">XOR 20h</span> تغییر حالت به دست می‌آید.<br>
+(ج) <span class="m">'7' = 37h</span>؛ مقدار = <span class="m">37h − 30h = 7</span> (یا <span class="m">AND 0Fh</span>).<br>
+(د) <span class="m">'A' = 1000001</span> دو بیت ۱ دارد ⇐ توازن 0 ⇐ <span class="bits">01000001</span>؛ <span class="m">'C' = 1000011</span> سه بیت ۱ دارد ⇐ توازن 1 ⇐ <span class="bits">11000011</span>.<br>
+(هـ) <span class="m">0633h = 000 0110 0011 0011</span> (۱۱ بیت معنادار) ⇐ قالب دوبایتی <span class="bits">110xxxxx 10xxxxxx</span>: <span class="bits">110<b>11000</b> 10<b>110011</b></span> = <code>D8 B3</code>.
+</div></div>
+
+<div class="summary"><span class="t">خلاصهٔ فصل ۴</span>
+<ul>
+<li>n بیت ⇐ <span class="m">2<sup>n</sup></span> مقدار؛ M مقدار ⇐ <span class="m">⌈log<sub>2</sub>M⌉</span> بیت. تبدیل به دهدهی با جمع وزن‌ها؛ از دهدهی با تقسیم متوالی (صحیح) و ضرب متوالی (کسری)؛ میان مبناهای توان ۲ با گروه‌بندی بیت‌ها.</li>
+<li>علامت-مقدار و مکمل یک: دو صفر و گسترهٔ <span class="m">±(2<sup>n−1</sup>−1)</span>؛ مکمل دو: یک صفر و گسترهٔ <span class="m">−2<sup>n−1</sup>…2<sup>n−1</sup>−1</span>؛ جمع مکمل یک با نقلی چرخشی و مکمل دو با دور ریختن نقلی؛ سرریز: هم‌علامت‌ها با نتیجهٔ ناهم‌علامت (یا Cin ≠ Cout در MSB).</li>
+<li>افزونی: کد = مقدار + K؛ برای توزیع یکنواخت <span class="m">K = 2<sup>n−1</sup></span> یا <span class="m">2<sup>n−1</sup>−1</span>.</li>
+<li>ممیز شناور: <span class="m">(−1)<sup>S</sup> × 0.M × 2<sup>E−Bias</sup></span> با مانتیس نرمال؛ در جمع، عدد کوچک‌تر قربانی می‌شود؛ صفر باید کوچک‌ترین نما را داشته باشد.</li>
+<li>IEEE 754: <span class="m">1.F × 2<sup>E−127</sup></span> (ساده) و <span class="m">2<sup>E−1023</sup></span> (مضاعف)؛ مقدارهای ویژه: غیرنرمال، ±0، ±∞ و NaN.</li>
+<li>کدهای دهدهی: BCD، Excess-3، کدهای وزن‌دار، خودمکمل، 2-out-of-5، گری؛ کدهای کاراکتری: ASCII، EBCDIC و یونی‌کد.</li>
+</ul></div>

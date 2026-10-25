@@ -1,0 +1,369 @@
+<h1 class="chapter">حافظهٔ اصلی، قالب دستورالعمل و زبان اسمبلی</h1>
+<div class="chapter-intro">
+در این فصل (جلسهٔ دوم) می‌بینیم که <b>حافظهٔ اصلی</b> از دید برنامه‌نویس زبان ماشین چگونه است و پردازنده چطور با کمک ثبات‌های <b>MAR</b> و <b>MBR</b> به آن دسترسی پیدا می‌کند. سپس مفاهیم <b>واحد آدرس‌پذیر، کلمه، پهنای دسترسی، هم‌ترازی و ترتیب بایت‌ها (Endianness)</b> را بررسی می‌کنیم. در ادامه با <b>قالب دستورالعمل</b>، <b>کد عمل</b>، <b>مسیرهای داخلی ماشین</b> و سرانجام <b>زبان اسمبلی</b> آشنا می‌شویم و نخستین برنامه‌ها را برای ماشین‌های نمونهٔ ۱ و ۲ می‌نویسیم.
+</div>
+
+<h2>سیستم کامپیوتری</h2>
+<p>در ساختار معروف کامپیوتر با برنامهٔ ذخیره‌شدهٔ جان فون‌نویمان (مدل فون‌نویمان)، <b>پردازنده (CPU) به سیستم حافظه و دستگاه‌های ورودی/خروجی (I/O) متصل است</b>. پردازنده از دو بخش واحد کنترل (CU) و واحد محاسبه و منطق (ALU) تشکیل شده است.</p>
+{{fig:computer_system}}
+
+<h2>حافظهٔ اصلی (<span class="en">Main Memory</span>)</h2>
+<h3>حافظه از دید برنامه‌نویس</h3>
+<p>از دید برنامه‌نویس زبان ماشین، <b>حافظهٔ اصلی آرایه‌ای از خانه‌ها (<span class="en">locations</span>) است که از ۰ تا <span class="m">M−1</span> آدرس‌دهی شده‌اند</b>؛ M اندازهٔ حافظه (تعداد خانه‌ها) است. هر خانه یک آدرس یکتا دارد و می‌تواند یک مقدار دودویی با طول ثابت را نگه دارد.</p>
+
+<h3>دسترسی به حافظه: MAR، MBR و سیگنال‌های Read/Write</h3>
+<p>همهٔ دسترسی‌ها به حافظه از طریق <b>دو ثبات</b> و <b>دو سیگنال کنترلی</b> انجام می‌شوند:</p>
+<ul>
+<li><b>MAR</b> (<span class="en">Memory Address Register</span>، ثبات آدرس حافظه): آدرس خانه‌ای که باید خوانده یا نوشته شود در MAR قرار می‌گیرد. خروجی MAR به یک <b>رمزگشا (Decoder)</b> می‌رود که از میان M خط، دقیقاً خط مربوط به آن خانه را فعال می‌کند.</li>
+<li><b>MBR</b> یا <b>MDR</b> (<span class="en">Memory Buffer/Data Register</span>، ثبات دادهٔ حافظه): داده‌ای که با حافظه مبادله می‌شود (داده‌ای که قرار است نوشته شود یا داده‌ای که خوانده شده است) در MBR قرار دارد.</li>
+<li><b>Read</b> و <b>Write</b>: سیگنال‌هایی که نوع عمل را مشخص می‌کنند.</li>
+</ul>
+{{fig:memory_generic}}
+
+<div class="box ex"><span class="t">پرسش اسلاید: طول MAR و MBR چند بیت است؟</span>
+<div class="sol"><span class="t">پاسخ</span>
+<ul>
+<li><b>طول MAR</b> باید آن‌قدر باشد که بتواند آدرس هر خانه را نگه دارد. چون آدرس‌ها از ۰ تا <span class="m">M−1</span> هستند: <span class="m">L<sub>MAR</sub> = ⌈log<sub>2</sub>M⌉</span> بیت.</li>
+<li><b>طول MBR</b> برابر تعداد بیت‌هایی است که در هر دسترسی به حافظه خوانده یا نوشته می‌شود (پهنای دسترسی)؛ اگر چیز دیگری گفته نشده باشد، برابر طول هر خانهٔ حافظه است.</li>
+</ul>
+مثلاً برای حافظهٔ <span class="m">16×16</span> بیتی (۱۶ خانهٔ ۱۶ بیتی): <span class="m">L<sub>MAR</sub> = log<sub>2</sub>16 = 4</span> بیت و <span class="m">L<sub>MBR</sub> = 16</span> بیت. برای حافظه‌ای با <span class="m">2<sup>32</sup></span> بایت که در هر دسترسی ۳۲ بیت جابه‌جا می‌کند: <span class="m">L<sub>MAR</sub> = 32</span> و <span class="m">L<sub>MBR</sub> = 32</span>.
+</div></div>
+
+<div class="box ex long"><span class="t">مثال ۲-۱: نوشتن در حافظه</span>
+در یک حافظهٔ <span class="m">16×16</span> بیتی، مراحل نوشتن عدد 5010 در آدرس 5 را نشان دهید.
+<div class="sol"><span class="t">حل (عمل نوشتن)</span>
+<ol>
+<li>عدد 5 (آدرس) در MAR قرار می‌گیرد. رمزگشای <span class="m">4×16</span> خط شمارهٔ 5 را فعال می‌کند.</li>
+<li>عدد 5010 (داده) در MBR قرار می‌گیرد.</li>
+<li>سیگنال <b>Write</b> فعال می‌شود و داده در خانهٔ 5 نوشته می‌شود (محتوای قبلی این خانه از بین می‌رود).</li>
+</ol>
+</div>
+{{fig:mem16([10,11,21,31,14,5010,61,17,81,91,110,111,1120,131,114,115], mar=5, mbr=5010, hl=5, op="w", cap="حافظه پس از عمل نوشتن: (M<sub>5</sub>) = 5010")}}
+</div>
+
+<div class="box ex long"><span class="t">مثال ۲-۲: خواندن از حافظه</span>
+در همان حافظه، مراحل خواندن از آدرس 13 را نشان دهید.
+<div class="sol"><span class="t">حل (عمل خواندن)</span>
+<ol>
+<li>عدد 13 در MAR قرار می‌گیرد؛ رمزگشا خط 13 را فعال می‌کند.</li>
+<li>سیگنال <b>Read</b> فعال می‌شود و محتوای خانهٔ 13 یعنی 131 در MBR قرار می‌گیرد (محتوای خانه تغییر نمی‌کند).</li>
+</ol>
+</div>
+{{fig:mem16([10,11,21,31,14,5010,61,17,81,91,110,111,1120,131,114,115], mar=13, mbr=131, hl=13, op="r", cap="حافظه پس از عمل خواندن: (MBR) = 131")}}
+</div>
+
+<h3>نمادگذاری</h3>
+<div class="box def"><span class="t">قرارداد نمادگذاری</span>
+<ul>
+<li><span class="m">M<sub>addr</sub></span>: خانهٔ حافظه با آدرس addr. مثلاً <span class="m">M<sub>1000</sub></span> یعنی خانهٔ شمارهٔ 1000 حافظهٔ اصلی.</li>
+<li><span class="m">(M<sub>addr</sub>)</span>: <b>محتوای</b> آن خانه. پرانتز دور نام هر خانهٔ حافظه یا ثبات (مثل MAR یا MBR) یعنی محتوای آن. مثلاً <span class="m">(M<sub>1000</sub>)</span> یعنی داده‌ای که در خانهٔ 1000 ذخیره شده است.</li>
+<li><span class="m">A ← B</span>: مقدار B در A نوشته شود.</li>
+</ul>
+</div>
+
+<div class="box ex long"><span class="t">مثال ۲-۳: کار با نمادگذاری</span>
+محتوای یک حافظهٔ ۱۶ خانه‌ای (آدرس‌های 0 تا 15) به ترتیب چنین است:
+<table class="ltrt small"><tbody>
+<tr><th>آدرس</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td></tr>
+<tr><th>محتوا</th><td>10</td><td>11</td><td>21</td><td>31</td><td>14</td><td>1010</td><td>61</td><td>17</td></tr>
+<tr><th>آدرس</th><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td><td>15</td></tr>
+<tr><th>محتوا</th><td>81</td><td>91</td><td>110</td><td>111</td><td>1120</td><td>131</td><td>114</td><td>115</td></tr>
+</tbody></table>
+<div class="sol"><span class="t">تحلیل عبارت‌ها</span>
+<ul>
+<li><span class="m">(M<sub>9</sub>) = 91</span>: محتوای خانهٔ 9.</li>
+<li><span class="m">M<sub>(M<sub>0</sub>)</sub></span> یعنی خانه‌ای که آدرسش برابر محتوای خانهٔ 0 است. چون <span class="m">(M<sub>0</sub>) = 10</span>، این عبارت همان <span class="m">M<sub>10</sub></span> (خانهٔ شمارهٔ 10) است.</li>
+<li><span class="m">(M<sub>(M<sub>1</sub>)</sub>)</span>: چون <span class="m">(M<sub>1</sub>) = 11</span>، این عبارت برابر <span class="m">(M<sub>11</sub>) = 111</span> است.</li>
+<li>فرمان <span class="m">M<sub>10</sub> ← (M<sub>12</sub>)</span> یعنی محتوای خانهٔ 12 در خانهٔ 10 کپی شود؛ پس پس از اجرا <span class="m">(M<sub>10</sub>) = 1120</span>.</li>
+<li>فرمان <span class="m">MBR ← (M<sub>(MAR)</sub>)</span> یعنی محتوای خانه‌ای که آدرسش در MAR است به MBR منتقل شود؛ این دقیقاً همان <b>عمل خواندن حافظه</b> است.</li>
+</ul>
+</div></div>
+
+<div class="box ex"><span class="t">مثال ۲-۴ (پرسش اسلاید)</span>
+با همان محتوای اولیهٔ حافظه، پس از اجرای فرمان <span class="m">M<sub>(M<sub>0</sub>)</sub> ← (M<sub>0</sub>) + (M<sub>(M<sub>4</sub>)</sub>)</span> چه اتفاقی می‌افتد؟
+<div class="sol"><span class="t">حل</span>
+<ul>
+<li>مقصد: <span class="m">(M<sub>0</sub>) = 10</span> پس مقصد خانهٔ <span class="m">M<sub>10</sub></span> است.</li>
+<li>عملوند اول: <span class="m">(M<sub>0</sub>) = 10</span>.</li>
+<li>عملوند دوم: <span class="m">(M<sub>4</sub>) = 14</span> پس <span class="m">(M<sub>(M<sub>4</sub>)</sub>) = (M<sub>14</sub>) = 114</span>.</li>
+</ul>
+نتیجه: <span class="m">M<sub>10</sub> ← 10 + 114</span>، یعنی <b><span class="m">(M<sub>10</sub>) = 124</span></b>.
+</div></div>
+
+<div class="box hw"><span class="t">تمرین ۲-۱ (حل‌شده)</span>
+با محتوای اولیهٔ همان حافظه، اثر هر فرمان را (به‌طور جداگانه) بنویسید:
+(الف) <span class="m">M<sub>4</sub> ← (M<sub>(M<sub>4</sub>)</sub>) − (M<sub>(M<sub>0</sub>)</sub>)</span>
+(ب) <span class="m">MAR ← (M<sub>0</sub>); MBR ← (M<sub>(MAR)</sub>)</span>
+(ج) <span class="m">M<sub>(M<sub>4</sub>)</sub> ← (M<sub>15</sub>) − (M<sub>14</sub>)</span>
+<div class="sol"><span class="t">حل</span>
+(الف) <span class="m">(M<sub>14</sub>) − (M<sub>10</sub>) = 114 − 110 = 4</span>، پس <span class="m">(M<sub>4</sub>) = 4</span>. (جالب است که پس از آن، <span class="m">M<sub>(M<sub>4</sub>)</sub></span> به خود <span class="m">M<sub>4</sub></span> اشاره می‌کند.)<br>
+(ب) <span class="m">(MAR) = 10</span> و سپس با یک عمل خواندن <span class="m">(MBR) = (M<sub>10</sub>) = 110</span>.<br>
+(ج) مقصد <span class="m">M<sub>14</sub></span> است و مقدار <span class="m">115 − 114 = 1</span> در آن نوشته می‌شود: <span class="m">(M<sub>14</sub>) = 1</span>.
+</div></div>
+
+<h3>ویژگی‌های حافظه</h3>
+<div class="box def"><span class="t">تعریف‌ها</span>
+<ul>
+<li><b>واحد آدرس‌پذیر (<span class="en">Addressable unit</span>)</b>: کوچک‌ترین گروه بیت‌ها که در حافظه آدرس یکتا دارد. در بیشتر ماشین‌ها <b>۸ بیت (یک بایت)</b> است.</li>
+<li><b>پهنای/طول دسترسی (<span class="en">Access width/length</span>)</b>: تعداد بیت‌هایی که در <b>یک</b> دسترسی به حافظه خوانده یا نوشته می‌شود. از ماشینی به ماشین دیگر فرق می‌کند.</li>
+<li><b>کلمه (<span class="en">Word</span>)</b>: تعداد بیت‌های عملوندهایی که CPU هنگام اجرای یک دستور ماشین پردازش می‌کند. در یک ماشین n بیتی، کلمه n بیتی است. در پردازنده‌های نسل اول <span class="m">n = 8</span> یا ۱۶ بود؛ در بیشتر ماشین‌های فعلی <span class="m">n = 32</span> است، اما ماشین‌های ۶۴ بیتی و بزرگ‌تر هم وجود دارند.</li>
+</ul>
+</div>
+<p>معمولاً: <b>اندازهٔ واحد آدرس‌پذیر &lt; اندازهٔ کلمه &lt; پهنای دسترسی</b>. <b>اگر به‌صراحت چیزی گفته نشده باشد، فرض می‌کنیم هر سه برابرند.</b></p>
+
+<h3>نمونهٔ یک معماری حافظهٔ اصلی (بانک‌بندی‌شده)</h3>
+<p>حافظه‌ای با مشخصات زیر را در نظر بگیرید:</p>
+<ul>
+<li>واحد آدرس‌پذیر = ۸ بیت، اندازهٔ کلمه = ۳۲ بیت، طول دسترسی = ۳۲ بیت؛</li>
+<li>ظرفیت حافظه = <span class="m">2<sup>16</sup></span> واحد آدرس‌پذیر = <span class="m">2<sup>14</sup></span> کلمه.</li>
+</ul>
+<p>برای اینکه بتوان در یک دسترسی ۳۲ بیت (۴ بایت) را جابه‌جا کرد، حافظه به <b>۴ بانک</b> تقسیم شده است: بایت با آدرس a در بانک <span class="m">a mod 4</span> و در سطر (کلمهٔ) <span class="m">⌊a/4⌋</span> قرار دارد. MAR ۱۶ بیتی است: <b>۱۴ بیت پرارزش</b> وارد یک رمزگشای ۱۴ به <span class="m">2<sup>14</sup></span> می‌شوند و شمارهٔ سطر را انتخاب می‌کنند و <b>۲ بیت کم‌ارزش</b> بانک را انتخاب می‌کنند (00 بانک 0، 01 بانک 1، 10 بانک 2، 11 بانک 3). MBR هم ۳۲ بیتی است و از چهار بخش ۸ بیتی (هر کدام متصل به یک بانک) تشکیل شده است.</p>
+{{fig:banks("شکل: حافظهٔ بایت‌آدرس‌پذیر با ۴ بانک؛ عدد داخل هر خانه آدرس آن بایت است")}}
+
+<div class="box ex"><span class="t">مثال ۲-۵: پیدا کردن بانک و سطر</span>
+بایت با آدرس <code>1235h</code> در کدام بانک و کدام سطر قرار دارد؟
+<div class="sol"><span class="t">حل</span>
+<span class="bits">1235h = 0001 0010 0011 01|01</span>. دو بیت کم‌ارزش <span class="bits">01</span> ⇐ <b>بانک ۱</b>. ۱۴ بیت پرارزش <span class="bits">00 0100 1000 1101</span> = <code>048Dh</code> = 1165 ⇐ <b>سطر (کلمهٔ) 1165</b>. (بررسی: <span class="m">4×1165 + 1 = 4661 = 1235h</span>.)
+</div></div>
+
+<h3>هم‌ترازی کلمه (<span class="en">Word Alignment</span>)</h3>
+<ul>
+<li><b>معماری حافظهٔ هم‌تراز (<span class="en">Aligned</span>)</b>: آدرس هر کلمه مضربی از طول آن است. در حافظهٔ بالا یعنی آدرس‌های 0، 4، 8، 12، … . در این حالت <b>هر کلمه در یک دسترسی خوانده/نوشته می‌شود</b> ☺ (هر چهار بایت در یک سطر هستند).</li>
+<li><b>معماری حافظهٔ ناهم‌تراز (<span class="en">Unaligned</span>)</b>: آدرس کلمه می‌تواند هر عددی باشد (0، 1، 2، 3، …). در این حالت <b>ممکن است خواندن/نوشتن یک کلمه به دو دسترسی نیاز داشته باشد</b> ☹.</li>
+</ul>
+<div class="box ex long"><span class="t">مثال ۲-۶: کلمهٔ ناهم‌تراز</span>
+در حافظهٔ ناهم‌تراز بالا، خواندن کلمهٔ ۳۲ بیتی که از آدرس 5 شروع می‌شود چند دسترسی لازم دارد؟
+<div class="sol"><span class="t">حل</span>
+این کلمه بایت‌های 5، 6، 7 و 8 را می‌گیرد. بایت‌های 5، 6 و 7 در سطر 1 (بانک‌های 1 تا 3) و بایت 8 در سطر 2 (بانک 0) است. چون رمزگشا در هر دسترسی فقط یک سطر را فعال می‌کند، <b>دو دسترسی</b> لازم است: یک بار سطر 1 و یک بار سطر 2؛ سپس سخت‌افزار باید چهار بایت را کنار هم بچیند.
+</div>
+{{fig:banks("کلمهٔ ناهم‌تراز در آدرس 5 (خانه‌های رنگی) در دو سطر پخش شده است", mark={(1,1),(1,2),(1,3),(2,0)})}}
+</div>
+
+<div class="box hw"><span class="t">تمرین ۲-۲ (حل‌شده)</span>
+در همین حافظه (ناهم‌تراز)، (الف) یک کلمهٔ ۳۲ بیتی از چه آدرس‌هایی شروع شود تا در یک دسترسی خوانده شود؟ (ب) یک دادهٔ ۱۶ بیتی چطور؟ (ج) در مجموع چند درصد از آدرس‌های شروع ممکن، برای دادهٔ ۱۶ بیتی دو دسترسی لازم دارند؟
+<div class="sol"><span class="t">حل</span>
+(الف) فقط آدرس‌های مضرب ۴ (<span class="m">a mod 4 = 0</span>). (ب) دادهٔ ۲ بایتی تا وقتی از مرز سطر عبور نکند در یک دسترسی خوانده می‌شود؛ یعنی <span class="m">a mod 4 ∈ {0, 1, 2}</span>. (ج) فقط وقتی <span class="m">a mod 4 = 3</span> باشد دو دسترسی لازم است؛ یعنی ۲۵٪ آدرس‌ها.
+</div></div>
+
+<h3>ترتیب بایت‌ها (<span class="en">Endianness</span>)</h3>
+<div class="box def"><span class="t">تعریف</span>
+فرض کنید یک کلمهٔ ۴ بایتی <span class="m">B<sub>3</sub>B<sub>2</sub>B<sub>1</sub>B<sub>0</sub></span> داریم (<span class="m">B<sub>3</sub></span> پرارزش‌ترین بایت است).
+<ul>
+<li><b>Big Endian</b>: کلمه از <b>پرارزش‌ترین</b> واحد آدرس‌پذیر به سمت کم‌ارزش‌ترین، در آدرس‌های متوالی ذخیره می‌شود (بایت پرارزش در آدرس کوچک‌تر).</li>
+<li><b>Little Endian</b>: کلمه از <b>کم‌ارزش‌ترین</b> واحد آدرس‌پذیر به سمت پرارزش‌ترین ذخیره می‌شود (بایت کم‌ارزش در آدرس کوچک‌تر).</li>
+</ul>
+</div>
+<p>در مثال اسلاید، کلمهٔ <span class="m">B<sub>3</sub>B<sub>2</sub>B<sub>1</sub>B<sub>0</sub></span> یک بار به صورت Big Endian در آدرس <code>0004h</code> (سطر 1) و یک بار به صورت Little Endian در آدرس <code>0008h</code> (سطر 2) ذخیره شده است:</p>
+{{fig:banks("Big Endian در آدرس 0004h (سطر ۱) و Little Endian در آدرس 0008h (سطر ۲)", cells=[["0","1","2","3"],["B₃","B₂","B₁","B₀"],["B₀","B₁","B₂","B₃"],["2¹⁶-4","2¹⁶-3","2¹⁶-2","2¹⁶-1"]], mark={(1,0),(1,1),(1,2),(1,3),(2,0),(2,1),(2,2),(2,3)})}}
+
+<div class="box ex"><span class="t">مثال ۲-۷</span>
+عدد ۳۲ بیتی <code>12345678h</code> را در آدرس <code>100h</code> به دو روش ذخیره کنید.
+<div class="sol"><span class="t">حل</span>
+<table class="ltrt"><thead><tr><th>آدرس</th><th>100h</th><th>101h</th><th>102h</th><th>103h</th></tr></thead>
+<tbody><tr><th>Big Endian</th><td>12</td><td>34</td><td>56</td><td>78</td></tr>
+<tr><th>Little Endian</th><td>78</td><td>56</td><td>34</td><td>12</td></tr></tbody></table>
+برای مثال، خانواده‌های IBM 360/370 و ماشین‌های نمونهٔ این درس Big Endian هستند، در حالی که پردازنده‌های Intel x86 (از جمله 8086/88) و RISC-V از Little Endian استفاده می‌کنند.
+</div></div>
+
+<h2>قالب دستورالعمل (<span class="en">Instruction Format</span>)</h2>
+<p>یک جملهٔ امری در زبان‌های انسانی این قالب را دارد: <b>فاعل + فعل + مفعول(ها)</b>. مثال: <span class="en">"Hasan call Mike."</span> یا <span class="en">"Zahra eat your food."</span></p>
+<p>در زبان ماشین هم قالب مشابهی داریم؛ با این تفاوت که <b>در کامپیوتر تنها فاعل، خود CPU است</b>، پس نیازی به ذکر آن نیست. بنابراین یک دستور ماشین این شکل را دارد:</p>
+<p class="center" style="font-size:1.15em"><b><span class="hl">فعل + مفعول(ها)</span></b> &nbsp; یا &nbsp; <b><span class="hl">عمل (Operation)</span> + <span class="hg">عملوند(ها) (Operands)</span></b></p>
+<p><b>عمل</b> با یک الگوی بیتی به نام <b>کد عمل (<span class="en">Operation Code, OpCode</span>)</b> کد می‌شود و <b>مفعول‌ها</b> آدرس محل‌هایی هستند که عملوندها در آن‌ها قرار دارند (به صورت الگوی دودویی). بنابراین قالب دستور در یک <b>ماشین n آدرسه</b> چنین است:</p>
+<div class="fmt"><div>Opcode<small>? bits</small></div><div>Operand 1<small>? bits</small></div><div>……</div><div>Operand n<small>? bits</small></div></div>
+<div class="fmt-cap">قالب کلی دستور در ماشین n آدرسه</div>
+
+<h3>ماشین نمونهٔ ۱: یک ماشین دوآدرسه</h3>
+<ul>
+<li>اندازهٔ حافظه: ۱۲۸ واحد ۱۶ بیتی.</li>
+<li>عملیات: جمع <b>Add</b> (کد 00)، تفریق <b>Subtract</b> (کد 01)، انتقال <b>Move</b> (کد 10) و بدون عمل <b>No-operation</b> (کد 11).</li>
+</ul>
+<div class="fmt"><div style="color:#b3261e">Opcode<small>2 bits</small></div><div>Operand 1<small>7 bits</small></div><div>Operand 2<small>7 bits</small></div></div>
+<div class="fmt-cap">قالب دستور ماشین ۱ (در مجموع ۱۶ بیت = یک کلمه)</div>
+<p><b>چرا این طول‌ها؟</b> چهار عمل داریم، پس <span class="m">⌈log<sub>2</sub>4⌉ = 2</span> بیت برای کد عمل کافی است. حافظه ۱۲۸ خانه دارد، پس هر آدرس <span class="m">log<sub>2</sub>128 = 7</span> بیت لازم دارد.</p>
+<div class="box ex"><span class="t">مثال ۲-۸: رمزگشایی یک دستور ماشین</span>
+دستور ماشین <span class="bits"><span class="hl">01</span> <span class="hb">0001111 0001010</span></span> چه کاری انجام می‌دهد؟
+<div class="sol"><span class="t">حل</span>
+کد عمل <span class="bits">01</span> یعنی <b>تفریق</b>؛ عملوند اول <span class="bits">0001111</span> = 15 و عملوند دوم <span class="bits">0001010</span> = 10. یعنی عملوندها <span class="m">M<sub>15</sub></span> و <span class="m">M<sub>10</sub></span> هستند و دستور به شکل نمادین چنین است:
+<p class="center"><span class="m">M<sub>15</sub> ← (M<sub>15</sub>) − (M<sub>10</sub>);</span></p>
+</div></div>
+<div class="box hw"><span class="t">تمرین ۲-۳ (حل‌شده)</span>
+در ماشین ۱: (الف) دستور <span class="m">M<sub>3</sub> ← (M<sub>3</sub>) + (M<sub>100</sub>)</span> را به کد ماشین (دودویی و شانزده‌شانزدهی) بنویسید. (ب) کد ماشین <code>A1B5h</code> را رمزگشایی کنید.
+<div class="sol"><span class="t">حل</span>
+(الف) کد جمع 00، <span class="m">3 = 0000011</span> و <span class="m">100 = 1100100</span>؛ پس <span class="m"><span class="bits">00 0000011 1100100</span> = <span class="bits">0000 0001 1110 0100</span> = <code>01E4h</code></span>.<br>
+(ب) <code>A1B5h</code> = <span class="bits">1010 0001 1011 0101</span> ⇐ کد عمل <span class="bits">10</span> (Move)، عملوند اول <span class="bits">1000011</span> = 67، عملوند دوم <span class="bits">0110101</span> = 53؛ یعنی <span class="m">M<sub>67</sub> ← (M<sub>53</sub>)</span>.
+</div></div>
+
+<h3>کد عمل چه اطلاعاتی می‌تواند بدهد؟</h3>
+<ol>
+<li><b>نوع عمل</b>: جمع، تفریق، … (add، sub، …).</li>
+<li><b>تعداد عملوندها</b> (اگر ماشین چند قالب دستور داشته باشد).</li>
+<li><b>طول دستور</b> (اگر ماشین چند قالب دستور داشته باشد)؛ واحد کنترل از روی کد عمل می‌فهمد چند بایت دیگر باید واکشی کند.</li>
+<li><b>نوع عملوندها</b>: صحیح، حقیقی، علامت‌دار، … .</li>
+<li><b>طول عملوندها</b>: ۸ بیت، ۱۶ بیت، n بایت.</li>
+<li><b>روش آدرس‌دهی عملوندها</b>: مستقیم، غیرمستقیم، … (در فصل ۳ بررسی می‌شود).</li>
+</ol>
+
+<h2>مسیرهای داخلی ماشین</h2>
+<p>برای اجرای دستورها، داده و فرمان‌ها از مسیرهای مختلفی میان اجزای ماشین عبور می‌کنند:</p>
+<table class="full">
+<thead><tr><th>مسیر</th><th>کاربرد</th><th>توضیح</th></tr></thead>
+<tbody>
+<tr><td class="c">۱</td><td>واکشی دستورها</td><td>از حافظهٔ اصلی به CU (ثبات دستور)</td></tr>
+<tr><td class="c">۲</td><td>دسترسی به داده</td><td>میان حافظه و ALU (خواندن عملوند و نوشتن نتیجه)</td></tr>
+<tr><td class="c">۳</td><td>ارتباط فرمان/وضعیت</td><td>CU فرمان عمل (مثلاً «تفریق کن») را به ALU می‌فرستد و ALU وضعیت (صفر بودن، منفی بودن، سرریز، …) را به CU برمی‌گرداند</td></tr>
+<tr><td class="c">۴</td><td>دسترسی ویژه به داده</td><td>دادهٔ بی‌واسطه (<span class="en">immediate</span>) که داخل خود دستور است، از CU به ALU می‌رود</td></tr>
+<tr><td class="c">۵</td><td>دادهٔ I/O از طریق CPU</td><td>تبادل داده میان CPU و دستگاه‌های ورودی/خروجی</td></tr>
+<tr><td class="c">۶</td><td>دادهٔ I/O با DMA</td><td>دسترسی مستقیم دستگاه‌های I/O به حافظه بدون دخالت CPU (<span class="en">Direct Memory Access</span>)</td></tr>
+</tbody></table>
+{{fig:internal_paths}}
+<div class="box ex"><span class="t">مثال ۲-۹: مسیرهای استفاده‌شده در اجرای یک دستور</span>
+در ماشین ۱، برای واکشی و اجرای دستور <span class="bits"><span class="hl">01</span> 0001111 0001010</span> از کدام مسیرها استفاده می‌شود؟
+<div class="sol"><span class="t">حل</span>
+<ol>
+<li>مسیر ۱ برای واکشی دستور <span class="bits">01 0001111 0001010</span> به CU.</li>
+<li>مسیر ۲ برای آوردن داده <span class="m">(M<sub>15</sub>)</span> به ALU.</li>
+<li>مسیر ۲ برای آوردن داده <span class="m">(M<sub>10</sub>)</span> به ALU.</li>
+<li>مسیر ۳ برای فرستادن فرمان تفریق (کد 01) به ALU.</li>
+<li>مسیر ۲ برای نوشتن نتیجه در <span class="m">M<sub>15</sub></span>.</li>
+</ol>
+</div></div>
+
+<h2>زبان اسمبلی (<span class="en">Assembly Language</span>)</h2>
+<p>نوشتن، خواندن و فهمیدن برنامه‌هایی که از دستورهای ماشین به شکل دودویی تشکیل شده‌اند <b>مبهم و پیچیده</b> است. به همین دلیل از <b>نمایش نمادین</b> دستورها استفاده می‌کنیم که به آن <b>دستور اسمبلی</b> می‌گویند. مثلاً دستور ماشین <span class="bits"><span class="hl">01</span> 0001111 0001010</span> در ماشین ۱ را می‌توان به شکل نمادین زیر نوشت:</p>
+<p class="center"><code>sub num1,num2</code></p>
+<p>که در آن <code>num1</code> و <code>num2</code> معادل‌های نمادین عملوندهای <span class="m">M<sub>15</sub></span> و <span class="m">M<sub>10</sub></span> هستند و <code>sub</code> معادل نمادین (<b>نیمونیک، <span class="en">Mnemonic</span></b>) کد عمل 01 است.</p>
+
+<h3>روند اجرای برنامه</h3>
+<p>برنامهٔ مبدأ به زبان سطح بالا (مثل C یا Pascal) توسط <b>کامپایلر</b> به برنامهٔ اسمبلی ترجمه می‌شود و <b>اسمبلر</b> برنامهٔ اسمبلی را به زبان ماشین تبدیل می‌کند. کامپایلر می‌تواند مستقیماً هم کد ماشین تولید کند (پیکان بنفش).</p>
+{{fig:prog_flow}}
+
+<h3>مزایای زبان اسمبلی</h3>
+<p><b>دانستن زبان اسمبلی این دانش را می‌دهد:</b></p>
+<ul>
+<li>رابط برنامه‌ها با سیستم‌عامل، پردازنده و BIOS (سیستم پایهٔ ورودی/خروجی)؛</li>
+<li>نحوهٔ نمایش داده‌ها در حافظه و دیگر دستگاه‌های بیرونی؛</li>
+<li>اینکه پردازندهٔ X چگونه به دستورها دسترسی پیدا می‌کند و آن‌ها را اجرا می‌کند؛</li>
+<li>اینکه دستورها در پردازندهٔ X چگونه به داده دسترسی دارند و آن را پردازش می‌کنند؛</li>
+<li>اینکه برنامه‌ای که روی X اجرا می‌شود چگونه به دستگاه‌های بیرونی دسترسی پیدا می‌کند.</li>
+</ul>
+<p><b>مزایای استفاده از زبان اسمبلی:</b></p>
+<ul>
+<li>حافظه و زمان اجرای کمتری لازم دارد؛</li>
+<li>انجام کارهای پیچیدهٔ وابسته به سخت‌افزار را آسان‌تر می‌کند؛</li>
+<li>برای کارهای حساس به زمان (<span class="en">time-critical</span>) مناسب است؛</li>
+<li>بهترین گزینه برای نوشتن روال‌های خدمت وقفه (<span class="en">ISR</span>) و دیگر برنامه‌های مقیم در حافظه است؛</li>
+<li><span class="hl">برای شکستن قفل نرم‌افزارها استفاده می‌شود؛</span></li>
+<li><span class="hl">برای نوشتن ویروس‌ها، کرم‌ها و … استفاده می‌شود.</span></li>
+</ul>
+
+<h2>ماشین نمونهٔ ۲</h2>
+<p>یک ماشین دوآدرسه با حافظهٔ اصلی <span class="m">2<sup>16</sup></span> واحد آدرس‌پذیر (هر کدام ۸ بیت)، یعنی ۶۴ کیلوبایت. اندازهٔ کلمه ۱۶ بیت (۲ واحد آدرس‌پذیر) است. قالب دستور:</p>
+<div class="fmt"><div>Opcode<small>8 bits</small></div><div style="min-width:30mm">addr1<small>16 bits</small></div><div style="min-width:30mm">addr2<small>16 bits</small></div></div>
+<div class="fmt-cap">قالب دستور ماشین ۲ — طول هر دستور ۴۰ بیت = ۵ بایت</div>
+<table class="ltrt">
+<thead><tr><th>Opcode</th><th>Mnemonic</th><th>Operation</th></tr></thead>
+<tbody>
+<tr><td class="bits">00000000</td><td><code>mov addr1,addr2</code></td><td class="mt">M<sub>addr1</sub> ← (M<sub>addr2</sub>)</td></tr>
+<tr><td class="bits">00000001</td><td><code>add addr1,addr2</code></td><td class="mt">M<sub>addr1</sub> ← (M<sub>addr1</sub>) + (M<sub>addr2</sub>)</td></tr>
+<tr><td class="bits">00000010</td><td><code>sub addr1,addr2</code></td><td class="mt">M<sub>addr1</sub> ← (M<sub>addr1</sub>) − (M<sub>addr2</sub>)</td></tr>
+<tr><td class="bits">00000011</td><td><code>and addr1,addr2</code></td><td class="mt">M<sub>addr1</sub> ← (M<sub>addr1</sub>) ∧ (M<sub>addr2</sub>)</td></tr>
+<tr><td class="bits">00000100</td><td><code>or addr1,addr2</code></td><td class="mt">M<sub>addr1</sub> ← (M<sub>addr1</sub>) ∨ (M<sub>addr2</sub>)</td></tr>
+<tr><td class="bits">00000101</td><td><code>xor addr1,addr2</code></td><td class="mt">M<sub>addr1</sub> ← (M<sub>addr1</sub>) ⊕ (M<sub>addr2</sub>)</td></tr>
+</tbody></table>
+
+<div class="box ex"><span class="t">پرسش اسلاید: طول ثبات‌های MAR و MBR چقدر است؟</span>
+<div class="sol"><span class="t">پاسخ</span>
+حافظه <span class="m">2<sup>16</sup></span> خانه دارد ⇐ <b><span class="m">L<sub>MAR</sub> = 16</span> بیت</b>. چون عملوندها کلمه‌های ۱۶ بیتی‌اند و فرض می‌کنیم پهنای دسترسی برابر کلمه است ⇐ <b><span class="m">L<sub>MBR</sub> = 16</span> بیت</b>. (توجه کنید که واحد آدرس‌پذیر ۸ بیت است، اما هر دسترسی یک کلمهٔ ۱۶ بیتی را جابه‌جا می‌کند.)
+</div></div>
+
+<h3>رهنمودهای اسمبلر (<span class="en">Directives</span>)</h3>
+<p>در برنامه‌های اسمبلی علاوه بر دستورهای ماشین، <b>رهنمود</b> هم وجود دارد. رهنمودها به کد ماشین ترجمه نمی‌شوند و فقط به اسمبلر می‌گویند چه کند:</p>
+<ul>
+<li><code>org X</code>: از این به بعد کد یا داده را از آدرس X قرار بده (<span class="en">origin</span>).</li>
+<li><code>name: dw v</code>: یک کلمه (<span class="en">define word</span>) با مقدار اولیهٔ v تعریف کن و آدرس آن را با برچسب name بشناس. <code>dw 10 dup(?)</code> یعنی ۱۰ کلمه با مقدار نامعلوم.</li>
+<li><code>end</code>: پایان برنامهٔ مبدأ.</li>
+<li>هر چیزی که پس از <code>;</code> بیاید توضیح (<span class="en">comment</span>) است.</li>
+</ul>
+
+<div class="box ex long"><span class="t">مثال ۲-۱۰ (تمرین اسلاید): جمع ۷ جملهٔ اول دنبالهٔ فیبوناچی</span>
+یک برنامهٔ اسمبلی برای ماشین ۲ بنویسید که مجموع ۷ جملهٔ اول دنبالهٔ فیبوناچی (0، 1، 1، 2، 3، 5، 8، 13، …) را حساب کند؛ سپس آن را به کد ماشین ترجمه کنید.
+<div class="sol"><span class="t">ایدهٔ حل</span>
+ماشین ۲ دستور پرش ندارد، پس نمی‌توانیم حلقه بنویسیم و باید دستورها را پشت‌سرهم تکرار کنیم. دو متغیر <code>t1</code> و <code>t2</code> دو جملهٔ آخر را نگه می‌دارند (ابتدا 0 و 1) و <code>sum</code> مجموع جمله‌ها را (ابتدا <span class="m">0 + 1 = 1</span>). در هر مرحله جملهٔ بعدی را با جمع دو جملهٔ قبلی می‌سازیم و به sum اضافه می‌کنیم. <code>t1</code> و <code>t2</code> به نوبت جملهٔ جدید را نگه می‌دارند، پس نیازی به جابه‌جا کردن مقدارها نیست.
+</div>
+<p><b>برنامه و ترجمهٔ آن:</b> هر دستور ۵ بایت است، پس آدرس دستورها ۵ تا ۵ تا زیاد می‌شود (100h، 105h، 10Ah، …). متغیرها از آدرس 200h و هر کدام ۲ بایتی‌اند: <code>sum</code> = 0200h، <code>t1</code> = 0202h، <code>t2</code> = 0204h. کد ماشین <code>add t1,t2</code> یعنی کد عمل <code>01</code>، addr1 = <code>0202</code> و addr2 = <code>0204</code>.</p>
+<asm>
+!| | | org | 100h | شروع برنامه از آدرس 100h
+0100 | 01 0202 0204 | | add | t1,t2 | جملهٔ ۳ در t1 (t1 = 0+1 = 1)
+0105 | 01 0200 0202 | | add | sum,t1 | افزودن جملهٔ ۳ به sum
+010A | 01 0204 0202 | | add | t2,t1 | جملهٔ ۴ در t2 (t2 = 1+1 = 2)
+010F | 01 0200 0204 | | add | sum,t2 | افزودن جملهٔ ۴ به sum
+0114 | 01 0202 0204 | | add | t1,t2 | جملهٔ ۵ در t1 (t1 = 1+2 = 3)
+0119 | 01 0200 0202 | | add | sum,t1 | افزودن جملهٔ ۵ به sum
+011E | 01 0204 0202 | | add | t2,t1 | جملهٔ ۶ در t2 (t2 = 2+3 = 5)
+0123 | 01 0200 0204 | | add | sum,t2 | افزودن جملهٔ ۶ به sum
+0128 | 01 0202 0204 | | add | t1,t2 | جملهٔ ۷ در t1 (t1 = 3+5 = 8)
+012D | 01 0200 0202 | | add | sum,t1 | افزودن جملهٔ ۷ به sum
+!| | | org | 200h | شروع متغیرها از آدرس 200h
+0200 | 0001 | sum: | dw | 1 | متغیر sum (مجموع دو جملهٔ اول: 0+1)
+0202 | 0000 | t1: | dw | 0 | متغیر t1
+0204 | 0001 | t2: | dw | 1 | متغیر t2
+!| | | end | | پایان برنامه
+</asm>
+<p><b>ردگیری اجرا:</b></p>
+<table class="ltrt small">
+<thead><tr><th>بعد از دستور</th><th>t1</th><th>t2</th><th>sum</th></tr></thead>
+<tbody>
+<tr><td>(ابتدا)</td><td>0</td><td>1</td><td>1</td></tr>
+<tr><td>add t1,t2 / add sum,t1</td><td>1</td><td>1</td><td>2</td></tr>
+<tr><td>add t2,t1 / add sum,t2</td><td>1</td><td>2</td><td>4</td></tr>
+<tr><td>add t1,t2 / add sum,t1</td><td>3</td><td>2</td><td>7</td></tr>
+<tr><td>add t2,t1 / add sum,t2</td><td>3</td><td>5</td><td>12</td></tr>
+<tr><td>add t1,t2 / add sum,t1</td><td>8</td><td>5</td><td><b>20</b></td></tr>
+</tbody></table>
+<p>نتیجه: <span class="m">0+1+1+2+3+5+8 = 20</span> ✓. اندازهٔ کد: ۱۰ دستور × ۵ بایت = ۵۰ بایت (100h تا 131h).</p>
+</div>
+
+<div class="box hw long"><span class="t">تمرین ۲-۴ (حل‌شده): جابه‌جایی دو متغیر بدون متغیر کمکی</span>
+در ماشین ۲ برنامه‌ای بنویسید که محتوای دو متغیر <code>x</code> و <code>y</code> را بدون استفاده از متغیر سوم جابه‌جا کند و آن را به کد ماشین ترجمه کنید (برنامه از 100h و داده‌ها از 200h).
+<div class="sol"><span class="t">حل</span>
+از خاصیت <span class="m">a ⊕ a = 0</span> و <span class="m">a ⊕ 0 = a</span> استفاده می‌کنیم:
+<asm>
+!| | | org | 100h |
+0100 | 05 0200 0202 | | xor | x,y | x = x⊕y
+0105 | 05 0202 0200 | | xor | y,x | y = y⊕(x⊕y) = x
+010A | 05 0200 0202 | | xor | x,y | x = (x⊕y)⊕x = y
+!| | | org | 200h |
+0200 | 1234 | x: | dw | 1234h | مقدار نمونه
+0202 | ABCD | y: | dw | 0ABCDh | مقدار نمونه
+!| | | end | |
+</asm>
+ردگیری با مقدارهای نمونه: پس از دستور اول <span class="m">x = 1234h ⊕ ABCDh = B9F9h</span>؛ پس از دستور دوم <span class="m">y = ABCDh ⊕ B9F9h = 1234h</span>؛ پس از دستور سوم <span class="m">x = B9F9h ⊕ 1234h = ABCDh</span>. ✓
+</div></div>
+
+<div class="box hw"><span class="t">تمرین ۲-۵ (حل‌شده)</span>
+در ماشین ۲ مقدار <span class="m">r = 2(a + b) − c</span> را حساب کنید (برنامه از 100h؛ متغیرهای a، b، c و r از 200h).
+<div class="sol"><span class="t">حل</span>
+<asm>
+!| | | org | 100h |
+0100 | 00 0206 0200 | | mov | r,a | r = a
+0105 | 01 0206 0202 | | add | r,b | r = a+b
+010A | 01 0206 0206 | | add | r,r | r = 2(a+b)
+010F | 02 0206 0204 | | sub | r,c | r = 2(a+b)−c
+!| | | org | 200h |
+0200 | ???? | a: | dw | ? |
+0202 | ???? | b: | dw | ? |
+0204 | ???? | c: | dw | ? |
+0206 | ???? | r: | dw | ? |
+!| | | end | |
+</asm>
+</div></div>
+
+<div class="summary"><span class="t">خلاصهٔ فصل ۲</span>
+<ul>
+<li>حافظه آرایه‌ای از M خانه است؛ دسترسی با MAR (آدرس، <span class="m">⌈log<sub>2</sub>M⌉</span> بیت)، MBR (داده) و سیگنال‌های Read/Write.</li>
+<li><span class="m">M<sub>a</sub></span> خانه و <span class="m">(M<sub>a</sub>)</span> محتوای آن است؛ <span class="m">M<sub>(M<sub>a</sub>)</sub></span> یعنی محتوای a به عنوان آدرس به کار رود.</li>
+<li>واحد آدرس‌پذیر، کلمه و پهنای دسترسی؛ کلمهٔ ناهم‌تراز ممکن است دو دسترسی بخواهد؛ Big Endian (بایت پرارزش در آدرس کم) و Little Endian.</li>
+<li>دستور ماشین = کد عمل + عملوندها؛ طول کد عمل از تعداد عمل‌ها و طول هر آدرس از اندازهٔ حافظه به دست می‌آید.</li>
+<li>زبان اسمبلی نمایش نمادین زبان ماشین است (نیمونیک + برچسب)؛ کامپایلر ← اسمبلر ← کد ماشین.</li>
+</ul></div>

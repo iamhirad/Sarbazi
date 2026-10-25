@@ -1,0 +1,434 @@
+<h2>آدرس‌دهی ضمنی (<span class="en">Implied / Inherent</span>)</h2>
+<p>در این روش <b>هیچ چیزی دربارهٔ عملوند در IF نیامده است، اما CPU می‌داند عملوند کجاست</b>؛ محل عملوند جزو تعریف خود دستور است.</p>
+<div class="box ex"><span class="t">مثال‌ها</span>
+<ul>
+<li>دستور <code>loop address</code> در پردازندهٔ 8086/88: <span class="m">cx ← (cx) − 1; if (cx) ≠ 0 then PC ← address</span>. ثبات cx در دستور نیامده ولی ضمناً استفاده می‌شود.</li>
+<li>دستور ضرب ثباتی <code>MR 2,4</code> در خانوادهٔ IBM 360: <span class="m">R2:R3 ← (R3) × (R4)</span>. حاصل ۶۴ بیتی در جفت ثبات R2:R3 قرار می‌گیرد؛ R3 (عملوند اول) در دستور نیامده و ضمنی است.</li>
+</ul>
+</div>
+
+<h2>ماشین تک‌آدرسه (ماشین انباره‌ای)</h2>
+<p>در ماشین تک‌آدرسه <b>یکی از عملوندها همیشه در یک ثبات خاص‌منظوره به نام ACC (انباره، <span class="en">Accumulator</span>) نگه داشته می‌شود و به صورت ضمنی آدرس‌دهی می‌شود</b>؛ بنابراین هر دستور فقط یک فیلد آدرس دارد.</p>
+<div class="box def"><span class="t">مشخصات ماشین نمونهٔ تک‌آدرسه</span>
+<ul>
+<li>حافظهٔ اصلی: <span class="m">2<sup>16</sup></span> واحد آدرس‌پذیر (<b>هر کدام ۴ بیت</b>)؛ کلمه ۱۶ بیت (ناهم‌تراز، Big Endian)؛</li>
+<li>روش‌های آدرس‌دهی: ضمنی، مستقیم، غیرمستقیم و بی‌واسطه؛ دستورها در یک قالب کد می‌شوند:</li>
+</ul>
+<div class="fmt"><div>Opcode<small>4 bits</small></div><div style="min-width:34mm">addr/data<small>16 bits</small></div></div>
+<div class="fmt-cap">قالب دستور (۲۰ بیت = ۵ واحد ۴ بیتی)</div>
+</div>
+<table class="ltrt small">
+<thead><tr><th>Opcode</th><th>Mnemonic</th><th>Operation</th><th>Opcode</th><th>Mnemonic</th><th>Operation</th></tr></thead>
+<tbody>
+<tr><td class="bits">0000</td><td><code>load #data</code></td><td class="mt">ACC ← data</td><td class="bits">1000</td><td><code>xor addr</code></td><td class="mt">ACC ← (ACC) ⊕ (M<sub>addr</sub>)</td></tr>
+<tr><td class="bits">0001</td><td><code>add #data</code></td><td class="mt">ACC ← (ACC) + data</td><td class="bits">1001</td><td><code>load (addr)</code></td><td class="mt">ACC ← (M<sub>(M<sub>addr</sub>)</sub>)</td></tr>
+<tr><td class="bits">0010</td><td><code>load addr</code></td><td class="mt">ACC ← (M<sub>addr</sub>)</td><td class="bits">1010</td><td><code>store (addr)</code></td><td class="mt">M<sub>(M<sub>addr</sub>)</sub> ← (ACC)</td></tr>
+<tr><td class="bits">0011</td><td><code>store addr</code></td><td class="mt">M<sub>addr</sub> ← (ACC)</td><td class="bits">1011</td><td><code>j addr</code></td><td class="mt">PC ← addr</td></tr>
+<tr><td class="bits">0100</td><td><code>add addr</code></td><td class="mt">ACC ← (ACC) + (M<sub>addr</sub>)</td><td class="bits">1100</td><td><code>jz addr</code></td><td class="mt">if (ACC) = 0 then PC ← addr</td></tr>
+<tr><td class="bits">0101</td><td><code>sub addr</code></td><td class="mt">ACC ← (ACC) − (M<sub>addr</sub>)</td><td class="bits">1101</td><td><code>jnz addr</code></td><td class="mt">if (ACC) ≠ 0 then PC ← addr</td></tr>
+<tr><td class="bits">0110</td><td><code>and addr</code></td><td class="mt">ACC ← (ACC) ∧ (M<sub>addr</sub>)</td><td class="bits">1110</td><td><code>jn addr</code></td><td class="mt">if (ACC) &lt; 0 then PC ← addr</td></tr>
+<tr><td class="bits">0111</td><td><code>or addr</code></td><td class="mt">ACC ← (ACC) ∨ (M<sub>addr</sub>)</td><td class="bits">1111</td><td><code>jp addr</code></td><td class="mt">if (ACC) &gt; 0 then PC ← addr</td></tr>
+</tbody></table>
+<p>طول ثبات‌ها در این ماشین: <span class="m">L<sub>MAR</sub> = L<sub>PC</sub> = 16</span>، <span class="m">L<sub>MBR</sub> = L<sub>ACC</sub> = 16</span> و <span class="m">L<sub>IR</sub> = 20</span> بیت.</p>
+
+<div class="box ex long"><span class="t">مثال اسلاید: تولید ۲۰ جملهٔ اول دنبالهٔ فیبوناچی و ذخیرهٔ آن‌ها در یک آرایه</span>
+<div class="sol"><span class="t">ایدهٔ حل</span>
+آرایه با دو جملهٔ اول (0 و 1) مقداردهی شده است. سه اشاره‌گر داریم: <code>pointer_1</code> به جملهٔ i ام، <code>pointer_2</code> به جملهٔ i+1 ام و <code>pointer_3</code> به جملهٔ i+2 ام. در هر دور: <span class="m">A[i+2] ← A[i] + A[i+1]</span> با آدرس‌دهی غیرمستقیم؛ سپس هر سه اشاره‌گر یک کلمه (۴ واحد ۴ بیتی) جلو می‌روند. چون ماشین فقط یک انباره دارد، از متغیر <code>sum</code> برای نگه‌داشتن موقت A[i] استفاده می‌شود. ۱۸ دور حلقه، ۱۸ جملهٔ بعدی را می‌سازد (در مجموع ۲۰ جمله).
+</div>
+<pre class="code">        org   0
+loop:   load  (pointer_1)    ; ACC = A[i]
+        store sum            ; sum = A[i]       (متغیر موقت)
+        load  (pointer_2)    ; ACC = A[i+1]
+        add   sum            ; ACC = A[i] + A[i+1]
+        store (pointer_3)    ; A[i+2] = ACC
+        load  pointer_1      ; ACC = pointer_1
+        add   #4
+        store pointer_1      ; pointer_1 += 4  (یک کلمه = ۴ واحد)
+        add   #4
+        store pointer_2      ; pointer_2 = pointer_1 + 4
+        add   #4
+        store pointer_3      ; pointer_3 = pointer_1 + 8
+        load  counter
+        add   #-1
+        store counter        ; counter--
+        jnz   loop           ; ACC هنوز مقدار counter را دارد
+        j     OS_return_addr ; بازگشت به سیستم‌عامل
+
+pointer_1: dw  array
+pointer_2: dw  array+4
+pointer_3: dw  array+8
+counter:   dw  18
+sum:       dw  ?
+array:     dw  0,1,18 dup(?)
+           end</pre>
+<p>ردگیری دور اول: <span class="m">ACC = A[0] = 0</span> ⇐ <span class="m">sum = 0</span> ⇐ <span class="m">ACC = A[1] = 1</span> ⇐ <span class="m">ACC = 1 + 0 = 1</span> ⇐ <span class="m">A[2] = 1</span>؛ سپس اشاره‌گرها به A[1]، A[2] و A[3] و counter = 17. دور دوم <span class="m">A[3] = 1 + 1 = 2</span>، دور سوم <span class="m">A[4] = 3</span> و … تا دور ۱۸ که <span class="m">A[19] = 4181</span>.</p>
+<p>نکته: دستور <code>jnz loop</code> شرط را روی ACC بررسی می‌کند و چون آخرین مقدار ACC همان counter است، حلقه وقتی counter صفر شود متوقف می‌شود.</p>
+</div>
+
+<div class="box hw long"><span class="t">تکلیف ۲: ترجمهٔ برنامهٔ بالا به کد ماشین</span>
+<div class="sol"><span class="t">حل</span>
+هر دستور ۲۰ بیت یعنی <b>۵ واحد ۴ بیتی</b> است (یک رقم شانزده‌شانزدهی برای کد عمل و چهار رقم برای آدرس/داده). ۱۷ دستور داریم، پس دستورها آدرس‌های 0000 تا 0054 را می‌گیرند و داده‌ها از <span class="m">17×5 = 85 = 0055h</span> شروع می‌شوند. هر کلمهٔ داده ۴ واحد است:
+<table class="ltrt small"><thead><tr><th>برچسب</th><th>آدرس</th><th>مقدار</th></tr></thead><tbody>
+<tr><td>pointer_1</td><td>0055</td><td>0069 (array)</td></tr>
+<tr><td>pointer_2</td><td>0059</td><td>006D (array+4)</td></tr>
+<tr><td>pointer_3</td><td>005D</td><td>0071 (array+8)</td></tr>
+<tr><td>counter</td><td>0061</td><td>0012 (18)</td></tr>
+<tr><td>sum</td><td>0065</td><td>????</td></tr>
+<tr><td>array</td><td>0069</td><td>0000, 0001, ???? ×18</td></tr>
+</tbody></table>
+<asm>
+!| | | org | 0 |
+0000 | 9 0055 | loop: | load | (pointer_1) | 1001 = load (addr)
+0005 | 3 0065 | | store | sum | 0011 = store addr
+000A | 9 0059 | | load | (pointer_2) |
+000F | 4 0065 | | add | sum | 0100 = add addr
+0014 | A 005D | | store | (pointer_3) | 1010 = store (addr)
+0019 | 2 0055 | | load | pointer_1 | 0010 = load addr
+001E | 1 0004 | | add | #4 | 0001 = add #data
+0023 | 3 0055 | | store | pointer_1 |
+0028 | 1 0004 | | add | #4 |
+002D | 3 0059 | | store | pointer_2 |
+0032 | 1 0004 | | add | #4 |
+0037 | 3 005D | | store | pointer_3 |
+003C | 2 0061 | | load | counter |
+0041 | 1 FFFF | | add | #-1 | −1 در مکمل دو ۱۶ بیتی = FFFFh
+0046 | 3 0061 | | store | counter |
+004B | D 0000 | | jnz | loop | 1101 = jnz
+0050 | B ???? | | j | OS_return_addr | 1011 = j ؛ آدرس را سیستم‌عامل تعیین می‌کند
+--
+0055 | 0069 | pointer_1: | dw | array |
+0059 | 006D | pointer_2: | dw | array+4 |
+005D | 0071 | pointer_3: | dw | array+8 |
+0061 | 0012 | counter: | dw | 18 |
+0065 | ???? | sum: | dw | ? |
+0069 | 0000 0001 ???? … | array: | dw | 0,1,18 dup(?) | ۲۰ کلمه = ۸۰ واحد
+!| | | end | |
+</asm>
+برنامه با شبیه‌ساز اجرا شد و آرایه دقیقاً ۲۰ جملهٔ اول فیبوناچی (0، 1، 1، 2، …، 4181) را دارد.
+</div></div>
+
+<h2>ماشین صفرآدرسه (ماشین پشته‌ای)</h2>
+<p>در ماشین صفرآدرسه <b>همهٔ عملوندها در یک پشتهٔ سخت‌افزاری داخل CPU نگه داشته می‌شوند</b>.</p>
+<div class="box def"><span class="t">پشتهٔ سخت‌افزاری</span>
+یک حافظهٔ داخلی با S کلمه که برای نوشتن (<b>push</b>) و خواندن (<b>pop</b>) داده از راهبرد <b>LIFO</b> (آخرین ورودی، اولین خروجی) پیروی می‌کند. ثبات <b>SP</b> (<span class="en">Stack Pointer</span>) به <b>بالای پشته، یعنی جایی که آمادهٔ گرفتن دادهٔ جدید است</b>، اشاره می‌کند.
+<ul>
+<li><b>push x</b>: <span class="m">Stack<sub>(SP)</sub> ← x; SP ← (SP) + 1</span></li>
+<li><b>pop</b>: <span class="m">SP ← (SP) − 1</span> و کلمه‌ای که SP به آن اشاره می‌کند برگردانده می‌شود.</li>
+</ul>
+</div>
+<p>توجه کنید که در این قرارداد، SP به اولین خانهٔ <b>خالی</b> اشاره می‌کند؛ SP = 0 یعنی پشته خالی است. pop داده را پاک نمی‌کند؛ فقط SP را پایین می‌آورد (دادهٔ قبلی تا وقتی روی آن نوشته نشود باقی می‌ماند — این نکته در ماشین ۶ مهم است).</p>
+
+<div class="box ex long"><span class="t">مثال اسلاید: عملیات push و pop</span>
+یک پشتهٔ سخت‌افزاری ۱۶ کلمه‌ای داریم و SP صفر است (پشته خالی). Num متغیری در حافظه با مقدار اولیهٔ 100 است. عملیات زیر را انجام دهید:
+<pre class="code">push #-10   ==  Stack(SP) ← -10;     SP ← (SP)+1
+push Num    ==  Stack(SP) ← (M_Num); SP ← (SP)+1
+push #77    ==  Stack(SP) ← 77;      SP ← (SP)+1
+pop  Num    ==  SP ← (SP)-1;         M_Num ← (Stack(SP))</pre>
+<div class="sol"><span class="t">حل</span>
+<table class="ltrt small"><thead><tr><th>بعد از</th><th>Stack[0]</th><th>Stack[1]</th><th>Stack[2]</th><th>SP</th><th>Num</th></tr></thead><tbody>
+<tr><td>(ابتدا)</td><td></td><td></td><td></td><td>0</td><td>100</td></tr>
+<tr><td>push #-10</td><td>−10</td><td></td><td></td><td>1</td><td>100</td></tr>
+<tr><td>push Num</td><td>−10</td><td>100</td><td></td><td>2</td><td>100</td></tr>
+<tr><td>push #77</td><td>−10</td><td>100</td><td>77</td><td>3</td><td>100</td></tr>
+<tr><td>pop Num</td><td>−10</td><td>100</td><td class="muted">77 (بالای SP)</td><td>2</td><td><b>77</b></td></tr>
+</tbody></table>
+</div>
+{{fig:stack_row([("start",[],0),("push #-10",["-10"],1),("push Num",["-10","100"],2),("push #77",["-10","100","77"],3),("pop Num",["-10","100","77"],2)], "وضعیت پشته پس از هر عمل (خاکستری: دادهٔ بالای SP که دیگر جزو پشته نیست)")}}
+</div>
+
+<h3>اجرای یک تابع در ماشین پشته‌ای</h3>
+<p>برای اجرای یک تابع مثل <span class="m">func(a,b)</span>، عملوندهای a و b از بالای پشته برداشته می‌شوند و نتیجهٔ <span class="m">func(a,b)</span> در پشته قرار می‌گیرد:</p>
+<pre class="code">func  ==  pop  temp1
+          pop  temp2
+          temp3 ← func((temp1),(temp2))
+          push temp3</pre>
+<div class="box ex"><span class="t">مثال: add</span>
+اگر پس از مثال بالا (پشته: −10، 100 و SP = 2) دستور <code>add</code> اجرا شود، دو عدد 100 و −10 برداشته و حاصل <span class="m">90</span> در خانهٔ 0 قرار می‌گیرد و <span class="m">SP = 1</span> می‌شود.
+{{fig:stack_row([("before add",["-10","100","77"],2),("after add",["90","100","77"],1)], "اجرای add در ماشین پشته‌ای")}}
+برای اعمال غیرجابه‌جایی (تفریق و تقسیم) ترتیب مهم است: در این جزوه (و ماشین ۶) <b>عملوند پایینی منهای/تقسیم بر عملوند بالایی</b> حساب می‌شود؛ یعنی اگر اول a و سپس b در پشته گذاشته شود، <code>sub</code> مقدار <span class="m">a − b</span> را می‌دهد.
+</div>
+
+<h2>نمادگذاری لهستانی و ماشین‌های پشته‌ای</h2>
+<p>نمادگذاری معمولی ریاضی <b>میانوندی (<span class="en">infix</span>)</b> است: عملگر بین عملوندها می‌آید، مثل <span class="m">x + y</span> یا <span class="m">z * t</span>. اما نمادگذاری‌های دیگری هم وجود دارد:</p>
+<ul>
+<li><b>پیشوندی (<span class="en">prefix</span>)</b>: عملگر قبل از عملوندها: <span class="m">+ x y</span> یا <span class="m">* z t</span>.</li>
+<li><b>پسوندی (<span class="en">postfix</span>)</b> که <b>نمادگذاری لهستانی</b> (<span class="en">Polish notation</span>) هم نامیده می‌شود: عملگر بعد از عملوندها: <span class="m">x y +</span> یا <span class="m">z t *</span>.</li>
+</ul>
+<div class="box ex"><span class="t">مثال اسلاید</span>
+عبارت زیر را به نمادگذاری لهستانی بنویسید:
+<p class="center"><span class="m">(x + y − 10 − t / d + 10*s − z) / (20*t − z / t + 100*w)</span></p>
+<div class="sol"><span class="t">پاسخ</span>
+<p class="center"><code>xy+10-td/-10s*+z-20t*zt/-100w*+/</code></p>
+</div></div>
+<div class="box note"><span class="t">نکات مثبت و منفی</span>
+<b>مثبت:</b> (۱) نیازی به نگرانی دربارهٔ اولویت عملگرها نیست و پرانتز لازم نیست؛ (۲) برای محاسبه روی ماشین پشته‌ای بسیار مناسب است.<br>
+<b>منفی:</b> برای درک انسان مناسب نیست.
+</div>
+
+<h3>محاسبهٔ عبارت لهستانی روی ماشین پشته‌ای</h3>
+<p><b>روش:</b> عبارت را از چپ به راست پیمایش کنید. اگر به عملوند رسیدید، آن را در پشته push کنید. اگر به عملگر رسیدید، آن را اجرا کنید (دو عنصر بالای پشته را بردارید و حاصل را push کنید).</p>
+<div class="box ex long"><span class="t">مثال اسلاید: محاسبهٔ <code>xy+10-td/-10s*+z-20t*zt/-100w*+/</code></span>
+فرض کنید ماشین پشته‌ای ۱۶ کلمه‌ای داریم و مقدار فعلی SP برابر 2 است (خانه‌های 0 و 1 داده‌های 90 و 100 از قبل را دارند).
+<div class="sol"><span class="t">ردگیری کامل</span>
+<table class="ltrt small full">
+<thead><tr><th>#</th><th>نماد</th><th>عمل</th><th>SP بعد</th><th>محتوای پشته (از خانهٔ 2 به بالا)</th></tr></thead>
+<tbody>
+<tr><td>0</td><td></td><td>—</td><td>2</td><td class="mt">[90, 100 |</td></tr>
+<tr><td>1</td><td>x</td><td>push x</td><td>3</td><td class="mt">x</td></tr>
+<tr><td>2</td><td>y</td><td>push y</td><td>4</td><td class="mt">x, y</td></tr>
+<tr><td>3</td><td>+</td><td>add</td><td>3</td><td class="mt">(x+y)</td></tr>
+<tr><td>4</td><td>10</td><td>push 10</td><td>4</td><td class="mt">(x+y), 10</td></tr>
+<tr><td>5</td><td>−</td><td>sub</td><td>3</td><td class="mt">(x+y−10)</td></tr>
+<tr><td>6</td><td>t</td><td>push t</td><td>4</td><td class="mt">(x+y−10), t</td></tr>
+<tr><td>7</td><td>d</td><td>push d</td><td>5</td><td class="mt">(x+y−10), t, d</td></tr>
+<tr><td>8</td><td>/</td><td>div</td><td>4</td><td class="mt">(x+y−10), t/d</td></tr>
+<tr><td>9</td><td>−</td><td>sub</td><td>3</td><td class="mt">(x+y−10−t/d)</td></tr>
+<tr><td>10</td><td>10</td><td>push 10</td><td>4</td><td class="mt">(…), 10</td></tr>
+<tr><td>11</td><td>s</td><td>push s</td><td>5</td><td class="mt">(…), 10, s</td></tr>
+<tr><td>12</td><td>*</td><td>mult</td><td>4</td><td class="mt">(…), 10*s</td></tr>
+<tr><td>13</td><td>+</td><td>add</td><td>3</td><td class="mt">(x+y−10−t/d+10*s)</td></tr>
+<tr><td>14</td><td>z</td><td>push z</td><td>4</td><td class="mt">(…), z</td></tr>
+<tr><td>15</td><td>−</td><td>sub</td><td>3</td><td class="mt">N = (x+y−10−t/d+10*s−z)</td></tr>
+<tr><td>16</td><td>20</td><td>push 20</td><td>4</td><td class="mt">N, 20</td></tr>
+<tr><td>17</td><td>t</td><td>push t</td><td>5</td><td class="mt">N, 20, t</td></tr>
+<tr><td>18</td><td>*</td><td>mult</td><td>4</td><td class="mt">N, 20*t</td></tr>
+<tr><td>19</td><td>z</td><td>push z</td><td>5</td><td class="mt">N, 20*t, z</td></tr>
+<tr><td>20</td><td>t</td><td>push t</td><td>6</td><td class="mt">N, 20*t, z, t</td></tr>
+<tr><td>21</td><td>/</td><td>div</td><td>5</td><td class="mt">N, 20*t, z/t</td></tr>
+<tr><td>22</td><td>−</td><td>sub</td><td>4</td><td class="mt">N, (20*t−z/t)</td></tr>
+<tr><td>23</td><td>100</td><td>push 100</td><td>5</td><td class="mt">N, (20*t−z/t), 100</td></tr>
+<tr><td>24</td><td>w</td><td>push w</td><td>6</td><td class="mt">N, (20*t−z/t), 100, w</td></tr>
+<tr><td>25</td><td>*</td><td>mult</td><td>5</td><td class="mt">N, (20*t−z/t), 100*w</td></tr>
+<tr><td>26</td><td>+</td><td>add</td><td>4</td><td class="mt">N, D = (20*t−z/t+100*w)</td></tr>
+<tr><td>27</td><td>/</td><td>div</td><td>3</td><td class="mt">N / D</td></tr>
+<tr><td>28</td><td></td><td>pop Result</td><td>2</td><td class="mt">[90, 100 |   →  Result = N/D</td></tr>
+</tbody></table>
+در پایان، نتیجهٔ <span class="m">[(x+y−10−t/d+10*s−z)] / [(20*t−z/t+100*w)]</span> با یک pop در متغیر Result در حافظه نوشته می‌شود و SP دوباره 2 می‌شود؛ یعنی دو دادهٔ قبلی پشته (90 و 100) دست‌نخورده باقی می‌مانند. بیشینهٔ SP در طول محاسبه 6 بود؛ پس این عبارت به ۴ خانهٔ آزاد پشته نیاز داشت.
+</div>
+{{fig:stack_row([("step 7: push d",["90","100","x+y-10","t","d"],5),("step 8: div",["90","100","x+y-10","t/d","d"],4),("step 20: push t",["90","100","N","20*t","z","t"],6),("step 27: div",["90","100","N/D","D","100*w","w"],3)], "چند لحظه از محاسبه (خاکستری: خانه‌های بالای SP)")}}
+</div>
+
+<h2>ماشین نمونهٔ ۶ (ماشین پشته‌ای)</h2>
+<p>در ماشین پشته‌ای، همهٔ دستورها (به‌جز push و pop) <b>هیچ فیلد عملوندی در قالب دستور ندارند</b>؛ بنابراین «تقریباً» همهٔ دستورها بدون فیلد عملوندند.</p>
+<ul>
+<li>حافظهٔ اصلی <span class="m">2<sup>32</sup></span> واحد آدرس‌پذیر ۸ بیتی؛ کلمه ۳۲ بیت؛</li>
+<li>روش‌های آدرس‌دهی: ضمنی، مستقیم و بی‌واسطه؛ دستورها در دو قالب کد می‌شوند:</li>
+</ul>
+<div class="twocol">
+<div><div class="fmt"><div>Opcode<small>8 bits</small></div><div style="min-width:36mm">Addr/data<small>32 bits</small></div></div><div class="fmt-cap">قالب I (۵ بایت)</div></div>
+<div><div class="fmt"><div>Opcode<small>8 bits</small></div></div><div class="fmt-cap">قالب II (۱ بایت)</div></div>
+</div>
+<table class="ltrt small full">
+<thead><tr><th>قالب</th><th>Opcode</th><th>Mnemonic</th><th>Operation</th></tr></thead>
+<tbody>
+<tr><td rowspan="3">I</td><td class="bits">00000000</td><td><code>push #data</code></td><td class="mt">Stack<sub>(SP)</sub> ← data; SP ← (SP)+1</td></tr>
+<tr><td class="bits">00000001</td><td><code>push addr</code></td><td class="mt">Stack<sub>(SP)</sub> ← (M<sub>addr</sub>); SP ← (SP)+1</td></tr>
+<tr><td class="bits">00000010</td><td><code>pop addr</code></td><td class="mt">SP ← (SP)−1; M<sub>addr</sub> ← (Stack<sub>(SP)</sub>)</td></tr>
+<tr><td rowspan="9">II</td><td class="bits">00000011</td><td><code>add</code></td><td class="mt">Stack<sub>(SP)−2</sub> ← (Stack<sub>(SP)−2</sub>) + (Stack<sub>(SP)−1</sub>); SP ← (SP)−1</td></tr>
+<tr><td class="bits">00000100</td><td><code>sub</code></td><td class="mt">Stack<sub>(SP)−2</sub> ← (Stack<sub>(SP)−2</sub>) − (Stack<sub>(SP)−1</sub>); SP ← (SP)−1</td></tr>
+<tr><td class="bits">00000101</td><td><code>swap</code></td><td class="mt">Stack<sub>(SP)−1</sub> ↔ Stack<sub>(SP)−2</sub></td></tr>
+<tr><td class="bits">00000110</td><td><code>sp++</code></td><td class="mt">SP ← (SP)+1</td></tr>
+<tr><td class="bits">00000111</td><td><code>sp--</code></td><td class="mt">SP ← (SP)−1</td></tr>
+<tr><td class="bits">00001000</td><td><code>j</code></td><td class="mt">PC ← (Stack<sub>(SP)−1</sub>); SP ← (SP)−1</td></tr>
+<tr><td class="bits">00001001</td><td><code>jz</code></td><td class="mt">if (Stack<sub>(SP)−2</sub>) = 0 then PC ← (Stack<sub>(SP)−1</sub>); SP ← (SP)−2</td></tr>
+<tr><td class="bits">00001010</td><td><code>jnz</code></td><td class="mt">if (Stack<sub>(SP)−2</sub>) ≠ 0 then PC ← (Stack<sub>(SP)−1</sub>); SP ← (SP)−2</td></tr>
+<tr><td class="bits">00001011</td><td><code>jn</code></td><td class="mt">if (Stack<sub>(SP)−2</sub>) &lt; 0 then PC ← (Stack<sub>(SP)−1</sub>); SP ← (SP)−2</td></tr>
+</tbody></table>
+<div class="box warn"><span class="t">توجه (خطای تایپی اسلاید)</span>
+در اسلاید، کد عمل <code>jn</code> هم <span class="bits">00001000</span> نوشته شده که همان کد <code>j</code> است. کد عمل‌ها باید یکتا باشند؛ کد منطقی بعدی <span class="bits">00001011</span> است که در جدول بالا آمده است.
+</div>
+<p>در دستورهای پرش، ابتدا شرط (مثلاً شمارنده) و سپس <b>آدرس مقصد</b> با <code>push #label</code> در پشته قرار می‌گیرد؛ دستور پرش هر دو را برمی‌دارد.</p>
+<div class="box note"><span class="t">ترفند <code>pop x</code> و سپس <code>sp++</code></span>
+ماشین دستور «کپی بالای پشته» (dup) ندارد. اما چون pop داده را پاک نمی‌کند، اگر بعد از <code>pop x</code> دستور <code>sp++</code> بیاید، همان مقدار دوباره روی پشته برمی‌گردد. پس جفت <code>pop x / sp++</code> یعنی «بالای پشته را در x ذخیره کن ولی آن را از پشته برندار».
+</div>
+
+<div class="box ex long"><span class="t">مثال اسلاید: مجموع ۲۰ جملهٔ اول فیبوناچی در متغیر sum</span>
+<pre class="code">        org   0
+loop:   push  x          ; [x]
+        push  y          ; [x, y]
+        add              ; [x+y]
+        pop   x          ; x = x+y           []
+        sp++             ; [x]   (مقدار جدید x دوباره روی پشته)
+        push  sum        ; [x, sum]
+        add              ; [x+sum]
+        pop   sum        ; sum = sum + x     []
+        push  x
+        push  y
+        add              ; [x+y]
+        pop   y          ; y = x+y
+        sp++             ; [y]
+        push  sum
+        add
+        pop   sum        ; sum = sum + y
+        push  counter
+        push  #1
+        sub              ; [counter-1]
+        pop   counter    ; counter = counter-1
+        sp++             ; [counter]
+        push  #loop      ; [counter, loop]
+        jnz              ; if counter≠0 goto loop
+        push  #OS_return_addr
+        j                ; بازگشت به سیستم‌عامل
+
+sum:     dw  1
+counter: dw  10
+x:       dw  0
+y:       dw  1
+         end</pre>
+<p><b>توضیح:</b> x و y دو جملهٔ آخر هستند (ابتدا 0 و 1) و sum با <span class="m">0 + 1 = 1</span> شروع می‌شود. در هر دور، دو جملهٔ جدید ساخته می‌شوند (اول در x و سپس در y) و هر کدام بلافاصله به sum اضافه می‌شود. پشته در پایان هر بخش خالی می‌شود (برنامه پشته را متعادل نگه می‌دارد).</p>
+{{fig:stack_row([("push x",["0"],1),("push y",["0","1"],2),("add",["1","1"],1),("pop x",["1","1"],0),("sp++",["1","1"],1),("push sum",["1","1"],2),("add",["2","1"],1),("pop sum",["2","1"],0)], "ردگیری پشته در نیمهٔ اول دور اول (x = 1 و سپس sum = 2)")}}
+</div>
+
+<div class="box hw long"><span class="t">تکلیف اسلاید: کد ماشین برنامهٔ بالا را تولید کنید. آیا می‌توانید برنامهٔ بهتری بنویسید؟</span>
+<div class="sol"><span class="t">بخش اول: ترجمه به کد ماشین</span>
+دستورهای push و pop پنج بایتی (قالب I) و بقیه یک بایتی (قالب II) هستند. آدرس‌ها و داده‌ها ۳۲ بیتی‌اند. محاسبهٔ آدرس‌ها نشان می‌دهد کد تا <code>54h</code> ادامه دارد، پس داده‌ها از <code>55h</code> شروع می‌شوند: sum = 55h، counter = 59h، x = 5Dh و y = 61h (هر کدام ۴ بایت).
+<asm>
+!| | | org | 0 |
+00000000 | 01 0000005D | loop: | push | x |
+00000005 | 01 00000061 | | push | y |
+0000000A | 03 | | add | |
+0000000B | 02 0000005D | | pop | x |
+00000010 | 06 | | sp++ | |
+00000011 | 01 00000055 | | push | sum |
+00000016 | 03 | | add | |
+00000017 | 02 00000055 | | pop | sum |
+0000001C | 01 0000005D | | push | x |
+00000021 | 01 00000061 | | push | y |
+00000026 | 03 | | add | |
+00000027 | 02 00000061 | | pop | y |
+0000002C | 06 | | sp++ | |
+0000002D | 01 00000055 | | push | sum |
+00000032 | 03 | | add | |
+00000033 | 02 00000055 | | pop | sum |
+00000038 | 01 00000059 | | push | counter |
+0000003D | 00 00000001 | | push | #1 |
+00000042 | 04 | | sub | |
+00000043 | 02 00000059 | | pop | counter |
+00000048 | 06 | | sp++ | |
+00000049 | 00 00000000 | | push | #loop | آدرس loop = 0
+0000004E | 0A | | jnz | |
+0000004F | 00 ???????? | | push | #OS_return_addr |
+00000054 | 08 | | j | |
+--
+00000055 | 00000001 | sum: | dw | 1 |
+00000059 | 0000000A | counter: | dw | 10 |
+0000005D | 00000000 | x: | dw | 0 |
+00000061 | 00000001 | y: | dw | 1 |
+!| | | end | |
+</asm>
+</div>
+<div class="box warn" style="margin:2mm 0"><span class="t">توجه: تعداد جمله‌ها</span>
+sum از ابتدا دو جملهٔ 0 و 1 را دارد و هر دور حلقه دو جملهٔ جدید اضافه می‌کند. با <code>counter = 10</code> حلقه ۱۰ بار اجرا می‌شود؛ پس در مجموع <span class="m">2 + 20 = 22</span> جمله (F<sub>0</sub> تا F<sub>21</sub>) جمع می‌شود و حاصل 28656 است (با شبیه‌سازی تأیید شده). برای دقیقاً ۲۰ جمله (F<sub>0</sub> تا F<sub>19</sub>) باید <code>counter: dw 9</code> باشد که حاصل <b>10945</b> می‌دهد.
+</div>
+<div class="sol"><span class="t">بخش دوم: یک برنامهٔ بهتر</span>
+<p><b>ایده:</b> از اتحاد <span class="m">F<sub>0</sub> + F<sub>1</sub> + … + F<sub>n−1</sub> = F<sub>n+1</sub> − 1</span> استفاده می‌کنیم. پس لازم نیست در هر دور sum را به‌روز کنیم؛ کافی است جمله‌ها را بسازیم و در پایان یک تفریق انجام دهیم. پس از k دور (هر دور دو جمله)، <span class="m">x = F<sub>2k</sub></span> و <span class="m">y = F<sub>2k+1</sub></span> است. برای ۲۰ جمله به <span class="m">F<sub>21</sub></span> نیاز داریم، یعنی ۱۰ دور و سپس <span class="m">sum = y − 1</span>. علاوه بر این، y جدید را مستقیماً از x جدید (که با sp++ روی پشته مانده) می‌سازیم.</p>
+<asm>
+!| | | org | 0 |
+00000000 | 01 00000051 | loop: | push | x | [x]
+00000005 | 01 00000055 | | push | y | [x, y]
+0000000A | 03 | | add | | [x+y]
+0000000B | 02 00000051 | | pop | x | x ← x+y
+00000010 | 06 | | sp++ | | [x]
+00000011 | 01 00000055 | | push | y | [x, y]
+00000016 | 03 | | add | | [x+y]
+00000017 | 02 00000055 | | pop | y | y ← x+y
+0000001C | 01 0000004D | | push | counter |
+00000021 | 00 00000001 | | push | #1 |
+00000026 | 04 | | sub | |
+00000027 | 02 0000004D | | pop | counter | counter ← counter−1
+0000002C | 06 | | sp++ | | [counter]
+0000002D | 00 00000000 | | push | #loop |
+00000032 | 0A | | jnz | |
+00000033 | 01 00000055 | | push | y | y = F<sub>21</sub>
+00000038 | 00 00000001 | | push | #1 |
+0000003D | 04 | | sub | |
+0000003E | 02 00000049 | | pop | sum | sum = F<sub>21</sub> − 1
+00000043 | 00 ???????? | | push | #OS_return_addr |
+00000048 | 08 | | j | |
+--
+00000049 | 00000000 | sum: | dw | 0 |
+0000004D | 0000000A | counter: | dw | 10 |
+00000051 | 00000000 | x: | dw | 0 |
+00000055 | 00000001 | y: | dw | 1 |
+!| | | end | |
+</asm>
+<p><b>مقایسه:</b> در هر دور ۱۵ دستور به‌جای ۲۳ دستور اجرا می‌شود و اندازهٔ کد از ۸۵ بایت به ۷۳ بایت کاهش می‌یابد. نتیجه: <span class="m">x = F<sub>20</sub> = 6765</span>، <span class="m">y = F<sub>21</sub> = 10946</span> و <span class="m">sum = 10945</span> = مجموع دقیق ۲۰ جملهٔ اول (با شبیه‌سازی تأیید شده).</p>
+</div></div>
+
+<h2>تبدیل عبارت میانوندی به پسوندی</h2>
+<p>الگوریتم اسلاید دو مرحله دارد:</p>
+<ol>
+<li>عبارت ورودی را <b>کامل پرانتزگذاری</b> کنید (هر عملگر با دو عملوندش یک جفت پرانتز بگیرد).</li>
+<li>از درونی‌ترین جفت پرانتزها شروع کنید و <b>پرانتز راست را با عملگر آن جایگزین کنید و پرانتز چپ را حذف کنید</b>.</li>
+</ol>
+<div class="box ex long"><span class="t">مثال اسلاید: تبدیل عبارت <span class="m">(x + y − 10 − t/d + 10*s − z) / (20*t − z/t + 100*w)</span></span>
+<div class="sol"><span class="t">مرحلهٔ ۱: پرانتزگذاری کامل</span>
+<pre class="code">(x+y-10-t/d+10*s-z) / (20*t-z/t+100*w)
+((x+y)-10-(t/d)+(10*s)-z) / ((20*t)-(z/t)+(100*w))
+(((x+y)-10)-(t/d)+((10*s)-z)) / (((20*t)-(z/t))+(100*w))
+((((x+y)-10)-(t/d))+((10*s)-z)) / (((20*t)-(z/t))+(100*w))
+(((((x+y)-10)-(t/d))+((10*s)-z)) / (((20*t)-(z/t))+(100*w)))</pre>
+</div>
+<div class="sol"><span class="t">مرحلهٔ ۲: جایگزینی پرانتز راست با عملگر</span>
+<pre class="code">(((((x+y)-10)-(t/d))+((10*s)-z)) / (((20*t)-(z/t))+(100*w)))
+(((( xy+ -10)- td/ )+( 10s* -z)) / (( 20t* - zt/ )+ 100w*))
+((( xy+ 10- - td/ )+ 10s*z- ) / ( 20t* zt/- + 100w*))
+(( xy+ 10- td/- + 10s*z- ) / 20t* zt/- 100w*+ )
+( xy+ 10- td/- 10s*z- + / 20t* zt/- 100w*+ )
+xy+ 10- td/- 10s*z- + 20t* zt/- 100w*+ /</pre>
+نتیجه: <code>xy+10-td/-10s*z-+20t*zt/-100w*+/</code>
+</div>
+<div class="box note" style="margin-bottom:0"><span class="t">نکته: چرا این جواب با جواب قبلی کمی فرق دارد؟</span>
+در پرانتزگذاری بالا، <span class="m">+10*s − z</span> به شکل <span class="m">+((10*s) − z)</span> گروه شده است، در حالی که پرانتزگذاری استاندارد چپ‌به‌راست <span class="m">((… + (10*s)) − z)</span> است و جواب <code>xy+10-td/-10s*+z-20t*zt/-100w*+/</code> (مثال قبل) را می‌دهد. چون <span class="m">a + (b − c) = (a + b) − c</span>، هر دو عبارت لهستانی <b>مقدار یکسانی</b> دارند و هر دو درست‌اند. اگر بخواهید جواب یکتا باشد، همیشه عملگرهای هم‌اولویت را از چپ به راست گروه کنید.
+</div>
+</div>
+
+<h3>روش دوم (تکمیلی): الگوریتم پشته‌ای</h3>
+<p>کامپایلرها معمولاً با یک پشتهٔ عملگر تبدیل را در یک پیمایش انجام می‌دهند (الگوریتم «ایستگاه قطار» دایکسترا): عبارت را از چپ به راست بخوانید؛ (۱) عملوند را مستقیم به خروجی بفرستید؛ (۲) برای عملگر، تا وقتی بالای پشته عملگری با اولویت <b>بیشتر یا مساوی</b> است آن را pop و به خروجی بفرستید، سپس عملگر جدید را push کنید؛ (۳) «(» را push کنید؛ (۴) با رسیدن به «)» تا رسیدن به «(» pop کنید؛ (۵) در پایان همهٔ عملگرهای پشته را pop کنید.</p>
+<div class="box ex"><span class="t">مثال ۳-۵</span>
+عبارت <span class="m">a + b * c − d</span> را به پسوندی تبدیل کنید.
+<div class="sol"><span class="t">حل</span>
+<table class="ltrt small"><thead><tr><th>نماد</th><th>پشتهٔ عملگر</th><th>خروجی</th></tr></thead><tbody>
+<tr><td>a</td><td></td><td>a</td></tr>
+<tr><td>+</td><td>+</td><td>a</td></tr>
+<tr><td>b</td><td>+</td><td>a b</td></tr>
+<tr><td>*</td><td>+ *</td><td>a b</td></tr>
+<tr><td>c</td><td>+ *</td><td>a b c</td></tr>
+<tr><td>−</td><td>−</td><td>a b c * +</td></tr>
+<tr><td>d</td><td>−</td><td>a b c * + d</td></tr>
+<tr><td>(پایان)</td><td></td><td>a b c * + d −</td></tr>
+</tbody></table>
+جواب: <code>abc*+d-</code>
+</div></div>
+
+<div class="box hw long"><span class="t">تمرین‌های حل‌شدهٔ نمادگذاری لهستانی</span>
+<p><b>۱.</b> عبارت <span class="m">(a + b) * (c − d) / e</span> را به پسوندی و پیشوندی تبدیل کنید و آن را با <span class="m">a=2, b=3, c=7, d=1, e=5</span> روی ماشین پشته‌ای محاسبه کنید.</p>
+<div class="sol"><span class="t">حل</span>
+پسوندی: <code>ab+cd-*e/</code> &nbsp;&nbsp; پیشوندی: <code>/*+ab-cde</code><br>
+محاسبه (پشته پس از هر نماد): <span class="m">[2] → [2,3] → [5] → [5,7] → [5,7,1] → [5,6] → [30] → [30,5] → [6]</span>؛ پس حاصل 6 است و بیشینهٔ عمق پشته ۳.
+</div>
+<p><b>۲.</b> عبارت پسوندی <code>ab*cd*+e-</code> را به میانوندی برگردانید.</p>
+<div class="sol"><span class="t">حل</span>
+با همان روش پشته‌ای ولی با ساختن رشته: <span class="m">a, b → a*b</span>؛ <span class="m">c, d → c*d</span>؛ <span class="m">+ → (a*b + c*d)</span>؛ <span class="m">e, − → a*b + c*d − e</span>.
+</div>
+<p><b>۳.</b> برای محاسبهٔ <code>ab+cd-*e/</code> روی ماشین ۶ (که ضرب و تقسیم ندارد) فقط بخش <span class="m">(a+b) − (c−d)</span> را بنویسید.</p>
+<div class="sol"><span class="t">حل</span>
+<pre class="code">push a
+push b
+add          ; [a+b]
+push c
+push d
+sub          ; [a+b, c-d]
+sub          ; [(a+b)-(c-d)]
+pop  r</pre>
+</div></div>
+
+<div class="summary"><span class="t">خلاصهٔ فصل ۳</span>
+<ul>
+<li>ثبات = n فلیپ‌فلاپ با کنترل مشترک؛ PIPO/SIPO/PISO/SISO؛ فایل ثبات (یک دسترسی در هر لحظه) یا مجزا (موازی)؛ آدرس‌پذیر (R0…، AX…) یا غیرآدرس‌پذیر (MAR، MBR، IR، PC).</li>
+<li>طول ثبات‌ها: MAR و PC به اندازهٔ آدرس، MBR به اندازهٔ پهنای دسترسی، IR به اندازهٔ بلندترین دستور.</li>
+<li>روش‌های آدرس‌دهی این فصل: مستقیم، غیرمستقیم (یک/چند سطحی)، بی‌واسطه، شاخص‌دار و ضمنی.</li>
+<li>بدون آدرس‌دهی غیرمستقیم می‌توان با کد خودتغییرده آرایه را پیمایش کرد (اما از دید مهندسی نرم‌افزار بد است).</li>
+<li>اسمبلر دوگذره است (گذر ۱: جدول نمادها، گذر ۲: کد)؛ پیونددهنده ماژول‌ها و کتابخانه‌ها را ترکیب و جابه‌جا می‌کند؛ بارکننده برنامه را در حافظه می‌گذارد و اجرا می‌کند.</li>
+<li>ماشین‌های ۳، ۲، ۱ و ۰ آدرسه؛ در ماشین پشته‌ای، عبارت‌ها به شکل لهستانی (پسوندی) و بدون پرانتز محاسبه می‌شوند.</li>
+</ul></div>

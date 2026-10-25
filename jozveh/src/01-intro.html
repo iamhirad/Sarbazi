@@ -1,0 +1,278 @@
+<h1 class="chapter">مقدمه: ساختار کامپیوتر، طبقه‌بندی فلین و ابررایانه‌ها</h1>
+<div class="chapter-intro">
+در این فصل (جلسهٔ اول درس) با <b>مدل پایهٔ کامپیوتر</b> یعنی ساختار «برنامهٔ ذخیره‌شده» یا فون‌نویمان آشنا می‌شویم، سپس <b>طبقه‌بندی فلین</b> را که ساختارهای کامپیوتری را بر اساس جریان دستور و جریان داده دسته‌بندی می‌کند می‌بینیم و با چند <b>ابررایانهٔ</b> مشهور تاریخ آشنا می‌شویم. در پایان، اهداف، سرفصل‌ها، منابع و بارم‌بندی درس آمده است.
+</div>
+
+<h2>ساختار فون‌نویمان (کامپیوتر با برنامهٔ ذخیره‌شده)</h2>
+<p>تقریباً همهٔ کامپیوترهای امروزی بر پایهٔ ایده‌ای ساخته شده‌اند که <b>جان فون‌نویمان</b> در سال ۱۹۴۵ (در گزارش طراحی کامپیوتر EDVAC) مطرح کرد. به این مدل، <b>مدل برنامهٔ ذخیره‌شده</b> (<span class="en">Stored-program model</span>) یا <b>مدل فون‌نویمان</b> می‌گویند.</p>
+
+{{fig:vonneumann}}
+
+<div class="box def"><span class="t">تعریف: مدل برنامهٔ ذخیره‌شده</span>
+در این مدل، <b>برنامه (دستورالعمل‌ها) و داده‌ها هر دو در یک حافظه ذخیره می‌شوند</b>. پردازنده دستورها را یکی‌یکی از حافظه می‌خواند، رمزگشایی می‌کند و اجرا می‌کند. چون برنامه هم مثل داده در حافظه است، برای اجرای یک برنامهٔ دیگر کافی است برنامهٔ جدید را در حافظه بارگذاری کنیم؛ نیازی به سیم‌کشی دوبارهٔ سخت‌افزار (کاری که در کامپیوترهای اولیه مثل ENIAC لازم بود) نیست.
+</div>
+
+<p>اجزای اصلی این ساختار عبارت‌اند از:</p>
+<ul>
+<li><b>حافظه (<span class="en">Memory</span>)</b>: آرایه‌ای از خانه‌ها که هر کدام آدرس یکتا دارد و دستورها و داده‌ها را نگه می‌دارد.</li>
+<li><b>واحد پردازش مرکزی (<span class="en">CPU</span>)</b> که خود دو بخش دارد:
+  <ul>
+  <li><b>واحد کنترل (<span class="en">CU: Control Unit</span>)</b>: دستور بعدی را از حافظه واکشی (<span class="en">fetch</span>) می‌کند، آن را رمزگشایی (<span class="en">decode</span>) می‌کند و با فرستادن سیگنال‌های کنترلی، بقیهٔ اجزا را برای اجرای آن هدایت می‌کند.</li>
+  <li><b>واحد محاسبه و منطق (<span class="en">ALU: Arithmetic/Logic Unit</span>)</b>: عملیات حسابی (جمع، تفریق، …) و منطقی (AND، OR، XOR، …) را روی داده‌ها انجام می‌دهد.</li>
+  </ul></li>
+<li><b>ورودی (<span class="en">Input</span>)</b> و <b>خروجی (<span class="en">Output</span>)</b>: دستگاه‌هایی که داده را از بیرون به کامپیوتر می‌آورند یا نتیجه را به بیرون می‌فرستند.</li>
+</ul>
+
+<h3>چرخهٔ واکشی–اجرا</h3>
+<p>کار پردازنده در مدل فون‌نویمان را می‌توان به صورت یک حلقهٔ بی‌پایان خلاصه کرد:</p>
+<ol>
+<li><b>واکشی (<span class="en">Fetch</span>)</b>: خواندن دستوری که آدرس آن در ثبات شمارندهٔ برنامه (PC) است و قرار دادن آن در ثبات دستور (IR)؛ سپس افزایش PC تا به دستور بعدی اشاره کند.</li>
+<li><b>رمزگشایی (<span class="en">Decode</span>)</b>: تشخیص نوع عمل (از روی کد عمل) و تعیین عملوندها.</li>
+<li><b>اجرا (<span class="en">Execute</span>)</b>: خواندن عملوندها، انجام عمل در ALU و نوشتن نتیجه.</li>
+<li>بازگشت به مرحلهٔ ۱.</li>
+</ol>
+<p>با جزئیات این چرخه و ثبات‌های PC و IR در فصل‌های ۲ و ۳ بیشتر آشنا می‌شویم.</p>
+
+<div class="box note"><span class="t">نکته: گلوگاه فون‌نویمان</span>
+در این مدل، همهٔ دستورها و داده‌ها باید از <b>یک مسیر</b> میان پردازنده و حافظه عبور کنند و پردازنده در هر لحظه یک دستور را اجرا می‌کند. به این محدودیت «گلوگاه فون‌نویمان» (<span class="en">von Neumann bottleneck</span>) می‌گویند. همان‌طور که در اسلاید آمده، مدل فون‌نویمان ساختار پایه است و <b>برای بهبود کارایی آن از ساختارهای دیگر</b> (مثل خط لوله، پردازش موازی، چند پردازنده‌ای و …) استفاده می‌شود؛ طبقه‌بندی فلین دقیقاً همین ساختارها را دسته‌بندی می‌کند.
+</div>
+
+<h2>طبقه‌بندی فلین (<span class="en">Flynn's Taxonomy</span>)</h2>
+<p><b>مایکل فلین</b> (<span class="en">Michael J. Flynn, 1934–2025</span>) در سال ۱۹۶۶ طبقه‌بندی‌ای برای ساختار کامپیوترها ارائه کرد که بر دو مفهوم استوار است:</p>
+<div class="box def"><span class="t">تعریف: جریان دستور و جریان داده</span>
+<b>جریان دستور (<span class="en">Instruction Stream, IS</span>)</b>: دنبالهٔ دستورهایی که پردازنده واکشی و اجرا می‌کند.<br>
+<b>جریان داده (<span class="en">Data Stream, DS</span>)</b>: دنبالهٔ داده‌هایی که توسط یک جریان دستور خوانده و پردازش می‌شوند.
+</div>
+<p>بر اساس اینکه هر یک از این دو جریان «تکی» باشد یا «چندگانه»، چهار دسته به دست می‌آید:</p>
+
+<table>
+<thead><tr><th></th><th>یک جریان دستور (Single IS)</th><th>چند جریان دستور (Multiple IS)</th></tr></thead>
+<tbody>
+<tr><th>یک جریان داده (Single DS)</th><td class="c"><b>SISD</b></td><td class="c" style="background:#eaf7e4"><b>MISD</b></td></tr>
+<tr><th>چند جریان داده (Multiple DS)</th><td class="c" style="background:#eaf7e4"><b>SIMD</b></td><td class="c" style="background:#eaf7e4"><b>MIMD</b></td></tr>
+</tbody></table>
+<div class="tcap">جدول: چهار دستهٔ فلین. سه دستهٔ سبز «ساختارهای پیشرفته» (<span class="en">Advanced Structures</span>) هستند.</div>
+
+<ul>
+<li><b>SISD</b>: <span class="en">Single Instruction stream, Single Data stream</span></li>
+<li><b>SIMD</b>: <span class="en">Single Instruction stream, Multiple Data streams</span></li>
+<li><b>MISD</b>: <span class="en">Multiple Instruction streams, Single Data stream</span></li>
+<li><b>MIMD</b>: <span class="en">Multiple Instruction streams, Multiple Data streams</span></li>
+</ul>
+<p>در شکل‌های زیر از این علامت‌ها استفاده شده است: <b>CU</b> واحد کنترل، <b>PU</b> واحد پردازش (<span class="en">Processing Unit</span>)، <b>MU</b> واحد حافظه (<span class="en">Memory Unit</span>)، <span style="color:#c0392b;font-weight:700">IS</span> جریان دستور و <span style="color:#1d7a4c;font-weight:700">DS</span> جریان داده.</p>
+
+<h3>SISD — همان ساختار فون‌نویمان</h3>
+<p>یک واحد کنترل، دستورها را یکی‌یکی از حافظه می‌گیرد (IS از MU به CU) و به یک واحد پردازش می‌دهد (IS از CU به PU). واحد پردازش هم روی یک جریان داده کار می‌کند (DS بین PU و MU). این <b>همان کامپیوتر پایهٔ فون‌نویمان</b> است؛ مثل پردازنده‌های تک‌هسته‌ای قدیمی.</p>
+{{fig:sisd}}
+
+<h3>SIMD — یک دستور، چند داده</h3>
+<p>یک واحد کنترل وجود دارد که <b>یک دستور را هم‌زمان برای n واحد پردازش پخش می‌کند</b>؛ هر واحد پردازش آن دستور را روی دادهٔ خودش (DS<sub>i</sub>) اجرا می‌کند. برای مثال با یک دستور «جمع برداری» می‌توان ۶۴ جمع را هم‌زمان روی ۶۴ جفت عدد انجام داد. <b>بیشتر ابررایانه‌های اولیه</b> (مثل Cray-1 که یک ماشین برداری بود) از این ساختار استفاده می‌کردند. امروزه هم واحدهای برداری پردازنده‌ها (مثل SSE و AVX) و پردازنده‌های گرافیکی (GPU) بر همین ایده استوارند.</p>
+{{fig:simd}}
+
+<h3>MISD — چند دستور، یک داده</h3>
+<p>چند جریان دستور روی <b>یک جریان داده</b> کار می‌کنند: داده از یک زیرواحد پردازشی به زیرواحد بعدی می‌رود و هر زیرواحد، عمل متفاوتی (دستور خودش، IS<sub>i</sub>) را روی آن انجام می‌دهد. دربارهٔ این دسته اختلاف نظر وجود دارد: <b>بعضی معماران کامپیوتر معتقدند ماشین MISD واقعی وجود ندارد</b>؛ اما بعضی دیگر <b>کامپیوترهای خط لوله‌ای (<span class="en">Pipelined</span>) و آرایه‌های سیستولیک (<span class="en">Systolic arrays</span>)</b> را از نوع MISD می‌دانند.</p>
+{{fig:misd}}
+<div class="box note"><span class="t">نکته</span>
+طبق اسلاید، <b>ساختارهای خط لوله‌ای مقرون‌به‌صرفه‌ترین (<span class="en">most cost-effective</span>) ساختارها هستند</b>؛ چون با تقسیم کار به چند مرحله و کار هم‌زمان مراحل روی داده‌های پشت‌سرهم، بدون تکرار کل سخت‌افزار، توان عملیاتی چند برابر می‌شود.
+</div>
+
+<h3>MIMD — چند دستور، چند داده</h3>
+<p>چند کامپیوتر مستقل (هر کدام با CU، PU و بخشی از حافظهٔ خودش) هم‌زمان برنامه‌های جداگانه را روی داده‌های جداگانه اجرا می‌کنند. چنین سیستمی را <b>چندکامپیوتری (<span class="en">Multicomputer</span>)</b> می‌نامند. <b>تقریباً همهٔ ابررایانه‌های فعلی از این ساختار استفاده می‌کنند</b>؛ پردازنده‌های چندهسته‌ای و خوشه‌های سرور هم نمونه‌های MIMD هستند.</p>
+{{fig:mimd}}
+
+<div class="box ex"><span class="t">مثال ۱-۱: دسته‌بندی سیستم‌ها</span>
+هر یک از سیستم‌های زیر در کدام دستهٔ فلین قرار می‌گیرد؟
+<ol>
+<li>یک پردازندهٔ تک‌هسته‌ای ساده که برنامه را دستور به دستور اجرا می‌کند.</li>
+<li>یک GPU که یک دستور را هم‌زمان روی هزاران پیکسل اجرا می‌کند.</li>
+<li>خوشه‌ای از ۱۰۰ سرور که هر کدام بخش جداگانه‌ای از یک شبیه‌سازی را اجرا می‌کنند.</li>
+<li>یک خط لولهٔ پنج‌مرحله‌ای که هر داده از پنج مرحلهٔ پردازشی متفاوت عبور می‌کند.</li>
+<li>ابررایانهٔ Earth Simulator (۶۴۰ گره، هر گره ۸ پردازندهٔ برداری).</li>
+</ol>
+<div class="sol"><span class="t">پاسخ</span>
+(۱) SISD. (۲) SIMD. (۳) MIMD. (۴) از دید معمارانی که خط لوله را MISD می‌دانند، MISD. (۵) ترکیبی است: هر پردازندهٔ برداری SIMD است و گره‌ها مستقل کار می‌کنند؛ به همین دلیل در اسلاید «<span class="en">Multi-SIMD</span>» نامیده شده است.
+</div></div>
+
+<h2>ابررایانه‌ها (<span class="en">Supercomputers</span>)</h2>
+<p>استفاده از <b>ساختارهای پیشرفتهٔ کامپیوتری در دسته‌های SIMD، MISD و MIMD</b> در کنار <b>پیشرفت فناوری مدارهای مجتمع</b>، در هفت دههٔ گذشته عطش ساخت کامپیوترهای بسیار قدرتمند (ابررایانه‌ها) را زنده نگه داشته است.</p>
+<p>ابررایانه‌ها <b>هر ۶ ماه یک بار</b> (ژوئن و نوامبر) ارزیابی و در فهرست <span class="en">www.top500.org</span> رتبه‌بندی می‌شوند. معیار رتبه‌بندی <b>توان محاسباتی بر حسب FLOPS</b> است.</p>
+<div class="box def"><span class="t">تعریف: FLOPS</span>
+<b>FLOPS</b> مخفف <span class="en">FLoating-point Operations Per Second</span> یعنی «تعداد عملیات ممیز شناور در ثانیه» است. در فهرست TOP500 دو عدد گزارش می‌شود: <b>R<sub>max</sub></b> (کارایی اندازه‌گیری‌شده روی محک LINPACK) و <b>R<sub>peak</sub></b> (کارایی بیشینهٔ نظری).
+</div>
+<table>
+<thead><tr><th>پیشوند</th><th>نماد</th><th>مقدار</th><th>رابطه</th></tr></thead>
+<tbody>
+<tr><td>kiloflops</td><td class="c">KFLOPS</td><td class="c mt">10<sup>3</sup></td><td></td></tr>
+<tr><td>megaflops</td><td class="c">MFLOPS</td><td class="c mt">10<sup>6</sup></td><td></td></tr>
+<tr><td>gigaflops</td><td class="c">GFLOPS</td><td class="c mt">10<sup>9</sup></td><td></td></tr>
+<tr><td>teraflops</td><td class="c">TFLOPS</td><td class="c mt">10<sup>12</sup></td><td></td></tr>
+<tr><td>petaflops</td><td class="c">PFLOPS</td><td class="c mt">10<sup>15</sup></td><td></td></tr>
+<tr><td>exaflops</td><td class="c">EFLOPS</td><td class="c mt">10<sup>18</sup></td><td class="mt small">1 EF = 10<sup>3</sup> PF = 10<sup>6</sup> TF = 10<sup>9</sup> GF = 10<sup>12</sup> MF = 10<sup>15</sup> KF = 10<sup>18</sup> FLOPS</td></tr>
+</tbody></table>
+
+<h3>چند سیستم موفق در تاریخ ابررایانه‌ها</h3>
+<h4>Cray-1 (ماشین SIMD)</h4>
+<ul><li>سال ۱۹۷۵؛ توان ۱۶۰ MFLOPS؛ <b>ماشین برداری</b> (<span class="en">Vector machine</span>)؛ ۸ مگابایت حافظهٔ اصلی.</li></ul>
+
+<h4>Cray T3E (ماشین MIMD، تا ۳ ترافلاپس)</h4>
+<p>تحویل در سال ۱۹۹۵. مشخصات:</p>
+<table class="full small">
+<tbody>
+<tr><th>ریزپردازندهٔ هر عنصر پردازشی (PE)</th><td><span class="en">Alpha 21164A (EV5.6)</span>، RISC سوپراسکالر ۴ راهه، ۲ عمل ممیز شناور در هر سیکل، قالب ممیز شناور ۳۲ و ۶۴ بیتی IEEE</td></tr>
+<tr><th>حافظهٔ محلی</th><td>۲۵۶ یا ۵۱۲ مگابایت</td></tr>
+<tr><th>کارایی بیشینه</th><td>۱۳۵۰ MFLOPS برای هر PE</td></tr>
+<tr><th>بسته‌بندی</th><td>۸ PE در هر ماژول، خنک‌سازی مایع</td></tr>
+<tr><th>تعداد PE در سیستم</th><td>۴۰ تا ۲۰۴۸، با گام‌های ۸ تایی</td></tr>
+<tr><th>فناوری</th><td>DRAM با ۶۴ مگابایت و زمان دسترسی ۵۰ نانوثانیه</td></tr>
+<tr><th>معماری</th><td>هم‌دوس از نظر حافظهٔ نهان (<span class="en">cache coherent</span>)، حافظهٔ فیزیکی توزیع‌شده و قابل آدرس‌دهی سراسری</td></tr>
+<tr><th>کل حافظه</th><td>۱۰ گیگابایت تا ۱ ترابایت</td></tr>
+<tr><th>شبکهٔ اتصال</th><td>توپولوژی چنبرهٔ (<span class="en">torus</span>) سه‌بعدی دوطرفه</td></tr>
+</tbody></table>
+
+<h4>Earth Simulator (ماشین Multi-SIMD)</h4>
+<ul>
+<li>عملیاتی از اواخر ۲۰۰۲؛ حاصل ۵ سال طراحی و پیاده‌سازی؛ توانی معادل ۱۵ ابررایانهٔ برتر آمریکا در سال ۲۰۰۲.</li>
+<li>۶۴۰ گره؛ <b>۸ پردازندهٔ برداری در هر گره</b> (در مجموع ۵۱۲۰ پردازنده)؛ ۸ GFLOPS برای هر پردازنده، در مجموع <b>۴۰ TFLOPS</b> (<span class="m">40×10<sup>12</sup></span>).</li>
+<li>۱۶ گیگابایت حافظه در هر گره (در مجموع ۱۰ ترابایت)؛ ۲۸۰۰ کیلومتر کابل؛ ۳۲۰ کابینت (هر کدام ۲ گره)؛ هزینه: ۳۵۰ میلیون دلار.</li>
+</ul>
+
+<h4>IBM BlueGene (ماشین MIMD)</h4>
+<ul>
+<li>تحویل: ۲۰۰۴ تا ۲۰۰۷؛ کارایی بیشینه: <b>۳۶۰ TFLOPS</b>؛ توپولوژی: چنبرهٔ سه‌بعدی؛ تعداد گره‌ها: ۶۵۵۳۶؛ هر گره: ۲ پردازنده که هر کدام یک واحد ممیز شناور دوگانه دارد؛ هزینه: ۱۳۰ میلیون دلار.</li>
+<li>ساختار سلسله‌مراتبی سیستم (عدد اول کارایی یک پردازنده و عدد دوم کارایی بیشینه را نشان می‌دهد):</li>
+</ul>
+<table class="small">
+<thead><tr><th>سطح</th><th>اجزا</th><th>کارایی</th><th>حافظه</th></tr></thead>
+<tbody>
+<tr><td>تراشه (Chip)</td><td>۲ پردازنده</td><td class="mt">2.8/5.6 GF/s</td><td class="mt">4 MB</td></tr>
+<tr><td>کارت محاسباتی</td><td>۲ تراشه (1×2×1)</td><td class="mt">5.6/11.2 GF/s</td><td class="mt">0.5 GB DDR</td></tr>
+<tr><td>بُرد گره (Node Board)</td><td>۳۲ تراشه (4×4×2)، ۱۶ کارت</td><td class="mt">90/180 GF/s</td><td class="mt">8 GB DDR</td></tr>
+<tr><td>کابینت</td><td>۳۲ بُرد گره (8×8×16)</td><td class="mt">2.9/5.7 TF/s</td><td class="mt">256 GB DDR</td></tr>
+<tr><td>سیستم</td><td>۶۴ کابینت (64×32×32)</td><td class="mt">180/360 TF/s</td><td class="mt">16 TB DDR</td></tr>
+</tbody></table>
+
+<h4>Cray X1 (ماشین عظیم SIMD–MIMD)</h4>
+<p>این سیستم (که در اسلاید «تکمیل‌نشده» ذکر شده) ترکیبی از دو خط محصول کِری بود:</p>
+<ul>
+<li>از <b>Cray PVP</b> (پردازنده‌های برداری): پردازنده‌های تکی بسیار قوی، پهنای باند حافظهٔ بسیار زیاد، محاسبه با گام غیرواحد (<span class="en">non-unit stride</span>)، ویژگی‌های خاص مجموعه‌دستور؛ که مجموعه‌دستور و ریزمعماری آن مدرن شد.</li>
+<li>از <b>Cray T3E</b>: حافظهٔ اشتراکی توزیع‌شده، شبکهٔ مقیاس‌پذیر با پهنای باند زیاد، امکانات بهینهٔ ارتباط و همگام‌سازی؛ که با پردازنده‌های سفارشی بهبود یافت.</li>
+<li>هر گره: ۴ پردازندهٔ چندجریانی (MSP) هر کدام ۱۲.۸ GFLOPS (در مجموع ۵۱ GFLOPS و ۲۰۰ GB/s)، حافظهٔ اشتراکی محلی با پهنای باند زیاد (۱۲۸ کانال Direct Rambus)، ۳۲ پیوند شبکه و ۴ پیوند ورودی/خروجی. هر گره یک «خوشهٔ حافظهٔ اشتراکی» است.</li>
+<li>سیستم <b>NUMA</b> (دسترسی غیریکنواخت به حافظه) و قابل گسترش تا ۱۰۲۴ گره که از طریق شبکهٔ اتصال به هم وصل می‌شوند. نقشهٔ راه کِری رسیدن به «پتافلاپس پایدار» در بازهٔ ۲۰۱۰ تا ۲۰۱۵ بود.</li>
+</ul>
+
+<h4>IBM Roadrunner (ماشین عظیم MIMD)</h4>
+<ul>
+<li>ابررایانهٔ IBM که «قواعد شناخته‌شدهٔ ابررایانه‌ها را تغییر داد». پروژه در ۲۰۰۶ در آزمایشگاه ملی لوس‌آلاموس آغاز و در ۲۰۰۸ تحویل شد؛ <b>نخستین ابررایانهٔ پتافلاپسی جهان</b>.</li>
+<li>کاربرد: تضمین ایمنی و قابلیت اطمینان ذخایر سلاح‌های هسته‌ای آمریکا؛ همچنین پژوهش در نجوم، انرژی، ژنوم انسان، تغییر اقلیم و کاربردهای نظامی.</li>
+<li>از پردازنده‌های چندهسته‌ای <b>Cell</b> (طراحی سونی، توشیبا و IBM) استفاده کرد و خط جدید «<b>ابررایانه‌های کم‌هزینه</b>» را بنا نهاد.</li>
+<li>هزینه: ۱۳۳ میلیون دلار؛ ۱۲۹۶۰ پردازندهٔ Cell (هر کدام ۹ هسته)؛ کارایی بیشینه ۱.۳۳ PFLOPS (<span class="m">1.33×10<sup>15</sup></span>)؛ کارایی پایدار ۱ PFLOPS؛ توان مصرفی ۳.۹ مگاوات؛ ۲۹۶ رَک در ۵۱۱ متر مربع؛ وزن ۲۲۷ تن.</li>
+</ul>
+
+<h4>LineShine (ماشین عظیم MIMD، ۲۰۲۶)</h4>
+<ul>
+<li>هزینه: حدود <b>یک میلیارد دلار</b>؛ ۱۳٬۷۸۹٬۴۴۰ هستهٔ پردازندهٔ LX2؛ کارایی بیشینه حدود <b>۲.۷۳۵ اگزافلاپس</b> (۵۲ GFLOPS بر وات در FP64)؛ حافظه: ۱۳ پتابایت؛ توان: ۴۲.۲ مگاوات؛ سال: ۲۰۲۶.</li>
+</ul>
+
+<h3>ده ابررایانهٔ برتر جهان (فهرست ژوئن ۲۰۲۶)</h3>
+<table class="full small">
+<thead><tr><th>رتبه</th><th>سیستم</th><th>کشور</th><th>هسته‌ها</th><th>R<sub>max</sub> (PF)</th><th>R<sub>peak</sub> (PF)</th><th>توان (kW)</th></tr></thead>
+<tbody>
+<tr><td class="c">1</td><td class="l">LineShine — LingKun LX2 304C 1.55GHz, LingQi, Kylin OS (NSCS)</td><td>*</td><td class="c">13,789,440</td><td class="c">2,198.40</td><td class="c">2,735.82</td><td class="c">42,220</td></tr>
+<tr><td class="c">2</td><td class="l">El Capitan — HPE Cray EX255a, AMD EPYC 24C, MI300A</td><td>آمریکا</td><td class="c">11,340,000</td><td class="c">1,809.00</td><td class="c">2,821.10</td><td class="c">29,685</td></tr>
+<tr><td class="c">3</td><td class="l">Frontier — HPE Cray EX235a, AMD EPYC 64C, MI250X</td><td>آمریکا</td><td class="c">9,066,176</td><td class="c">1,353.00</td><td class="c">2,055.72</td><td class="c">24,607</td></tr>
+<tr><td class="c">4</td><td class="l">Aurora — HPE Cray EX, Intel Xeon CPU Max 9470</td><td>آمریکا</td><td class="c">9,264,128</td><td class="c">1,012.00</td><td class="c">1,980.01</td><td class="c">38,698</td></tr>
+<tr><td class="c">5</td><td class="l">JUPITER Booster — BullSequana XH3000, GH200</td><td>آلمان</td><td class="c">4,801,344</td><td class="c">1,000.00</td><td class="c">1,226.28</td><td class="c">15,794</td></tr>
+<tr><td class="c">6</td><td class="l">Eagle — Microsoft NDv5, Xeon 8480C, H100</td><td>آمریکا</td><td class="c">2,073,600</td><td class="c">561.20</td><td class="c">846.84</td><td class="c">—</td></tr>
+<tr><td class="c">7</td><td class="l">HPC6 — HPE Cray EX235a, AMD EPYC 64C, MI250X</td><td>ایتالیا</td><td class="c">3,143,520</td><td class="c">477.90</td><td class="c">606.97</td><td class="c">8,461</td></tr>
+<tr><td class="c">8</td><td class="l">Fugaku — A64FX 48C 2.2GHz, Tofu interconnect D</td><td>ژاپن</td><td class="c">7,630,848</td><td class="c">442.01</td><td class="c">537.21</td><td class="c">29,899</td></tr>
+<tr><td class="c">9</td><td class="l">Alps — HPE Cray EX254n, Grace 72C, GH200</td><td>سوئیس</td><td class="c">2,121,600</td><td class="c">434.90</td><td class="c">574.84</td><td class="c">7,124</td></tr>
+<tr><td class="c">10</td><td class="l">LUMI — HPE Cray EX235a, AMD EPYC 64C, MI250X</td><td>فنلاند</td><td class="c">2,752,704</td><td class="c">379.70</td><td class="c">531.51</td><td class="c">7,107</td></tr>
+</tbody></table>
+<div class="tcap">* در اسلاید، محل سیستم «<span class="en">National Supercomputing Centre in Shenzhen (NSCS)</span>» و کشور آن «<span class="en">United States</span>» درج شده است؛ مرکز نام‌برده در شنژن چین قرار دارد.</div>
+
+<h3>ابررایانه در برابر مغز انسان</h3>
+<p>در سال ۲۰۱۴ پژوهشگران ژاپنی با <b>K-Computer</b> (با توان ۱۰ پتافلاپس، چهارمین ابررایانهٔ سریع جهان در آن زمان) محاسبات مربوط به <b>فقط یک ثانیه</b> از فعالیت بخشی از مغز را در <b>۴۰ دقیقه</b> انجام دادند! مقایسهٔ LineShine با مغز انسان:</p>
+<table>
+<thead><tr><th>معیار</th><th>LineShine</th><th>مغز انسان</th><th>برنده</th></tr></thead>
+<tbody>
+<tr><td>توان محاسباتی</td><td class="c">~2.7 exaFLOPS</td><td class="c">~1.2 petaFLOPS (برآورد)</td><td class="c">ابررایانه</td></tr>
+<tr><td>حجم</td><td class="c">~2000 m³</td><td class="c">1400 cm³ (~0.001 m³)</td><td class="c">مغز</td></tr>
+<tr><td>توان مصرفی</td><td class="c">42 MW</td><td class="c">20 W</td><td class="c">مغز</td></tr>
+<tr><td>قیمت</td><td class="c">~1000 میلیون دلار (هواپیمای A380: ۴۴۶ میلیون)</td><td class="c">؟</td><td class="c">مغز!</td></tr>
+</tbody></table>
+
+<div class="box hw long"><span class="t">تمرین‌های حل‌شدهٔ بخش ابررایانه‌ها</span>
+<p><b>تمرین ۱.</b> LineShine (بر اساس R<sub>peak</sub>) چند برابر Cray-1 سریع‌تر است؟</p>
+<div class="sol"><span class="t">حل</span>
+<span class="m">2.735×10<sup>18</sup> / (160×10<sup>6</sup>) ≈ 1.71×10<sup>10</sup></span>؛ یعنی حدود ۱۷ میلیارد برابر در ۵۱ سال.
+</div>
+<p><b>تمرین ۲.</b> عدد «۵۲ GFLOPS بر وات» برای LineShine را بررسی کنید.</p>
+<div class="sol"><span class="t">حل</span>
+بر اساس R<sub>max</sub>: <span class="m">2198.40×10<sup>15</sup> / (42,220×10<sup>3</sup> W) ≈ 5.21×10<sup>10</sup> FLOPS/W ≈ 52 GFLOPS/W</span>. پس این عدد بر اساس کارایی اندازه‌گیری‌شده است. اگر R<sub>peak</sub> را در نظر بگیریم حدود ۶۴.۸ GFLOPS/W می‌شود.
+</div>
+<p><b>تمرین ۳.</b> بازدهی انرژی مغز را با LineShine مقایسه کنید.</p>
+<div class="sol"><span class="t">حل</span>
+مغز: <span class="m">1.2×10<sup>15</sup> / 20 = 6×10<sup>13</sup> FLOPS/W = 60,000 GFLOPS/W</span>. نسبت: <span class="m">60000/52 ≈ 1150</span>؛ یعنی مغز حدود ۱۱۵۰ برابر کم‌مصرف‌تر است.
+</div>
+<p><b>تمرین ۴.</b> کار K-Computer (۴۰ دقیقه با ۱۰ PFLOPS) را LineShine با سرعت R<sub>max</sub> در چه زمانی انجام می‌دهد؟</p>
+<div class="sol"><span class="t">حل</span>
+حجم کار: <span class="m">10×10<sup>15</sup> × 2400 s = 2.4×10<sup>19</sup></span> عمل. زمان: <span class="m">2.4×10<sup>19</sup> / 2.1984×10<sup>18</sup> ≈ 10.9 s</span>. پس حتی سریع‌ترین ابررایانهٔ ۲۰۲۶ هم برای شبیه‌سازی یک ثانیه از بخشی از مغز حدود ۱۱ ثانیه وقت لازم دارد.
+</div>
+<p><b>تمرین ۵.</b> اعداد Earth Simulator و BlueGene را بررسی کنید.</p>
+<div class="sol"><span class="t">حل</span>
+Earth Simulator: <span class="m">640 × 8 = 5120</span> پردازنده؛ <span class="m">5120 × 8 GFLOPS = 40,960 GFLOPS ≈ 40 TFLOPS</span>؛ حافظه <span class="m">640 × 16 GB = 10,240 GB ≈ 10 TB</span>.<br>
+BlueGene: <span class="m">64 × 32 × 32 = 65,536</span> تراشه (گره)؛ <span class="m">65,536 × 5.6 GF/s ≈ 367 TF/s</span> که همان حدود ۳۶۰ TFLOPS است.
+</div>
+<p><b>تمرین ۶.</b> کارایی بیشینهٔ هر پردازندهٔ Cell در Roadrunner و بازدهی انرژی آن چقدر است؟</p>
+<div class="sol"><span class="t">حل</span>
+<span class="m">1.33×10<sup>15</sup> / 12960 ≈ 102.6 GFLOPS</span> برای هر پردازنده. بازدهی: <span class="m">10<sup>15</sup> / 3.9×10<sup>6</sup> ≈ 256 MFLOPS/W</span>. LineShine با ۵۲ GFLOPS/W حدود ۲۰۰ برابر بهتر است.
+</div>
+</div>
+
+<h2>معرفی درس ساختار و زبان کامپیوتر</h2>
+<h3>هدف درس</h3>
+<p>در این درس <b>بخش‌های عملیاتی مختلف یک کامپیوتر و تعامل آن‌ها برای اجرای برنامه‌ای که به زبان ماشین نوشته شده است</b> را یاد می‌گیریم. همچنین <b>برنامه‌نویسی اسمبلی</b> و مراحلی را که یک برنامهٔ سطح بالا طی می‌کند تا سرانجام روی یک ماشین مشخص اجرا شود، فرا می‌گیریم.</p>
+<h3>سرفصل‌ها</h3>
+<table>
+<thead><tr><th>#</th><th>موضوع</th><th>سهم</th></tr></thead>
+<tbody>
+<tr><td class="c">۱</td><td>ساختار و زبان کامپیوتر و برنامه‌نویسی اسمبلی (مفاهیم عمومی)</td><td class="c">۲۵٪</td></tr>
+<tr><td class="c">۲</td><td>ساختار و زبان اسمبلی IBM 360/370</td><td class="c">۲۰٪</td></tr>
+<tr><td class="c">۳</td><td>ساختار و برنامه‌نویسی اسمبلی Intel 8086/88</td><td class="c">۲۵٪</td></tr>
+<tr><td class="c">۴</td><td>ساختار و زبان اسمبلی RISC-V</td><td class="c">۱۰٪</td></tr>
+<tr><td class="c">۵</td><td>ساختار و برنامه‌نویسی اسمبلی GPU</td><td class="c">۱۵٪</td></tr>
+</tbody></table>
+<h3>منابع</h3>
+<ol class="small" style="direction:ltr;text-align:left;padding-left:6mm;padding-right:0">
+<li>A. S. Tanenbaum, <i>Structured Computer Organization</i>, Prentice-Hall.</li>
+<li>W. Rudd, <i>Assembly Language Programming and the IBM 360/370 Computers</i>, Prentice-Hall.</li>
+<li>Y.-C. Liu, G. Gibson, <i>Microcomputer Systems: the 8086/8088 Family: Architecture, Programming, and Design</i>, Prentice-Hall.</li>
+<li>P. A. Carter, <i>PC Assembly Language</i>, eBook, 2019 (pacman128.github.io/static/pcasm-book.pdf).</li>
+<li>Intel Corp., <i>Intel 64 and IA-32 Architectures Software Developer's Manual</i>.</li>
+<li>A. Waterman, K. Asanovic, (J. Hauser), <i>The RISC-V Instruction Set Manual</i>, Vol. I (II), UC Berkeley.</li>
+<li>Nvidia, <i>CUDA Binary Utilities</i>, Release 12.2.</li>
+<li>Nvidia, <i>PTX ISA</i>, Release 8.2.</li>
+</ol>
+<h3>بارم‌بندی و زمان‌بندی</h3>
+<table>
+<thead><tr><th>مورد</th><th>سهم</th><th>زمان</th></tr></thead>
+<tbody>
+<tr><td>میان‌ترم ۱</td><td class="c">۲۰٪</td><td>پنج‌شنبه ۱۴ آبان ۱۴۰۵، ساعت ۱۴</td></tr>
+<tr><td>میان‌ترم ۲</td><td class="c">۱۵٪</td><td>پنج‌شنبه ۱۹ آذر ۱۴۰۵، ساعت ۱۴</td></tr>
+<tr><td>میان‌ترم ۳</td><td class="c">۱۵٪</td><td>پنج‌شنبه ۱۰ دی ۱۴۰۵، ساعت ۱۴</td></tr>
+<tr><td>پایان‌ترم</td><td class="c">۲۰٪</td><td>چهارشنبه ۷ بهمن ۱۴۰۵، ساعت ۹</td></tr>
+<tr><td>پروژه</td><td class="c">۱۵٪</td><td>یکشنبه ۱۱ بهمن ۱۴۰۵</td></tr>
+<tr><td>تکالیف</td><td class="c">۱۵٪</td><td>آخر هفته (جمعه شب) برای تکالیفی که یکشنبه/سه‌شنبه داده می‌شوند</td></tr>
+</tbody></table>
+<h3>گروه درس</h3>
+<ul>
+<li>مدرس: <b>دکتر حمید سربازی‌آزاد</b> — <span class="en">azad@sharif.edu / azad@ipm.ir</span> — تلفن ۶۶۱۶۶۶۲۲ — اتاق ۶۲۱</li>
+<li>دستیار ارشد: <b>عطیه غیبی‌فطرت</b> — <span class="en">atiye.gheibi@gmail.com</span> — تلفن ۶۶۱۶۶۶۷۲ — آزمایشگاه HPCAN (اتاق ۷۰۳)</li>
+</ul>
+
+<div class="summary"><span class="t">خلاصهٔ فصل ۱</span>
+<ul>
+<li>مدل فون‌نویمان: برنامه و داده در یک حافظه؛ CPU = CU + ALU؛ اجرای ترتیبی دستورها با چرخهٔ واکشی–رمزگشایی–اجرا.</li>
+<li>طبقه‌بندی فلین بر اساس تعداد جریان‌های دستور و داده: SISD (فون‌نویمان)، SIMD (برداری/GPU)، MISD (خط لوله و سیستولیک، محل اختلاف)، MIMD (چندکامپیوتری، ابررایانه‌های امروزی).</li>
+<li>ابررایانه‌ها هر ۶ ماه در TOP500 بر حسب FLOPS رتبه‌بندی می‌شوند؛ از Cray-1 با ۱۶۰ MFLOPS (۱۹۷۵) تا LineShine با حدود ۲.۷ EFLOPS (۲۰۲۶).</li>
+</ul></div>

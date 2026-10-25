@@ -1,0 +1,320 @@
+<h1 class="chapter">آدرس‌دهی نسبی، قطعه‌ای و صفحه‌ای</h1>
+<div class="chapter-intro">
+در این فصل (جلسهٔ پنجم) سه روش آدرس‌دهی دیگر را می‌بینیم: <b>نسبی</b> (نسبت به PC)، <b>قطعه‌ای</b> (با ثبات قطعه و جمع) و <b>صفحه‌ای</b> (با ثبات صفحه و الحاق بیت‌ها). با <b>ماشین نمونهٔ ۷</b> (تک‌آدرسه با پرش‌های نسبی) یک برنامهٔ <b>مرتب‌سازی</b> کامل را به کد ماشین ترجمه می‌کنیم و تکلیف <b>جمع ۱۰۰ عدد اول</b> را حل می‌کنیم. در پایان، مسئلهٔ <b>جابه‌جایی برنامه در حافظه</b> و <b>پشتیبانی چندکاربره</b> را بررسی می‌کنیم.
+</div>
+
+<h2>آدرس‌دهی نسبی (<span class="en">Relative</span>)</h2>
+<p>تاکنون پنج روش دیدیم: مستقیم، غیرمستقیم، بی‌واسطه، شاخص‌دار و ضمنی. روش ششم:</p>
+<div class="box def"><span class="t">۶. آدرس‌دهی نسبی</span>
+آدرس با <b>جمع جابه‌جایی (<span class="en">displacement</span>) موجود در IF با محتوای PC</b> محاسبه می‌شود: <span class="m">EA = (PC) + displacement</span>. دلیل: <b>بیشتر پرش‌ها به محلی نزدیک به خود دستور پرش انجام می‌شوند</b> (حلقه‌ها و ifها)؛ پس به‌جای نگه‌داشتن کل آدرس مقصد در IF، فقط جابه‌جایی نگه داشته می‌شود که <b>بیت‌های کمتری</b> لازم دارد.
+</div>
+<div class="box ex"><span class="t">مثال</span>
+<code>jcxz loop_addr</code> در پردازندهٔ 8086/88: اگر <span class="m">(cx) = 0</span> باشد، یک عدد ۸ بیتی موجود در IF با PC جمع می‌شود.<br>
+<b>نکته:</b> جابه‌جایی ۸ بیتی برچسب <code>loop_addr</code> را <b>اسمبلر</b> با استفاده از آدرس مقصد پرش و آدرس محل فعلی تولید می‌کند.
+</div>
+<div class="box note"><span class="t">محاسبهٔ جابه‌جایی</span>
+هنگام اجرای دستور، PC قبلاً به <b>دستور بعدی</b> اشاره می‌کند (چون واکشی تمام شده است). بنابراین:
+<p class="center"><span class="m">displacement = آدرس مقصد − آدرس دستور بعد از پرش</span></p>
+جابه‌جایی یک عدد علامت‌دار (مکمل دو) است؛ با ۸ بیت، پرش‌ها فقط در بازهٔ <span class="m">−128</span> تا <span class="m">+127</span> بایت نسبت به دستور بعدی ممکن‌اند. برای پرش‌های دورتر باید از پرش مطلق استفاده کرد. مزیت دیگر: کدی که فقط پرش نسبی دارد <b>مستقل از مکان (<span class="en">position independent</span>)</b> است و اگر جای دیگری از حافظه بار شود، پرش‌ها نیازی به اصلاح ندارند.
+</div>
+
+<h2>ماشین نمونهٔ ۷</h2>
+<ul>
+<li>ماشین تک‌آدرسه؛ حافظهٔ اصلی <span class="m">2<sup>32</sup></span> واحد آدرس‌پذیر ۸ بیتی؛</li>
+<li>کلمه ۳۲ بیت، ناهم‌تراز، Big Endian؛ نمایش اعداد: <b>مکمل دو</b>؛</li>
+<li>روش‌های آدرس‌دهی: حافظه‌ای مستقیم و غیرمستقیم، بی‌واسطه و <span class="hb">نسبی</span>؛ دو قالب دستور:</li>
+</ul>
+<div class="twocol">
+<div><div class="fmt"><div>Opcode<small>8 bits</small></div><div style="min-width:36mm">Addr/Data<small>32 bits</small></div></div><div class="fmt-cap">قالب I (۵ بایت)</div></div>
+<div><div class="fmt"><div>Opcode<small>8 bits</small></div><div style="min-width:22mm">Displacement<small>8 bits</small></div></div><div class="fmt-cap">قالب II (۲ بایت)</div></div>
+</div>
+<table class="ltrt small">
+<thead><tr><th>قالب</th><th>Opcode</th><th>Mnemonic</th><th>Operation</th></tr></thead>
+<tbody>
+<tr><td rowspan="9">I</td><td class="bits">00000000</td><td><code>load addr</code></td><td class="mt">ACC ← (M<sub>addr</sub>)</td></tr>
+<tr><td class="bits">00000001</td><td><code>load (addr)</code></td><td class="mt">ACC ← (M<sub>(M<sub>addr</sub>)</sub>)</td></tr>
+<tr><td class="bits">00000010</td><td><code>store addr</code></td><td class="mt">M<sub>addr</sub> ← (ACC)</td></tr>
+<tr><td class="bits">00000011</td><td><code>store (addr)</code></td><td class="mt">M<sub>(M<sub>addr</sub>)</sub> ← (ACC)</td></tr>
+<tr><td class="bits">00000100</td><td><code>add addr</code></td><td class="mt">ACC ← (ACC) + (M<sub>addr</sub>)</td></tr>
+<tr><td class="bits">00000101</td><td><code>sub addr</code></td><td class="mt">ACC ← (ACC) − (M<sub>addr</sub>)</td></tr>
+<tr><td class="bits">00000110</td><td><code>addi data</code></td><td class="mt">ACC ← (ACC) + data</td></tr>
+<tr><td class="bits">00000111</td><td><code>subi data</code></td><td class="mt">ACC ← (ACC) − data</td></tr>
+<tr><td class="bits">00001000</td><td><code>jmpl addr</code></td><td class="mt">PC ← addr &nbsp;(پرش مطلق/دور)</td></tr>
+<tr><td rowspan="5">II</td><td class="bits hg">10000000</td><td><code>jnz addr</code></td><td class="mt">if (ACC) ≠ 0 then PC ← (PC) + displ.</td></tr>
+<tr><td class="bits hg">10000001</td><td><code>jz addr</code></td><td class="mt">if (ACC) = 0 then PC ← (PC) + displ.</td></tr>
+<tr><td class="bits hg">10000010</td><td><code>jneg addr</code></td><td class="mt">if (ACC) &lt; 0 then PC ← (PC) + displ.</td></tr>
+<tr><td class="bits hg">10000011</td><td><code>jpos addr</code></td><td class="mt">if (ACC) ≥ 0 then PC ← (PC) + displ.</td></tr>
+<tr><td class="bits hg">10000100</td><td><code>jmp addr</code></td><td class="mt">PC ← (PC) + displ.</td></tr>
+</tbody></table>
+<p>در قالب اسمبلی، برنامه‌نویس آدرس مقصد (برچسب) را می‌نویسد و اسمبلر آن را به جابه‌جایی تبدیل می‌کند. توجه کنید که <code>jpos</code> در این ماشین برای <span class="m">ACC ≥ 0</span> (شامل صفر) پرش می‌کند.</p>
+<div class="box ex"><span class="t">پرسش اسلاید: طول ثبات‌های ماشین ۷</span>
+<div class="sol"><span class="t">پاسخ</span>
+<span class="m">L<sub>MAR</sub> = 32</span>، <span class="m">L<sub>MBR</sub> = 32</span>، <span class="m">L<sub>ACC</sub> = 32</span>، <span class="m">L<sub>IR</sub> = 40</span> (قالب I) و <span class="m">L<sub>PC</sub> = 32</span> بیت.
+</div></div>
+<p>تمرین‌های اسلاید برای این ماشین: (۱) برنامه‌ای برای مرتب کردن یک آرایهٔ ۱۰۰ عنصری و ترجمهٔ آن به کد ماشین؛ (۲) برنامه‌ای برای جمع ۱۰۰ عدد اول و ترجمهٔ آن (تکلیف).</p>
+
+<h3>مرتب‌سازی Gnome</h3>
+<p>از مرتب‌سازی <b>Gnome</b> (که در اصل «مرتب‌سازی احمقانه»، <span class="en">Stupid sort</span>، نام داشت) استفاده می‌کنیم چون کدنویسی آن کار کمتری لازم دارد: <b>تنها الگوریتم مرتب‌سازی غیربازگشتی است که فقط یک حلقه دارد!</b> در نماد زبان Pascal:</p>
+<pre class="code">program my_sort;
+var  i: integer;  A: Array [1..100] of integer;
+i := 1;
+while i &lt; n do
+    if A[i] &gt; A[i+1] then
+        begin swap(A[i], A[i+1]);
+              if i &gt; 1 then i := i-1;
+        end
+    else i := i+1;
+end.</pre>
+<p><b>ایده:</b> مثل یک کوتوله (gnome) که گلدان‌ها را مرتب می‌کند: اگر دو عنصر کنار هم مرتب‌اند یک قدم جلو برو؛ اگر نه، جایشان را عوض کن و یک قدم عقب برگرد (تا عنصر جابه‌جاشده را با عنصر قبلی هم مقایسه کنی). در عمل مثل مرتب‌سازی درجی است.</p>
+<div class="box ex"><span class="t">مثال ۵-۱: ردگیری روی <span class="m">A = [3, 1, 2]</span> (n = 3)</span>
+<table class="ltrt small"><thead><tr><th>i</th><th>مقایسه</th><th>عمل</th><th>A پس از آن</th></tr></thead><tbody>
+<tr><td>1</td><td>3 &gt; 1 ؟ بله</td><td>swap؛ i = 1 می‌ماند</td><td>[1, 3, 2]</td></tr>
+<tr><td>1</td><td>1 &gt; 3 ؟ خیر</td><td>i = 2</td><td>[1, 3, 2]</td></tr>
+<tr><td>2</td><td>3 &gt; 2 ؟ بله</td><td>swap؛ i = 1</td><td>[1, 2, 3]</td></tr>
+<tr><td>1</td><td>1 &gt; 2 ؟ خیر</td><td>i = 2</td><td>[1, 2, 3]</td></tr>
+<tr><td>2</td><td>2 &gt; 3 ؟ خیر</td><td>i = 3 = n ⇐ پایان</td><td>[1, 2, 3]</td></tr>
+</tbody></table>
+</div>
+
+<h3>برنامهٔ اسمبلی مرتب‌سازی (صعودی) در ماشین ۷</h3>
+<div class="box note"><span class="t">ایدهٔ پیاده‌سازی</span>
+<ul>
+<li>به‌جای اندیس i، اشاره‌گر <code>p</code> را نگه می‌داریم که به A[i] اشاره می‌کند (ابتدا <code>p = array</code>).</li>
+<li>در هر دور: <span class="m">temp1 ← A[i]</span>؛ p یک کلمه (۴ بایت) جلو می‌رود؛ <span class="m">temp2 ← A[i+1]</span>؛ سپس <span class="m">ACC = A[i+1] − A[i]</span>. اگر <span class="m">≥ 0</span> بود (یعنی مرتب‌اند) به <code>continue</code> می‌رویم؛ چون p از قبل به A[i+1] اشاره می‌کند، این همان <span class="m">i := i + 1</span> است.</li>
+<li>در غیر این صورت جابه‌جایی: temp1 در A[i+1] و temp2 در A[i] نوشته می‌شود؛ سپس p دو بار ۴ تا کم می‌شود که یعنی <span class="m">i := i − 1</span>.</li>
+<li><b>ترفند نگهبان (<span class="en">sentinel</span>):</b> به‌جای بررسی شرط <span class="m">i &gt; 1</span>، درست قبل از آرایه یک کلمه با مقدار <code>80000000h</code> (کوچک‌ترین عدد ۳۲ بیتی مکمل دو) قرار داده شده است. اگر i به 0 برسد، مقایسهٔ این نگهبان با A[1] باید همیشه «مرتب» باشد و i دوباره ۱ می‌شود.</li>
+<li>پایان: در <code>continue</code> بررسی می‌شود که آیا p به <code>array+396</code> (آدرس آخرین عنصر، <span class="m">99×4 = 396</span>) رسیده است یا نه؛ اگر رسیده باشد، <span class="m">i = n</span> و کار تمام است.</li>
+</ul>
+</div>
+<asm>
+!| | | org | 100h |
+00000100 | 01 0000016F | loop: | load | (p) | ACC = A[i]
+00000105 | 02 00000173 | | store | temp1 | temp1 = A[i]
+0000010A | 00 0000016F | | load | p |
+0000010F | 06 00000004 | | addi | 4 |
+00000114 | 02 0000016F | | store | p | p → A[i+1]
+00000119 | 01 0000016F | | load | (p) | ACC = A[i+1]
+0000011E | 02 00000177 | | store | temp2 | temp2 = A[i+1]
+00000123 | 05 00000173 | | sub | temp1 | ACC = A[i+1] − A[i]
+00000128 | 83 34 | | jpos | continue | مرتب (ACC ≥ 0) ⇐ i = i+1 ؛ displ = 15E − 12A = 34h
+0000012A | 00 00000173 | | load | temp1 | ؛ جابه‌جایی عناصر
+0000012F | 03 0000016F | | store | (p) | A[i+1] = temp1
+00000134 | 00 0000016F | | load | p |
+00000139 | 07 00000004 | | subi | 4 |
+0000013E | 02 0000016F | | store | p | p → A[i]
+00000143 | 00 00000177 | | load | temp2 |
+00000148 | 03 0000016F | | store | (p) | A[i] = temp2
+0000014D | 00 0000016F | | load | p |
+00000152 | 07 00000004 | | subi | 4 |
+00000157 | 02 0000016F | | store | p | p → A[i−1] یعنی i = i−1
+0000015C | 84 A2 | | jmp | loop | displ = 100 − 15E = −5Eh = A2h
+0000015E | 00 0000016F | continue: | load | p |
+00000163 | 07 0000030B | | subi | array+396 | ACC = p − (array+396) ؛ 17F + 18C = 30B
+00000168 | 80 96 | | jnz | loop | displ = 100 − 16A = −6Ah = 96h
+0000016A | 08 ???????? | | jmpl | OS_return_point | بازگشت به سیستم‌عامل
+--
+0000016F | 0000017F | p: | dw | array |
+00000173 | ???????? | temp1: | dw | ? |
+00000177 | ???????? | temp2: | dw | ? |
+0000017B | 80000000 | | dw | 80000000h | نگهبان: کوچک‌ترین عدد
+0000017F | ????????… | array: | dw | 100 dup(?) | ۴۰۰ بایت
+!| | | end | |
+</asm>
+<table class="ltrt small"><thead><tr><th colspan="2">Symbol Table</th></tr></thead><tbody>
+<tr><td>loop</td><td>00000100h</td></tr><tr><td>continue</td><td>0000015Eh</td></tr><tr><td>p</td><td>0000016Fh</td></tr>
+<tr><td>temp1</td><td>00000173h</td></tr><tr><td>temp2</td><td>00000177h</td></tr><tr><td>array</td><td>0000017Fh</td></tr>
+</tbody></table>
+<div class="box note"><span class="t">محاسبهٔ جابه‌جایی‌ها (با مکمل دو ۸ بیتی)</span>
+<ul>
+<li><code>jpos continue</code> در 128h و دستور بعدی در 12Ah: <span class="m">15Eh − 12Ah = +34h</span> ⇐ <code>83 34</code>.</li>
+<li><code>jmp loop</code> در 15Ch، دستور بعدی 15Eh: <span class="m">100h − 15Eh = −5Eh</span>؛ مکمل دو ۸ بیتی: <span class="m">100h − 5Eh = A2h</span> ⇐ <code>84 A2</code>.</li>
+<li><code>jnz loop</code> در 168h، دستور بعدی 16Ah: <span class="m">100h − 16Ah = −6Ah</span> ⇐ <span class="m">96h</span> ⇐ <code>80 96</code>.</li>
+<li>همهٔ این جابه‌جایی‌ها در بازهٔ <span class="m">−128 … +127</span> هستند (بیشترین فاصله −106).</li>
+</ul>
+</div>
+<div class="box warn long"><span class="t">توجه ۱ (خطای تایپی اسلاید)</span>
+در اسلاید، کد ماشین دستور <code>load temp1</code> در آدرس 12Ah به صورت <span class="bits">0100000173</span> نوشته شده است؛ <span class="bits">01</span> کد عمل <code>load (addr)</code> (غیرمستقیم) است. چون <code>load temp1</code> مستقیم است، کد درست <span class="bits"><b>00</b>00000173</span> است (مانند <code>load temp2</code> در 143h). همچنین کد ماشین سطرهای 14D تا 16A در اسلاید ناقص بود که در جدول بالا کامل شده است.
+</div>
+<div class="box warn long"><span class="t">توجه ۲ (نکتهٔ تکمیلی): سرریز در مقایسه با تفریق</span>
+مقایسه با تفریق <span class="m">A[i+1] − A[i]</span> فقط وقتی درست است که تفریق سرریز نکند. وقتی p به نگهبان برمی‌گردد، <span class="m">A[1] − 80000000h</span> محاسبه می‌شود؛ اگر <span class="m">A[1] ≥ 0</span> باشد این تفریق در ۳۲ بیت <b>سرریز</b> می‌کند و نتیجه منفی به نظر می‌رسد ⇐ نگهبان با A[1] جابه‌جا می‌شود و آرایه خراب می‌شود (این را با شبیه‌سازی آزمودیم: برای آرایهٔ تمام‌منفی درست کار می‌کند ولی برای آرایهٔ تمام‌مثبت نه).
+<p><b>اصلاح:</b> (الف) اگر بدانیم <span class="m">|A[i]| &lt; 2<sup>30</sup></span>، نگهبان را <code>C0000000h</code> (‎<span class="m">−2<sup>30</sup></span>) بگذاریم؛ آن‌گاه هیچ تفریقی سرریز نمی‌کند (آزموده شد). (ب) یا نگهبان را حذف کنیم و پیش از کم کردن p بررسی کنیم که p برابر array نباشد:</p>
+<pre class="code">        load  p          ; (پس از نوشتن A[i] = temp2)
+        subi  array      ; آیا i = 1 ؟
+        jz    loop       ; بله: i همان 1 بماند
+        load  p
+        subi  4
+        store p          ; i = i - 1
+        jmp   loop</pre>
+</div>
+
+<div class="box hw long"><span class="t">تکلیف: برنامه‌ای برای جمع ۱۰۰ عدد اول بنویسید و آن را به کد ماشین ترجمه کنید.</span>
+<div class="sol"><span class="t">تحلیل و انتخاب الگوریتم</span>
+<p>ماشین ۷ ضرب و تقسیم ندارد؛ پس آزمون اول بودن با تقسیم‌های آزمایشی (که به باقی‌مانده نیاز دارد) پرهزینه است. <b>غربال اراتستن</b> فقط به جمع نیاز دارد: مضرب‌های هر عدد اول را با جمع‌های متوالی علامت می‌زنیم. می‌دانیم صدمین عدد اول <b>541</b> است، پس آرایهٔ <code>flags</code> با ۵۴۲ کلمه (اندیس ۰ تا ۵۴۱) کافی است. <span class="m">flags[k] = 0</span> یعنی k هنوز علامت نخورده است.</p>
+<ul>
+<li><code>i</code> عدد جاری (از ۲) و <code>ip</code> اشاره‌گر به <span class="m">flags[i]</span> (آدرس <span class="m">flags + 4i</span>) است.</li>
+<li>اگر <span class="m">flags[i] = 0</span>: i اول است ⇐ <span class="m">sum += i</span>؛ <span class="m">count −= 1</span> (از ۱۰۰ به پایین)؛ اگر count صفر شد کار تمام است. سپس <span class="m">step = 4i</span> (با سه جمع: <span class="m">i+i</span>، و دو برابر آن) و از <span class="m">jp = ip + step</span> (یعنی <span class="m">flags[2i]</span>) تا انتهای آرایه هر خانه را علامت می‌زنیم و jp را step تا جلو می‌بریم.</li>
+<li>سپس i و ip را یکی (۴ بایت) جلو می‌بریم و تکرار می‌کنیم.</li>
+</ul>
+</div>
+<asm>
+!| | | org | 100h |
+00000100 | 01 00000194 | next: | load | (ip) | ACC = flags[i]
+00000105 | 80 65 | | jnz | notprime | علامت خورده ⇐ اول نیست ؛ displ = 16C − 107
+00000107 | 00 000001A4 | | load | sum |
+0000010C | 04 00000198 | | add | i |
+00000111 | 02 000001A4 | | store | sum | sum = sum + i
+00000116 | 00 000001A8 | | load | count |
+0000011B | 07 00000001 | | subi | 1 |
+00000120 | 02 000001A8 | | store | count | count = count − 1
+00000125 | 81 68 | | jz | done | ۱۰۰ عدد اول جمع شد ؛ displ = 18F − 127
+00000127 | 00 00000198 | | load | i |
+0000012C | 04 00000198 | | add | i | ACC = 2i
+00000131 | 02 0000019C | | store | step |
+00000136 | 04 0000019C | | add | step | ACC = 4i
+0000013B | 02 0000019C | | store | step | step = 4i (فاصلهٔ دو مضرب متوالی بر حسب بایت)
+00000140 | 00 00000194 | | load | ip |
+00000145 | 04 0000019C | | add | step | ACC = آدرس flags[2i]
+0000014A | 02 000001A0 | mark: | store | jp |
+0000014F | 07 00000A28 | | subi | flags+2168 | jp − (انتهای آرایه)
+00000154 | 83 16 | | jpos | notprime | از آرایه گذشت ⇐ پایان علامت‌زنی
+00000156 | 00 000001AC | | load | one |
+0000015B | 03 000001A0 | | store | (jp) | علامت زدن مضرب i ؛ flags[j] = 1
+00000160 | 00 000001A0 | | load | jp |
+00000165 | 04 0000019C | | add | step | مضرب بعدی
+0000016A | 84 DE | | jmp | mark | displ = 14A − 16C = −22h
+0000016C | 00 00000194 | notprime: | load | ip |
+00000171 | 06 00000004 | | addi | 4 |
+00000176 | 02 00000194 | | store | ip | ip → flags[i+1]
+0000017B | 00 00000198 | | load | i |
+00000180 | 06 00000001 | | addi | 1 |
+00000185 | 02 00000198 | | store | i | i = i + 1
+0000018A | 08 00000100 | | jmpl | next | پرش مطلق (فاصله −140 از بازهٔ پرش نسبی بیرون است)
+0000018F | 08 ???????? | done: | jmpl | OS_return_point |
+--
+00000194 | 000001B8 | ip: | dw | flags+8 | اشاره‌گر به flags[2]
+00000198 | 00000002 | i: | dw | 2 |
+0000019C | ???????? | step: | dw | ? |
+000001A0 | ???????? | jp: | dw | ? |
+000001A4 | 00000000 | sum: | dw | 0 |
+000001A8 | 00000064 | count: | dw | 100 |
+000001AC | 00000001 | one: | dw | 1 |
+000001B0 | 00000000… | flags: | dw | 542 dup(0) | ۵۴۲ کلمه (۲۱۶۸ بایت = 878h)
+!| | | end | |
+</asm>
+<div class="sol"><span class="t">نکته‌های ترجمه</span>
+<ul>
+<li>آدرس‌ها: <span class="m">flags = 1B0h</span>، <span class="m">ip<sub>0</sub> = flags + 8 = 1B8h</span>، انتهای آرایه <span class="m">flags + 2168 = 1B0h + 878h = A28h</span>.</li>
+<li>جابه‌جایی‌ها: <code>jnz notprime</code>: <span class="m">16Ch − 107h = 65h</span>؛ <code>jz done</code>: <span class="m">18Fh − 127h = 68h</span>؛ <code>jpos notprime</code>: <span class="m">16Ch − 156h = 16h</span>؛ <code>jmp mark</code>: <span class="m">14Ah − 16Ch = −22h = DEh</span>.</li>
+<li>پرش از انتهای حلقه به <code>next</code> فاصلهٔ <span class="m">100h − 18Ch = −140</span> دارد که با ۸ بیت قابل نمایش نیست؛ پس از <code>jmpl</code> (قالب I، پرش مطلق) استفاده شد. این محدودیت آدرس‌دهی نسبی را نشان می‌دهد.</li>
+<li>شرط <code>jpos</code> برای <span class="m">ACC ≥ 0</span> برقرار است؛ پس وقتی <span class="m">jp ≥ flags + 2168</span> (یعنی بیرون از آرایه) شد، علامت‌زنی متوقف می‌شود.</li>
+</ul>
+<b>نتیجه:</b> برنامه با شبیه‌ساز ماشین ۷ اجرا شد؛ پس از ۱۴۵۲۰ دستور متوقف شد و <span class="m">sum = 24133</span> (مجموع ۱۰۰ عدد اول ۲، ۳، ۵، …، ۵۴۱) و <span class="m">i = 541</span> بود.
+</div></div>
+
+<h2>آدرس‌دهی قطعه‌ای (<span class="en">Segment</span>)</h2>
+<div class="box def"><span class="t">۷. آدرس‌دهی قطعه‌ای</span>
+آدرس نهایی (که گاهی <b>آدرس فیزیکی</b> نامیده می‌شود) با <b>جمع</b> آدرس محاسبه‌شده از روی فیلدهای IF (که گاهی <b>آدرس منطقی</b> نامیده می‌شود) و <b>محتوای ثبات قطعه (<span class="en">Segment Register</span>)</b> به دست می‌آید.
+</div>
+<h3>مسئلهٔ جابه‌جایی برنامه در حافظه</h3>
+<p>فرض کنید برنامهٔ اسمبلی (بخشی از برنامهٔ مرتب‌سازی، در نسخهٔ اسلاید) با <code>org 100h</code> اسمبل و پیوند شده و فایل اجرایی آن آماده است. <b>اگر بتوان کد دودویی را از آدرس 00000100h بار کرد</b> (این خانه آزاد باشد)، بارکننده آن را عیناً از همان آدرس در حافظه قرار می‌دهد و همه چیز درست است.</p>
+<p>اما <b>اگر خانهٔ 00000100h قبلاً اشغال شده باشد</b> و برنامه را فقط بتوان از آدرس 00050100h بار کرد چه؟ آن‌گاه همهٔ آدرس‌های داخل برنامه (مثل آدرس p، temp1 و …) اشتباه خواهند بود. <b>بارکنندهٔ جابه‌جاکننده (<span class="en">Relocating loader</span>)</b> این مشکل را حل می‌کند: <b>همهٔ آدرس‌های برنامه را به اندازهٔ <span class="m">50100h − 100h = 50000h</span> افزایش می‌دهد</b>.</p>
+<table class="ltrt small"><thead><tr><th>دستور</th><th>کد اصلی (org 100h)</th><th>پس از جابه‌جایی (+50000h)</th></tr></thead><tbody>
+<tr><td>load (p)</td><td class="bits">01 00000179</td><td class="bits">01 00050179</td></tr>
+<tr><td>store temp1</td><td class="bits">02 0000017D</td><td class="bits">02 0005017D</td></tr>
+<tr><td>load p</td><td class="bits">00 00000179</td><td class="bits">00 00050179</td></tr>
+<tr><td>addi 4</td><td class="bits">06 00000004</td><td class="bits hl">06 00000004 (بدون تغییر!)</td></tr>
+<tr><td>store p</td><td class="bits">02 00000179</td><td class="bits">02 00050179</td></tr>
+<tr><td>store temp2</td><td class="bits">02 00000181</td><td class="bits">02 00050181</td></tr>
+<tr><td>jpos continue</td><td class="bits">83 0000015E</td><td class="bits">83 0005015E</td></tr>
+<tr><td>subi 4</td><td class="bits">07 00000004</td><td class="bits hl">07 00000004 (بدون تغییر!)</td></tr>
+<tr><td>…</td><td>…</td><td>…</td></tr>
+</tbody></table>
+<div class="tcap">(در این نسخهٔ اسلاید، پرش jpos با آدرس مطلق ۳۲ بیتی کد شده است و متغیرها در 179h، 17Dh و 181h هستند.)</div>
+<div class="box warn"><span class="t">مراقبت ویژه برای داده‌های بی‌واسطه!</span>
+عدد 4 در <code>addi 4</code> و <code>subi 4</code> آدرس نیست و <b>نباید</b> تغییر کند. اما بارکننده از روی الگوی بیتی نمی‌تواند تشخیص دهد کدام فیلد آدرس است و کدام عدد؛ این اطلاعات را باید اسمبلر در <b>اطلاعات جابه‌جایی</b> فایل شیء/اجرایی ثبت کند.
+</div>
+<div class="box ex long"><span class="t">پرسش‌های اسلاید</span>
+<p><b>Q1. تکلیف آدرس‌هایی که به عنوان دادهٔ بی‌واسطه استفاده می‌شوند چیست؟</b></p>
+<div class="sol"><span class="t">پاسخ</span>
+گاهی دادهٔ بی‌واسطه خودش یک آدرس است؛ مثلاً <code>subi array+396</code> در برنامهٔ مرتب‌سازی یا <code>mov R0,#A</code> در ماشین ۴. این مقدارها <b>باید</b> جابه‌جا شوند (وگرنه شرط پایان حلقه یا اشاره‌گرها اشتباه می‌شوند)، در حالی که <code>addi 4</code> نباید تغییر کند. در هر دو حالت کد عمل یکی است؛ پس فقط اسمبلر (که می‌داند عملوند از یک برچسب ساخته شده است) می‌تواند در رکوردهای جابه‌جایی مشخص کند کدام فیلد بی‌واسطه «آدرس» است.
+</div>
+<p><b>Q2. تکلیف آدرس‌های غیرمستقیم چیست؟</b></p>
+<div class="sol"><span class="t">پاسخ</span>
+در آدرس‌دهی غیرمستقیم، آدرس واقعی عملوند <b>داخل داده‌ها</b> ذخیره شده است؛ مثلاً <code>p: dw array</code> مقدار 17Fh را دارد. اگر فقط فیلدهای آدرس دستورها جابه‌جا شوند، <code>load (p)</code> به خانهٔ درست p می‌رود ولی محتوای p هنوز آدرس قدیمی آرایه است! پس <b>کلمه‌های داده‌ای که آدرس نگه می‌دارند (اشاره‌گرها) هم باید جابه‌جا شوند</b> و این هم به اطلاعات اسمبلر نیاز دارد. بدتر از آن، آدرس‌هایی که در زمان اجرا ساخته می‌شوند (مثلاً از ورودی خوانده می‌شوند یا از عدد ثابت ساخته می‌شوند) اصلاً قابل جابه‌جایی توسط بارکننده نیستند.
+</div></div>
+<h3>راه‌حل: ثبات قطعه</h3>
+<p><b>با آدرس‌دهی قطعه‌ای، کد تغییر نمی‌کند</b> و بارکنندهٔ جابه‌جاکننده فقط <b>ثبات قطعه</b> داخل CU را با مقدار مناسب (اینجا <code>00050000h</code>) بار می‌کند. هر آدرسی که CU تولید می‌کند (آدرس منطقی، از هر روشی: مستقیم، غیرمستقیم، اشاره‌گر یا محاسبه‌شده در زمان اجرا) پیش از رفتن به حافظه با ثبات قطعه جمع می‌شود. بنابراین هر دو مشکل Q1 و Q2 خودبه‌خود حل می‌شوند.</p>
+{{fig:segment_fig}}
+<div class="twocol">
+<div class="box ex" style="max-width:85mm"><span class="t">مثبت</span>
+سیستم‌عامل (شامل پیونددهنده و بارکننده) برای مدیریت برنامه‌های کاربران دردسر کمتری دارد؛ برای برنامه‌نویسان/گردانندگان سیستم خوب است ☺.</div>
+<div class="box warn" style="max-width:85mm"><span class="t">منفی</span>
+برای هر آدرس حافظه‌ای که تولید می‌شود باید یک عمل جمع انجام شود! این باعث طولانی‌تر شدن زمان اجرای برنامه می‌شود ☹.</div>
+</div>
+<div class="box ex"><span class="t">مثال ۵-۲</span>
+ثبات قطعه <code>00050000h</code> است. دستور <code>load (p)</code> با <span class="m">p = 0000016Fh</span> اجرا می‌شود و محتوای p برابر <code>0000017Fh</code> است. چه آدرس‌های فیزیکی‌ای دسترسی می‌شوند؟
+<div class="sol"><span class="t">حل</span>
+ابتدا خود p: <span class="m">00050000h + 0000016Fh = 0005016Fh</span>. محتوای آن (آدرس منطقی 17Fh) دوباره با ثبات قطعه جمع می‌شود: <span class="m">0005017Fh</span>؛ پس ACC محتوای خانهٔ فیزیکی <code>0005017Fh</code> را می‌گیرد. (بدون هیچ تغییری در کد یا داده.)<br>
+<b>پیش‌نمایش 8086:</b> در پردازندهٔ 8086 آدرس فیزیکی = <span class="m">segment × 16 + offset</span> است؛ مثلاً <span class="m">1234h:0010h → 12340h + 0010h = 12350h</span>. در فصل‌های بعدی درس با آن آشنا می‌شویم.
+</div></div>
+
+<h2>آدرس‌دهی صفحه‌ای (<span class="en">Page</span>)</h2>
+<div class="box def"><span class="t">۸. آدرس‌دهی صفحه‌ای</span>
+آدرس نهایی (فیزیکی) با <b>الحاق (<span class="en">concatenation</span>)</b> آدرس داده‌شده در IF (آدرس منطقی) و محتوای <b>ثبات صفحه (<span class="en">Page Register</span>)</b> ساخته می‌شود.
+</div>
+<p>برای صفحه‌هایی با اندازهٔ <span class="m">2<sup>P</sup></span> کلمه در یک حافظهٔ اصلی با <span class="m">2<sup>M</sup></span> کلمه: ثبات صفحه <span class="m">M − P</span> بیت (شمارهٔ صفحه) دارد و آدرس تولیدشده در CU، P بیت (شمارهٔ کلمه در صفحه). کنار هم گذاشتن آن‌ها آدرس M بیتی می‌سازد. حافظه به <span class="m">2<sup>M−P</sup></span> صفحه (Page 0 تا Page <span class="m">2<sup>M−P</sup>−1</span>) تقسیم می‌شود.</p>
+{{fig:page_fig}}
+<div class="twocol">
+<div class="box ex" style="max-width:85mm"><span class="t">مزیت</span>
+<b>نیازی به جمع آدرس نیست</b> (فقط سیم‌کشی کنار هم). پس همهٔ مزایای آدرس‌دهی قطعه‌ای را بدون عیب آن داریم ☺.</div>
+<div class="box warn" style="max-width:85mm"><span class="t">عیب</span>
+قطعه‌ها فقط می‌توانند از آدرس‌های مضرب <span class="m">2<sup>P</sup></span> شروع شوند و کمترین طول قطعه <span class="m">2<sup>P</sup></span> کلمه است ☹. اگر برنامه به بیش از <span class="m">2<sup>P</sup></span> کلمه نیاز داشته باشد چه؟ چند صفحه… مدیریتش آسان نیست ☹.</div>
+</div>
+<div class="box hw long"><span class="t">تمرین‌های حل‌شدهٔ آدرس‌دهی قطعه‌ای و صفحه‌ای</span>
+<p><b>۱.</b> در حافظه‌ای با <span class="m">2<sup>16</sup></span> کلمه و صفحه‌های ۱۰۲۴ کلمه‌ای، ثبات صفحه <span class="bits">000101</span> و آدرس منطقی <code>0A3h</code> است. آدرس فیزیکی چیست؟</p>
+<div class="sol"><span class="t">حل</span>
+<span class="m">P = 10</span>، <span class="m">M − P = 6</span>. آدرس منطقی ۱۰ بیتی: <span class="bits">00 1010 0011</span>. الحاق: <span class="m"><span class="bits">000101 | 0010100011</span> = <span class="bits">0001 0100 1010 0011</span> = <code>14A3h</code></span> (معادل <span class="m">5 × 1024 + 163</span>).
+</div>
+<p><b>۲.</b> حافظه <span class="m">2<sup>20</sup></span> کلمه و صفحه‌ها ۴K کلمه‌ای هستند. طول ثبات صفحه، طول فیلد آدرس منطقی و تعداد صفحه‌ها چقدر است؟ برنامه‌ای با ۱۰K کلمه چند صفحه لازم دارد و چقدر هدر می‌رود؟</p>
+<div class="sol"><span class="t">حل</span>
+<span class="m">P = 12</span> ⇐ آدرس منطقی ۱۲ بیت؛ ثبات صفحه <span class="m">20 − 12 = 8</span> بیت؛ <span class="m">2<sup>8</sup> = 256</span> صفحه. برنامهٔ ۱۰K کلمه‌ای ۳ صفحه (۱۲K) می‌گیرد و ۲K کلمه هدر می‌رود. همچنین چون آدرس منطقی فقط ۱۲ بیت است، برنامه هنگام عبور از یک صفحه به صفحهٔ بعد باید ثبات صفحه را عوض کند (همان «مدیریت دشوار»).
+</div>
+<p><b>۳.</b> در آدرس‌دهی قطعه‌ای ۳۲ بیتی، ثبات قطعه <code>0003A000h</code> و آدرس منطقی <code>00001234h</code> است. آدرس فیزیکی؟ اگر به‌جای آن صفحه‌بندی با صفحهٔ ۶۴K بایتی داشتیم و ثبات صفحه <code>0003h</code> بود چطور؟</p>
+<div class="sol"><span class="t">حل</span>
+قطعه‌ای: <span class="m">0003A000h + 00001234h = 0003B234h</span>. صفحه‌ای: <span class="m">P = 16</span>؛ الحاق <span class="m">0003h ‖ 1234h = 00031234h</span>.
+</div></div>
+
+<h2>پشتیبانی چندکاربره با آدرس‌دهی قطعه‌ای</h2>
+<p>در یک ماشین چندکاربره که کاربران هر زمان بخواهند می‌آیند و می‌روند، سیستم‌عامل باید محیطی بسازد که هر کاربر فکر کند به‌راحتی با کامپیوتر کار می‌کند و برنامه‌اش را اجرا می‌کند.</p>
+{{fig:multiuser}}
+<ul>
+<li>هر کاربر هنگام ورود (<span class="en">login</span>) بخشی از حافظه را می‌گیرد؛ اندازهٔ این بخش به دسته/سطح کاربر بستگی دارد.</li>
+<li>هنگام خروج (<span class="en">logout</span>) آن بخش آزاد می‌شود.</li>
+<li>میان کاربران فعال، سیستم‌عامل CPU را به صورت <b>تسهیم زمانی</b> (<span class="en">time multiplexing</span>) برای اجرای کد آن‌ها تقسیم می‌کند.</li>
+<li>سیستم‌عامل جدولی از اطلاعات کاربران فعال نگه می‌دارد (نمونه در جدول زیر).</li>
+<li>وقتی یک کاربر کنترل CPU را به دست می‌گیرد، داده‌های حیاتی کاربر قبلی (محتوای ثبات‌ها از جمله ثبات قطعه یا صفحه، PC، ثبات وضعیت و …) که <b>متن (<span class="en">Context</span>)</b> نامیده می‌شود در حافظه ذخیره و متن کاربر بعدی از حافظه بار می‌شود. به این کار <b>تعویض متن (<span class="en">Context Switching</span>)</b> می‌گویند.</li>
+<li>تعویض متن زمان‌بر است ⇐ <b>برش زمانی (<span class="en">time slice</span>) طولانی‌تر بهرهٔ بهتری از CPU می‌دهد</b> (هرچند پاسخ‌دهی به کاربران کندتر می‌شود).</li>
+<li>بعضی طراحی‌های مدرن از <b>فایل‌های ثبات بزرگ</b> برای تعویض متن بدون تأخیر استفاده می‌کنند (مثلاً GPUها که متن همهٔ نخ‌های فعال را هم‌زمان در ثبات‌ها نگه می‌دارند).</li>
+</ul>
+<table class="ltrt small full"><thead><tr><th>User ID</th><th>Segment Start Address</th><th>Segment End Address</th><th>Access Rights / Priorities</th><th>Pointer to User's Context</th><th>…</th></tr></thead><tbody>
+<tr><td>User #1</td><td>0107FD5D</td><td>01FFFFFF</td><td>Write/Read/Supervisor</td><td>00010200</td><td>…</td></tr>
+<tr><td>User #2</td><td>000F0000</td><td>001FFFFF</td><td>Write/Read</td><td>00010300</td><td>…</td></tr>
+<tr><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td></tr>
+<tr><td>User #N</td><td>F00FDDC0</td><td>FF000000</td><td>Write/Read/Supervisor</td><td>00010900</td><td>…</td></tr>
+</tbody></table>
+<div class="box note"><span class="t">نکته: نقش ثبات قطعه در حفاظت</span>
+با داشتن آدرس شروع و پایان قطعهٔ هر کاربر، سخت‌افزار می‌تواند هر آدرس فیزیکی تولیدشده را بررسی کند و اگر خارج از بازهٔ قطعهٔ کاربر فعلی بود (یا با حق دسترسی او نمی‌خواند) خطا اعلام کند؛ بنابراین برنامهٔ یک کاربر نمی‌تواند حافظهٔ کاربر دیگر یا سیستم‌عامل را خراب کند. در تعویض متن کافی است ثبات قطعه (و بقیهٔ متن) عوض شود.
+</div>
+
+<div class="summary"><span class="t">خلاصهٔ فصل ۵ و جمع‌بندی روش‌های آدرس‌دهی</span>
+<table class="full small"><thead><tr><th>#</th><th>روش</th><th>محل عملوند / آدرس مؤثر</th><th>مثال</th></tr></thead><tbody>
+<tr><td class="c">۱</td><td>مستقیم</td><td>آدرس (ثبات یا حافظه) در IF</td><td class="l">mov ax,array</td></tr>
+<tr><td class="c">۲</td><td>غیرمستقیم</td><td>IF به خانه/ثباتی اشاره می‌کند که آدرس عملوند را دارد</td><td class="l">L 2,0(3)</td></tr>
+<tr><td class="c">۳</td><td>بی‌واسطه</td><td>خود عملوند در IF</td><td class="l">sub cx,33</td></tr>
+<tr><td class="c">۴</td><td>شاخص‌دار</td><td>آدرس IF + محتوای ثبات شاخص</td><td class="l">sub ax,array[bx]</td></tr>
+<tr><td class="c">۵</td><td>ضمنی</td><td>در تعریف دستور (مثل ACC یا cx)</td><td class="l">loop address</td></tr>
+<tr><td class="c">۶</td><td>نسبی</td><td>(PC) + جابه‌جایی</td><td class="l">jcxz loop_addr</td></tr>
+<tr><td class="c">۷</td><td>قطعه‌ای</td><td>(ثبات قطعه) + آدرس منطقی</td><td>جابه‌جایی برنامه بدون تغییر کد</td></tr>
+<tr><td class="c">۸</td><td>صفحه‌ای</td><td>(ثبات صفحه) ‖ آدرس منطقی</td><td>بدون جمع، ولی صفحه‌های هم‌اندازه</td></tr>
+</tbody></table>
+</div>

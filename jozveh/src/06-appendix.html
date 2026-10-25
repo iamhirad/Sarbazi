@@ -1,0 +1,62 @@
+<h1 class="chapter" data-label="پیوست الف">خلاصهٔ ماشین‌های نمونه</h1>
+<p>جدول زیر مشخصات همهٔ ماشین‌های فرضی درس را کنار هم آورده است؛ برای مرور سریع پیش از امتحان مفید است. (واحد = واحد آدرس‌پذیر)</p>
+<table class="full small wrapt">
+<thead><tr><th>ماشین</th><th>نوع</th><th>حافظه / واحد</th><th>کلمه</th><th>قالب‌های دستور</th><th>آدرس‌دهی</th><th>طول ثبات‌ها</th></tr></thead>
+<tbody>
+<tr><td>۱</td><td>دوآدرسه</td><td>۱۲۸ خانهٔ ۱۶ بیتی</td><td>16</td><td class="mt">Op2|7|7</td><td>مستقیم</td><td class="mt">MAR 7, MBR 16</td></tr>
+<tr><td>۲</td><td>دوآدرسه</td><td class="mt">2<sup>16</sup> × 8 bit</td><td>16</td><td class="mt">Op8|16|16 (5B)</td><td>مستقیم</td><td class="mt">MAR 16, MBR 16, IR 40</td></tr>
+<tr><td>۳</td><td>دوآدرسه</td><td class="mt">2<sup>16</sup> × 8 bit</td><td>16 (ناهم‌تراز، BE)</td><td class="mt">Op8|16|16 (5B)</td><td>مستقیم، غیرمستقیم، پرش شرطی</td><td class="mt">MAR 16, MBR 16, IR 40, PC 16</td></tr>
+<tr><td>۴</td><td>دوآدرسه، ۱۶ ثبات</td><td class="mt">2<sup>12</sup> × 4 bit</td><td>16 (۴ واحد)</td><td class="mt">I: 4|4|4 ، II: 4|4|12 ، III: 4|4|16</td><td>مستقیم، غیرمستقیم (حافظه/ثبات)، بی‌واسطه</td><td class="mt">MAR 12, MBR 16, IR 24, PC 12, R 16</td></tr>
+<tr><td>۵</td><td>۲/۳ آدرسه، ۶۴ ثبات</td><td class="mt">2<sup>16</sup> × 8 bit</td><td>16</td><td class="mt">I: 4|6|6 ، II: 4|6|6|16 ، III: 10|6|16</td><td>ثباتی، مستقیم، بی‌واسطه، شاخص‌دار</td><td class="mt">MAR 16, MBR 16, IR 32, PC 16, R 16</td></tr>
+<tr><td>تک‌آدرسه</td><td>انباره‌ای</td><td class="mt">2<sup>16</sup> × 4 bit</td><td>16 (۴ واحد)</td><td class="mt">4|16 (5 units)</td><td>ضمنی، مستقیم، غیرمستقیم، بی‌واسطه</td><td class="mt">MAR 16, MBR 16, ACC 16, IR 20, PC 16</td></tr>
+<tr><td>۶</td><td>صفرآدرسه (پشته‌ای)</td><td class="mt">2<sup>32</sup> × 8 bit</td><td>32</td><td class="mt">I: 8|32 ، II: 8</td><td>ضمنی، مستقیم، بی‌واسطه</td><td class="mt">IR 40, SP</td></tr>
+<tr><td>۷</td><td>تک‌آدرسه</td><td class="mt">2<sup>32</sup> × 8 bit</td><td>32 (مکمل دو)</td><td class="mt">I: 8|32 ، II: 8|8</td><td>مستقیم، غیرمستقیم، بی‌واسطه، نسبی</td><td class="mt">MAR 32, MBR 32, ACC 32, IR 40, PC 32</td></tr>
+</tbody></table>
+
+<h2>فهرست برنامه‌های حل‌شده در جزوه</h2>
+<table class="full small">
+<thead><tr><th>ماشین</th><th>برنامه</th><th>وضعیت</th></tr></thead>
+<tbody>
+<tr><td>۲</td><td>مجموع ۷ جملهٔ فیبوناچی (اسلاید)، جابه‌جایی با XOR، محاسبهٔ <span class="m">2(a+b)−c</span></td><td>کد ماشین کامل، آزموده</td></tr>
+<tr><td>۳</td><td>مجموع ۱۰۰ جملهٔ فیبوناچی متناوب، جمع آرایه با غیرمستقیم، جمع آرایه با کد خودتغییرده</td><td>کد ماشین کامل، آزموده</td></tr>
+<tr><td>۴</td><td>جمع برداری C = A + B</td><td>کد ماشین کامل، آزموده</td></tr>
+<tr><td>۵</td><td>جمع آرایه با شاخص‌دار؛ تکلیف ۱: جمع R0…R62 (دو راه‌حل)</td><td>کد ماشین کامل، آزموده</td></tr>
+<tr><td>تک‌آدرسه</td><td>تولید ۲۰ جملهٔ فیبوناچی؛ تکلیف ۲: ترجمه</td><td>کد ماشین کامل، آزموده</td></tr>
+<tr><td>۶</td><td>مجموع فیبوناچی (اسلاید) و برنامهٔ بهتر</td><td>کد ماشین کامل، آزموده</td></tr>
+<tr><td>۷</td><td>مرتب‌سازی Gnome؛ تکلیف: جمع ۱۰۰ عدد اول (غربال)</td><td>کد ماشین کامل، آزموده</td></tr>
+</tbody></table>
+
+<h1 class="chapter" data-label="پیوست ب">واژه‌نامهٔ انگلیسی – فارسی</h1>
+<table class="full small">
+<thead><tr><th class="l">English</th><th>فارسی</th><th class="l">English</th><th>فارسی</th></tr></thead>
+<tbody>
+<tr><td class="l">Accumulator (ACC)</td><td>انباره</td><td class="l">Linker</td><td>پیونددهنده</td></tr>
+<tr><td class="l">Addressable unit</td><td>واحد آدرس‌پذیر</td><td class="l">Listing file</td><td>فایل فهرست</td></tr>
+<tr><td class="l">Addressing mode</td><td>روش آدرس‌دهی</td><td class="l">Loader</td><td>بارکننده</td></tr>
+<tr><td class="l">Aligned / Unaligned</td><td>هم‌تراز / ناهم‌تراز</td><td class="l">Location counter</td><td>شمارندهٔ مکان</td></tr>
+<tr><td class="l">Assembler</td><td>اسمبلر (همگذار)</td><td class="l">Mantissa</td><td>مانتیس (بخش کسری)</td></tr>
+<tr><td class="l">Bank</td><td>بانک حافظه</td><td class="l">Memory Address Register (MAR)</td><td>ثبات آدرس حافظه</td></tr>
+<tr><td class="l">Bias / Excess</td><td>بایاس / افزونی</td><td class="l">Memory Buffer Register (MBR)</td><td>ثبات دادهٔ حافظه</td></tr>
+<tr><td class="l">Big / Little Endian</td><td>ترتیب بایت پرارزش‌اول / کم‌ارزش‌اول</td><td class="l">Mnemonic</td><td>نیمونیک (نماد یادیار)</td></tr>
+<tr><td class="l">Context switching</td><td>تعویض متن (زمینه)</td><td class="l">Normalization</td><td>نرمال‌سازی</td></tr>
+<tr><td class="l">Control Unit (CU)</td><td>واحد کنترل</td><td class="l">Object file</td><td>فایل شیء</td></tr>
+<tr><td class="l">Data / Instruction stream</td><td>جریان داده / دستور</td><td class="l">Opcode</td><td>کد عمل</td></tr>
+<tr><td class="l">Decoder</td><td>رمزگشا</td><td class="l">Operand</td><td>عملوند</td></tr>
+<tr><td class="l">Denormalized</td><td>غیرنرمال</td><td class="l">Overflow</td><td>سرریز</td></tr>
+<tr><td class="l">Direct / Indirect</td><td>مستقیم / غیرمستقیم</td><td class="l">Page register</td><td>ثبات صفحه</td></tr>
+<tr><td class="l">Directive</td><td>رهنمود اسمبلر</td><td class="l">Pipeline</td><td>خط لوله</td></tr>
+<tr><td class="l">Displacement</td><td>جابه‌جایی</td><td class="l">Program Counter (PC)</td><td>شمارندهٔ برنامه</td></tr>
+<tr><td class="l">Exponent</td><td>نما</td><td class="l">Register / Register file</td><td>ثبات / فایل ثبات</td></tr>
+<tr><td class="l">Fixed / Floating point</td><td>ممیز ثابت / ممیز شناور</td><td class="l">Relative addressing</td><td>آدرس‌دهی نسبی</td></tr>
+<tr><td class="l">Flip-flop</td><td>فلیپ‌فلاپ</td><td class="l">Relocation</td><td>جابه‌جایی (بازمکان‌یابی)</td></tr>
+<tr><td class="l">General / Special purpose</td><td>همه‌منظوره / خاص‌منظوره</td><td class="l">Segment register</td><td>ثبات قطعه</td></tr>
+<tr><td class="l">Immediate</td><td>بی‌واسطه</td><td class="l">Self-complementing code</td><td>کد خودمکمل</td></tr>
+<tr><td class="l">Implied / Inherent</td><td>ضمنی</td><td class="l">Self-modifying code</td><td>کد خودتغییرده</td></tr>
+<tr><td class="l">Indexed</td><td>شاخص‌دار</td><td class="l">Sentinel</td><td>نگهبان</td></tr>
+<tr><td class="l">Infix / Prefix / Postfix</td><td>میانوندی / پیشوندی / پسوندی</td><td class="l">Sign-magnitude</td><td>علامت-مقدار</td></tr>
+<tr><td class="l">Instruction format (IF)</td><td>قالب دستور</td><td class="l">Stack / Stack Pointer (SP)</td><td>پشته / اشاره‌گر پشته</td></tr>
+<tr><td class="l">Instruction Register (IR)</td><td>ثبات دستور</td><td class="l">Symbol table</td><td>جدول نمادها</td></tr>
+<tr><td class="l">Interrupt service routine</td><td>روال خدمت وقفه</td><td class="l">Two's / One's complement</td><td>مکمل دو / مکمل یک</td></tr>
+<tr><td class="l">Label</td><td>برچسب</td><td class="l">Word / Access width</td><td>کلمه / پهنای دسترسی</td></tr>
+</tbody></table>
+<p class="center muted small" style="margin-top:8mm">— پایان جزوهٔ جلسه‌های ۱ تا ۵ —</p>

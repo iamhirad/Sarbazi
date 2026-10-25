@@ -1,0 +1,529 @@
+<h1 class="chapter">ثبات‌ها، روش‌های آدرس‌دهی، اسمبلر، پیونددهنده و بارکننده</h1>
+<div class="chapter-intro">
+این فصل (جلسهٔ سوم) مفصل‌ترین بخش جزوه است. ابتدا انواع <b>ثبات‌ها</b> را از نظر ساختار، پیاده‌سازی، آدرس‌پذیری و کاربرد بررسی می‌کنیم. سپس <b>روش‌های آدرس‌دهی</b> (مستقیم، غیرمستقیم، بی‌واسطه، شاخص‌دار و ضمنی) را همراه با <b>ماشین‌های نمونهٔ ۳، ۴ و ۵</b> می‌بینیم و برای هر کدام برنامه می‌نویسیم و به کد ماشین ترجمه می‌کنیم. روند <b>اسمبلر، پیونددهنده (Linker) و بارکننده (Loader)</b> را توضیح می‌دهیم و در پایان با <b>ماشین تک‌آدرسه (انباره‌ای)</b>، <b>ماشین صفرآدرسه (پشته‌ای)</b>، ماشین نمونهٔ ۶ و <b>نمادگذاری لهستانی</b> آشنا می‌شویم.
+</div>
+
+<h2>ثبات‌ها (<span class="en">Registers</span>)</h2>
+<div class="box def"><span class="t">تعریف</span>
+یک <b>ثبات n بیتی</b> از <b>n فلیپ‌فلاپ</b> ساخته شده است که <b>به صورت گروهی کنترل می‌شوند</b> (کلاک و سیگنال‌های کنترلی مشترک دارند) و با هم یک مقدار n بیتی را نگه می‌دارند.
+</div>
+<p>بر اساس در دسترس بودن خروجی فلیپ‌فلاپ‌ها و روش دسترسی به آن‌ها، ثبات‌ها چهار نوع‌اند:</p>
+<ul>
+<li><b>PIPO</b>: ورود موازی، خروج موازی (<span class="en">Parallel In, Parallel Out</span>)</li>
+<li><b>SIPO</b>: ورود سریال، خروج موازی (<span class="en">Serial In, Parallel Out</span>)</li>
+<li><b>PISO</b>: ورود موازی، خروج سریال (<span class="en">Parallel In, Serial Out</span>)</li>
+<li><b>SISO</b>: ورود سریال، خروج سریال (<span class="en">Serial In, Serial Out</span>)</li>
+</ul>
+
+<h3>ثبات PIPO</h3>
+<p>ورودی D هر فلیپ‌فلاپ مستقیماً به یکی از خطوط ورودی موازی (<span class="m">I<sub>3</sub>…I<sub>0</sub></span>) وصل است و خروجی Q هر فلیپ‌فلاپ یکی از خطوط خروجی موازی (<span class="m">O<sub>3</sub>…O<sub>0</sub></span>) است. با هر لبهٔ کلاک، هر چهار بیت هم‌زمان بار می‌شوند و هم‌زمان قابل خواندن‌اند. ثبات‌های معمولی پردازنده (مثل ثبات‌های همه‌منظوره) از این نوع‌اند.</p>
+{{fig:register("pipo")}}
+
+<h3>ثبات PISO</h3>
+<p>جلوی ورودی هر فلیپ‌فلاپ (به‌جز اولی) یک <b>مالتی‌پلکسر ۲ به ۱</b> قرار دارد که با سیگنال <span class="m">Load/Shift'</span> کنترل می‌شود:</p>
+<ul>
+<li>وقتی <span class="m">Load = 1</span>: ورودی هر فلیپ‌فلاپ، بیت موازی متناظر (<span class="m">I<sub>i</sub></span>) است؛ یعنی بار موازی.</li>
+<li>وقتی <span class="m">Load/Shift' = 0</span> (انتقال): ورودی هر فلیپ‌فلاپ خروجی فلیپ‌فلاپ سمت چپ آن است؛ با هر کلاک محتوا یک بیت به راست منتقل می‌شود و بیت‌ها یکی‌یکی از خروجی فلیپ‌فلاپ ۰ (<span class="en">Serial Output</span>) خارج می‌شوند.</li>
+</ul>
+<p>کاربرد: تبدیل دادهٔ موازی به سریال، مثلاً برای ارسال روی یک سیم (درگاه سریال).</p>
+{{fig:register("piso")}}
+
+<h3>ثبات SIPO</h3>
+<p>داده بیت‌به‌بیت از ورودی سریال وارد فلیپ‌فلاپ ۳ می‌شود و با هر کلاک، محتوای هر فلیپ‌فلاپ به فلیپ‌فلاپ سمت راست می‌رود (ثبات انتقالی). پس از n کلاک، n بیت دریافت‌شده به صورت موازی روی خروجی‌ها در دسترس است. کاربرد: تبدیل سریال به موازی (گیرندهٔ سریال).</p>
+{{fig:register("sipo")}}
+
+<h3>ثبات SISO</h3>
+<p>مانند SIPO است، اما فقط خروجی آخرین فلیپ‌فلاپ در دسترس است. هر بیت ورودی پس از n کلاک به خروجی می‌رسد؛ بنابراین می‌تواند به عنوان <b>خط تأخیر</b> n کلاکی به کار رود.</p>
+{{fig:register("siso")}}
+
+<div class="box ex"><span class="t">مثال ۳-۱: کار ثبات‌های انتقالی</span>
+(الف) دنبالهٔ بیت‌های <span class="bits">1, 0, 1, 1</span> (اول ۱) به ورودی سریال یک SIPO چهاربیتی (با محتوای اولیهٔ صفر) داده می‌شود. محتوای ثبات پس از هر کلاک چیست؟
+(ب) عدد <span class="bits">1011</span> در یک PISO بار می‌شود. ترتیب بیت‌های خروجی سریال چیست؟
+<div class="sol"><span class="t">حل</span>
+(الف) ترتیب بیت‌ها <span class="m">Q<sub>3</sub>Q<sub>2</sub>Q<sub>1</sub>Q<sub>0</sub></span>:
+<table class="ltrt small"><thead><tr><th>کلاک</th><th>ورودی</th><th>Q3 Q2 Q1 Q0</th></tr></thead><tbody>
+<tr><td>0</td><td>—</td><td class="bits">0 0 0 0</td></tr>
+<tr><td>1</td><td>1</td><td class="bits">1 0 0 0</td></tr>
+<tr><td>2</td><td>0</td><td class="bits">0 1 0 0</td></tr>
+<tr><td>3</td><td>1</td><td class="bits">1 0 1 0</td></tr>
+<tr><td>4</td><td>1</td><td class="bits">1 1 0 1</td></tr>
+</tbody></table>
+پس از ۴ کلاک، اولین بیت ارسالی در <span class="m">Q<sub>0</sub></span> و آخرین بیت در <span class="m">Q<sub>3</sub></span> است.<br>
+(ب) پس از بار شدن <span class="m">Q<sub>3</sub>Q<sub>2</sub>Q<sub>1</sub>Q<sub>0</sub> = 1011</span>، خروجی سریال <span class="m">Q<sub>0</sub></span> است. در کلاک‌های بعدی (انتقال) به ترتیب <span class="m">Q<sub>1</sub></span>، <span class="m">Q<sub>2</sub></span> و <span class="m">Q<sub>3</sub></span> به خروجی می‌رسند؛ پس دنبالهٔ خروجی <span class="bits">1, 1, 0, 1</span> است (اول کم‌ارزش‌ترین بیت).
+</div></div>
+
+<h3>ثبات‌ها از نظر پیاده‌سازی</h3>
+<ul>
+<li><b>یکپارچه (<span class="en">Integrated</span>) یا فایل ثبات (<span class="en">Register File</span>)</b>: مانند یک حافظهٔ کوچک است که هر خانهٔ آن یک ثبات است. همهٔ ثبات‌ها از طریق گذرگاه آدرس و دادهٔ داخلی (شمارهٔ ثبات وارد یک رمزگشا می‌شود) دسترسی می‌شوند ⇐ <b>در هر لحظه فقط به یک ثبات می‌توان دسترسی داشت</b>.</li>
+<li><b>مجزا (<span class="en">Isolated</span>)</b>: هر ثبات خطوط ورودی و خروجی جداگانه دارد ⇐ <b>دسترسی موازی (هم‌زمان) به ثبات‌ها</b> ممکن است.</li>
+</ul>
+{{fig:regfile}}
+
+<h3>ثبات‌ها از نظر آدرس‌پذیری و کاربرد</h3>
+<ul>
+<li><b>آدرس‌پذیر (<span class="en">Addressable</span>)</b>: برنامه‌نویس اسمبلی می‌تواند در دستورها به آن‌ها اشاره کند؛ مثل R0، R1، …، R15 در خانوادهٔ IBM 360، یا AX، BX، CX، DX، … در پردازندهٔ 8086/88.</li>
+<li><b>غیرآدرس‌پذیر (<span class="en">Non-addressable</span>)</b>: برنامه‌نویس نمی‌تواند مستقیماً به آن‌ها اشاره کند، اما ماشین از آن‌ها استفاده می‌کند؛ مثل MAR، MBR، PC و IR.</li>
+</ul>
+<p>از نظر کاربرد، ثبات‌های آدرس‌پذیر دو دسته‌اند:</p>
+<ul>
+<li><b>همه‌منظوره (<span class="en">General purpose</span>)</b>: برای همهٔ کاربردهایی که مجموعه‌دستور ماشین تعریف کرده است قابل استفاده‌اند؛ مثل ثبات‌های 0 تا 15 در IBM 360/370.</li>
+<li><b>خاص‌منظوره (<span class="en">Special purpose</span>)</b>: بعضی دستورها از آن‌ها برای کار خاصی استفاده می‌کنند؛ مثل CX (برای شمارش در حلقه) یا DX (برای ضرب، تقسیم و دستورهای I/O) در خانوادهٔ 8086/88.</li>
+</ul>
+
+<h3>ثبات‌های داخلی ماشین</h3>
+<p>ثبات‌های غیرآدرس‌پذیر اصلی عبارت‌اند از:</p>
+<ul>
+<li><b>MAR</b> (ثبات آدرس حافظه): آدرس خانهٔ حافظه را در طول یک سیکل حافظه نگه می‌دارد.</li>
+<li><b>MBR</b> (ثبات بافر حافظه): داده‌ای را که باید از/در حافظه خوانده/نوشته شود نگه می‌دارد.</li>
+<li><b>IR</b> (<span class="en">Instruction Register</span>، ثبات دستور): دستوری را که از حافظه به CU واکشی شده نگه می‌دارد.</li>
+<li><b>PC</b> (<span class="en">Program Counter</span>، شمارندهٔ برنامه): آدرس دستور بعدی را که باید از حافظه واکشی و اجرا شود نگه می‌دارد.</li>
+</ul>
+<p>ثبات‌های آدرس‌پذیر شامل ثبات‌های همه‌منظوره و خاص‌منظوره هستند. <b>تعداد و کاربرد این ثبات‌ها از ماشینی به ماشین دیگر فرق می‌کند.</b></p>
+<div class="box note"><span class="t">نکته: طول ثبات‌های داخلی (قاعدهٔ کلی برای همهٔ ماشین‌های نمونه)</span>
+<ul>
+<li><span class="m">L<sub>MAR</sub> = ⌈log<sub>2</sub>(تعداد واحدهای آدرس‌پذیر)⌉</span> و <span class="m">L<sub>PC</sub> = L<sub>MAR</sub></span> (چون PC هم آدرس حافظه را نگه می‌دارد).</li>
+<li><span class="m">L<sub>MBR</sub></span> = پهنای دسترسی (معمولاً برابر طول کلمه).</li>
+<li><span class="m">L<sub>IR</sub></span> = طول <b>بلندترین</b> قالب دستور (IR باید بتواند هر دستوری را نگه دارد).</li>
+<li>طول ثبات‌های همه‌منظوره و انباره = طول کلمه.</li>
+</ul>
+</div>
+<div class="box ex"><span class="t">مثال ۳-۲: چرخهٔ واکشی با ثبات‌های داخلی</span>
+مراحل واکشی یک دستور ۵ بایتی را به زبان انتقال ثبات بنویسید (فرض: هر دسترسی یک واحد آدرس‌پذیر می‌خواند).
+<div class="sol"><span class="t">حل</span>
+<pre class="code">MAR ← (PC);  MBR ← (M(MAR));  IR[39:32] ← (MBR);  PC ← (PC) + 1   ; کد عمل
+... (همین کار برای ۴ بایت بعدی و بخش‌های بعدی IR) ...
+PC ← آدرس دستور بعد (یعنی ۵ واحد جلوتر از ابتدای این دستور)</pre>
+سپس CU کد عمل موجود در IR را رمزگشایی می‌کند، آدرس‌های عملوند را از IR برمی‌دارد و با همان روش MAR/MBR عملوندها را می‌خواند و نتیجه را می‌نویسد. دستورهای پرش، مقدار جدیدی در PC می‌نویسند.
+</div></div>
+
+<h2>روش‌های آدرس‌دهی: مستقیم و غیرمستقیم</h2>
+<p><b>روش آدرس‌دهی</b> (<span class="en">Addressing mode</span>) تعیین می‌کند که CPU چگونه از روی فیلدهای دستور، محل عملوند را پیدا کند. در این فصل و فصل ۵ هشت روش را می‌بینیم: مستقیم، غیرمستقیم، بی‌واسطه، شاخص‌دار، ضمنی، نسبی، قطعه‌ای و صفحه‌ای.</p>
+<h3>۱. آدرس‌دهی مستقیم (<span class="en">Direct</span>)</h3>
+<p><b>آدرس عملوند در قالب دستور (IF) داده می‌شود.</b> دو حالت دارد:</p>
+<ul>
+<li><b>ثباتی مستقیم</b>: شمارهٔ ثبات در IF آمده است.</li>
+<li><b>حافظه‌ای مستقیم</b>: آدرس حافظه در IF آمده است.</li>
+</ul>
+<div class="box ex"><span class="t">مثال‌ها</span>
+<ul>
+<li><code>mov ax, array</code> (در 8086/88): <code>ax</code> آدرس نمادین ثبات ax است که در IF آمده و <code>array</code> هم آدرس نمادینی در IF است که مستقیماً یک کلمه در حافظهٔ اصلی را آدرس می‌دهد. (ax ← محتوای خانهٔ array)</li>
+<li><code>L 2,NUM</code> (در خانوادهٔ IBM 360): 2 یعنی ثبات شمارهٔ ۲ و NUM آدرس نمادین یک کلمه در حافظهٔ اصلی است. (R2 ← (M<sub>NUM</sub>))</li>
+</ul>
+<b>تقریباً همهٔ ماشین‌ها آدرس‌دهی مستقیم دارند.</b>
+</div>
+
+<h3>۲. آدرس‌دهی غیرمستقیم (<span class="en">Indirect</span>)</h3>
+<p>آدرسی که در IF آمده، <b>ثبات یا خانه‌ای از حافظه را نشان می‌دهد که آدرس عملوند (در حافظه) را در خود دارد</b>. دو حالت دارد: <b>ثباتی غیرمستقیم</b> و <b>حافظه‌ای غیرمستقیم</b>.</p>
+<div class="box ex"><span class="t">مثال‌ها</span>
+<ul>
+<li><code>L 2,0(3)</code> (در IBM 360): ثبات ۲ با کلمه‌ای از حافظه بار می‌شود که <b>آدرس آن در ثبات ۳</b> است: <span class="m">R2 ← (M<sub>(R3)</sub>)</span>.</li>
+<li><code>call far ptr [p1]</code> (در 8086/88): روالی فراخوانی می‌شود که <b>آدرسش در کلمه‌ای در خانهٔ p1</b> ذخیره شده است. p1 آدرس نمادین اشاره‌گری است که در IF آمده؛ یعنی <span class="m">(M<sub>p1</sub>)</span> = آدرس روال.</li>
+</ul>
+<b>تقریباً همهٔ ماشین‌ها آدرس‌دهی غیرمستقیم دارند.</b>
+</div>
+<p><b>سطوح غیرمستقیم:</b> آدرس‌دهی غیرمستقیم می‌تواند ۱، ۲ یا چند سطحی باشد:</p>
+<ul>
+<li>یک سطحی: <span class="m">M<sub>(M<sub>addr</sub>)</sub></span> آدرس واقعی عملوند است.</li>
+<li>دو سطحی: <span class="m">M<sub>(M<sub>(M<sub>addr</sub>)</sub>)</sub></span> آدرس واقعی عملوند است؛ و به همین ترتیب.</li>
+</ul>
+<p><b>بیشتر ماشین‌هایی که آدرس‌دهی غیرمستقیم دارند از یک سطح استفاده می‌کنند؛ تعداد بسیار کمی دو سطح دارند.</b></p>
+<div class="box ex"><span class="t">مثال ۳-۳: مقایسهٔ مستقیم و غیرمستقیم</span>
+فرض کنید <span class="m">(M<sub>200</sub>) = 300</span>، <span class="m">(M<sub>300</sub>) = 400</span>، <span class="m">(M<sub>400</sub>) = 7</span> و <span class="m">(R3) = 300</span>. در دستوری که فیلد آدرس آن 200 است (یا ثبات R3 را نام برده است)، عملوند در هر روش چیست؟
+<div class="sol"><span class="t">حل</span>
+<table class="ltrt small"><thead><tr><th>روش</th><th>آدرس مؤثر</th><th>عملوند</th></tr></thead><tbody>
+<tr><td class="fa">حافظه‌ای مستقیم (addr = 200)</td><td>200</td><td>300</td></tr>
+<tr><td class="fa">حافظه‌ای غیرمستقیم یک سطحی</td><td>(M<sub>200</sub>) = 300</td><td>400</td></tr>
+<tr><td class="fa">حافظه‌ای غیرمستقیم دو سطحی</td><td>(M<sub>300</sub>) = 400</td><td>7</td></tr>
+<tr><td class="fa">ثباتی مستقیم (R3)</td><td>—</td><td>300</td></tr>
+<tr><td class="fa">ثباتی غیرمستقیم ((R3))</td><td>300</td><td>400</td></tr>
+</tbody></table>
+</div></div>
+
+<h2>ماشین نمونهٔ ۳</h2>
+<p>یک ماشین دوآدرسه با مشخصات زیر:</p>
+<ul>
+<li>حافظهٔ اصلی: <span class="m">2<sup>16</sup></span> واحد آدرس‌پذیر (هر کدام ۸ بیت)؛</li>
+<li>اندازهٔ کلمه: ۱۶ بیت، <b>ناهم‌تراز، Big Endian</b>؛</li>
+<li>روش‌های آدرس‌دهی: حافظه‌ای مستقیم و <span class="hb">حافظه‌ای غیرمستقیم</span>؛</li>
+<li><span class="hg">دستورهای پرش شرطی</span> برای ساختن حلقه؛</li>
+<li>قالب دستور:</li>
+</ul>
+<div class="fmt"><div>Opcode<small>8 bits</small></div><div style="min-width:30mm">addr1<small>16 bits</small></div><div style="min-width:30mm">addr2<small>16 bits</small></div></div>
+<div class="fmt-cap">قالب دستور ماشین ۳ (۴۰ بیت = ۵ بایت)</div>
+<table class="ltrt small">
+<thead><tr><th>Opcode</th><th>Mnemonic</th><th>Operation</th></tr></thead>
+<tbody>
+<tr><td class="bits">00000000</td><td><code>mov addr1,addr2</code></td><td class="mt">M<sub>addr1</sub> ← (M<sub>addr2</sub>)</td></tr>
+<tr><td class="bits hb">00000001</td><td><code>mov addr1,(addr2)</code></td><td class="mt">M<sub>addr1</sub> ← (M<sub>(M<sub>addr2</sub>)</sub>)</td></tr>
+<tr><td class="bits hb">00000010</td><td><code>mov (addr1),addr2</code></td><td class="mt">M<sub>(M<sub>addr1</sub>)</sub> ← (M<sub>addr2</sub>)</td></tr>
+<tr><td class="bits">00000011</td><td><code>add addr1,addr2</code></td><td class="mt">M<sub>addr1</sub> ← (M<sub>addr1</sub>) + (M<sub>addr2</sub>)</td></tr>
+<tr><td class="bits">00000100</td><td><code>sub addr1,addr2</code></td><td class="mt">M<sub>addr1</sub> ← (M<sub>addr1</sub>) − (M<sub>addr2</sub>)</td></tr>
+<tr><td class="bits hb">00000101</td><td><code>add addr1,(addr2)</code></td><td class="mt">M<sub>addr1</sub> ← (M<sub>addr1</sub>) + (M<sub>(M<sub>addr2</sub>)</sub>)</td></tr>
+<tr><td class="bits hb">00000110</td><td><code>sub addr1,(addr2)</code></td><td class="mt">M<sub>addr1</sub> ← (M<sub>addr1</sub>) − (M<sub>(M<sub>addr2</sub>)</sub>)</td></tr>
+<tr><td class="bits hg">10000000</td><td><code>jnz addr1,addr2</code></td><td class="mt">if (M<sub>addr1</sub>) ≠ 0 then PC ← addr2</td></tr>
+<tr><td class="bits hg">10000001</td><td><code>jz addr1,addr2</code></td><td class="mt">if (M<sub>addr1</sub>) = 0 then PC ← addr2</td></tr>
+<tr><td class="bits hg">10000010</td><td><code>jneg addr1,addr2</code></td><td class="mt">if (M<sub>addr1</sub>) &lt; 0 then PC ← addr2</td></tr>
+<tr><td class="bits hg">10000011</td><td><code>jpos addr1,addr2</code></td><td class="mt">if (M<sub>addr1</sub>) &gt; 0 then PC ← addr2</td></tr>
+</tbody></table>
+<p>در دستورهای پرش، addr1 آدرس متغیری است که شرط روی آن بررسی می‌شود و addr2 آدرس مقصد پرش است (آدرس دستوری که در صورت برقراری شرط، در PC قرار می‌گیرد).</p>
+
+<div class="box ex"><span class="t">پرسش اسلاید: طول ثبات‌های ماشین ۳</span>
+<div class="sol"><span class="t">پاسخ</span>
+<span class="m">L<sub>MAR</sub> = 16</span> بیت (<span class="m">2<sup>16</sup></span> واحد آدرس‌پذیر)؛ <span class="m">L<sub>MBR</sub> = 16</span> بیت (کلمه)؛ <span class="m">L<sub>IR</sub> = 40</span> بیت (طول دستور)؛ <span class="m">L<sub>PC</sub> = 16</span> بیت.
+</div></div>
+
+<p>در اسلاید برای این ماشین چهار تمرین مطرح شده است: (۱) برنامه‌ای برای محاسبهٔ مجموع ۱۰۰ جملهٔ اول دنبالهٔ فیبوناچی متناوب و (۲) ترجمهٔ آن؛ (۳) برنامه‌ای برای جمع عناصر یک آرایهٔ ۱۰۰ کلمه‌ای و (۴) ترجمهٔ آن. در ادامه همه را کامل حل می‌کنیم.</p>
+
+<h3>برنامهٔ ۱: مجموع ۱۰۰ جملهٔ اول دنبالهٔ فیبوناچی متناوب</h3>
+<p>دنبالهٔ موردنظر <span class="m">0, −1, 1, −2, 3, −5, 8, −13, 21, −34, …</span> است؛ یعنی <span class="m">a<sub>i</sub> = (−1)<sup>i</sup>F<sub>i</sub></span>. جمله‌های با اندیس زوج مثبت و با اندیس فرد منفی‌اند.</p>
+<div class="box note"><span class="t">ایدهٔ حل</span>
+دو متغیر <code>curr</code> و <code>next</code> دو جملهٔ متوالی دنبالهٔ فیبوناچی معمولی را نگه می‌دارند (ابتدا <span class="m">F<sub>0</sub> = 0</span> و <span class="m">F<sub>1</sub> = 1</span>). در هر دور حلقه، <b>دو جمله</b> را پردازش می‌کنیم: <code>curr</code> (اندیس زوج) را به sum <b>اضافه</b> و <code>next</code> (اندیس فرد) را از sum <b>کم</b> می‌کنیم. سپس دو جملهٔ بعدی را می‌سازیم: <span class="m">curr ← curr + next</span> و <span class="m">next ← next + curr</span> (با curr جدید). چون هر دور دو جمله را حساب می‌کند، حلقه <b>۵۰ بار</b> اجرا می‌شود. ماشین دستور بی‌واسطه ندارد، پس ثابت 1 را در متغیر <code>one</code> نگه می‌داریم.
+</div>
+<asm>
+!| | | org | 0 |
+0000 | 03 0022 001E | loop: | add | sum,curr | افزودن جملهٔ فعلی (زوج) به sum
+0005 | 04 0022 0020 | | sub | sum,next | کم کردن جملهٔ بعدی (فرد) از sum
+000A | 03 001E 0020 | | add | curr,next | ساختن جملهٔ بعدی در curr
+000F | 03 0020 001E | | add | next,curr | ساختن جملهٔ بعد از آن در next
+0014 | 04 0024 0026 | | sub | count,one | یکی کم کردن از شمارنده
+0019 | 80 0024 0000 | | jnz | count,loop | اگر صفر نشد، به loop برو
+--
+001E | 0000 | curr: | dw | 0 | جملهٔ فعلی
+0020 | 0001 | next: | dw | 1 | جملهٔ بعدی
+0022 | 0000 | sum: | dw | 0 | مجموع
+0024 | 0032 | count: | dw | 50 | شمارندهٔ ۵۰ دور (32h)
+0026 | 0001 | one: | dw | 1 | ثابت ۱
+!| | | end | | پایان برنامه
+</asm>
+<p><b>نحوهٔ ترجمه:</b> برنامه از آدرس 0 شروع می‌شود و هر دستور ۵ بایت است، پس دستورها در 0000، 0005، 000A، 000F، 0014 و 0019 هستند و داده‌ها از <span class="m">6×5 = 30 = 1Eh</span> شروع می‌شوند (هر متغیر ۲ بایت). مثلاً <code>add sum,curr</code> ⇐ کد عمل add یعنی <code>03</code>، آدرس sum یعنی <code>0022</code> و آدرس curr یعنی <code>001E</code>. در <code>jnz count,loop</code>، کد عمل <code>80</code> (10000000)، addr1 = آدرس count و addr2 = آدرس loop (0000) است.</p>
+<table class="ltrt small">
+<thead><tr><th>دور</th><th>sum پس از add</th><th>sum پس از sub</th><th>curr</th><th>next</th><th>count</th><th>جمله‌های جمع‌شده</th></tr></thead>
+<tbody>
+<tr><td>ابتدا</td><td>—</td><td>0</td><td>0</td><td>1</td><td>50</td><td></td></tr>
+<tr><td>1</td><td>0</td><td>−1</td><td>1</td><td>2</td><td>49</td><td>0, −1</td></tr>
+<tr><td>2</td><td>0</td><td>−2</td><td>3</td><td>5</td><td>48</td><td>1, −2</td></tr>
+<tr><td>3</td><td>1</td><td>−4</td><td>8</td><td>13</td><td>47</td><td>3, −5</td></tr>
+<tr><td>…</td><td colspan="6">پس از ۵۰ دور، ۱۰۰ جمله جمع شده و count = 0 است و حلقه تمام می‌شود.</td></tr>
+</tbody></table>
+<div class="box note"><span class="t">نکتهٔ تکمیلی: سرریز</span>
+مجموع واقعی این ۱۰۰ جمله با فرمول <span class="m">Σ<sub>i=0..n</sub>(−1)<sup>i</sup>F<sub>i</sub> = (−1)<sup>n</sup>F<sub>n−1</sub> − 1</span> برابر <span class="m">−F<sub>98</sub> − 1 ≈ −1.35×10<sup>20</sup></span> است که بسیار بیشتر از گسترهٔ یک کلمهٔ ۱۶ بیتی (<span class="m">−32768</span> تا <span class="m">32767</span>) است. پس در عمل جمع‌ها سرریز می‌کنند و ماشین فقط حاصل به پیمانهٔ <span class="m">2<sup>16</sup></span> را نگه می‌دارد (با شبیه‌سازی: −18114). هدف این تمرین، تمرین نوشتن حلقه است؛ اما همیشه به گسترهٔ اعداد توجه کنید.
+</div>
+
+<h3>برنامهٔ ۲: جمع عناصر یک آرایهٔ ۱۰۰ کلمه‌ای (با آدرس‌دهی غیرمستقیم)</h3>
+<div class="box note"><span class="t">ایدهٔ حل</span>
+متغیر <code>arrptr</code> یک <b>اشاره‌گر</b> است که ابتدا آدرس اولین عنصر آرایه را دارد. با دستور غیرمستقیم <code>add sum,(arrptr)</code> عنصری که arrptr به آن اشاره می‌کند به sum اضافه می‌شود. سپس arrptr را ۲ واحد جلو می‌بریم (هر کلمه ۲ بایت است). برای شمارش، به‌جای ثابت 1 از همان ثابت 2 استفاده می‌کنیم: <code>count</code> را با 200 شروع می‌کنیم و هر دور ۲ تا کم می‌کنیم؛ پس حلقه دقیقاً <span class="m">200/2 = 100</span> بار اجرا می‌شود و به یک ثابت کمتر نیاز داریم.
+</div>
+<asm>
+!| | | org | 100h | شروع برنامه از 100h
+0100 | 05 0116 0114 | loop: | add | sum,(arrptr) | افزودن عنصری که arrptr به آن اشاره می‌کند
+0105 | 03 0114 011A | | add | arrptr,two | اشاره‌گر به عنصر بعد
+010A | 04 0118 011A | | sub | count,two | دو تا کم کردن از شمارنده
+010F | 80 0118 0100 | | jnz | count,loop | اگر صفر نشد، به loop برو
+--
+0114 | 011C | arrptr: | dw | array | اشاره‌گر به عناصر آرایه
+0116 | 0000 | sum: | dw | 0 | مجموع
+0118 | 00C8 | count: | dw | 200 | شمارنده (۱۰۰ دور)
+011A | 0002 | two: | dw | 2 | ثابت ۲
+011C | ???? ???? … | array: | dw | 100 dup(?) | آرایهٔ ۱۰۰ کلمه‌ای (۲۰۰ بایت)
+!| | | end | | پایان برنامه
+</asm>
+<p>توجه کنید که مقدار اولیهٔ <code>arrptr</code> خودِ آدرس <code>array</code> یعنی <code>011C</code> است. در دور k ام (k از ۰)، arrptr برابر <span class="m">011Ch + 2k</span> است و پس از ۱۰۰ دور به <span class="m">011Ch + 200 = 01E4h</span> می‌رسد.</p>
+
+<div class="box warn long"><span class="t">پرسش اسلاید: پس از آخرین دور حلقه چه اتفاقی می‌افتد؟</span>
+وقتی count صفر شود، <code>jnz</code> پرش نمی‌کند و PC به آدرس بعدی یعنی <code>0114h</code> می‌رود. اما آنجا <b>داده</b> است، نه دستور! CPU هیچ راهی برای تشخیص داده از دستور ندارد و بایت‌های <span class="bits">01 1C 00 00 00 C8 00 02 ?? ?? …</span> (با مقدارهای اولیه؛ در عمل مقدارهای پس از اجرا) را به عنوان دستور واکشی و اجرا می‌کند: مثلاً <code>01</code> را کد عمل <code>mov addr1,(addr2)</code> می‌گیرد و … . نتیجه غیرقابل پیش‌بینی است و ممکن است داده‌ها یا حتی خود برنامه خراب شوند.
+<p><b>راه‌حل: در پایان باید کنترل را به سیستم‌عامل برگرداند.</b> ماشین ۳ پرش غیرشرطی ندارد، اما می‌توان با یک پرش شرطی که شرطش همیشه برقرار است همین کار را کرد؛ مثلاً پس از jnz بنویسیم <code>jnz two,OS_return</code>؛ چون <span class="m">(two) = 2 ≠ 0</span>، همیشه به آدرس بازگشت سیستم‌عامل می‌پرد.</p>
+</div>
+
+<h3>برنامهٔ ۳: جمع آرایه بدون آدرس‌دهی غیرمستقیم (کد خودتغییرده)</h3>
+<p>پرسش اسلاید: <b>فرض کنید آدرس‌دهی غیرمستقیم نداریم</b> (دستورهای با کد 01، 02، 05 و 06 حذف شده‌اند). اکنون برنامهٔ جمع عناصر آرایهٔ ۱۰۰ کلمه‌ای را بنویسید.</p>
+<div class="box note"><span class="t">ایدهٔ حل: تغییر دادن خود دستور</span>
+در دستور <code>add sum,array</code> آدرس عنصر آرایه (array) در فیلد addr2 دستور قرار دارد. اگر بعد از هر دور، <b>خود این فیلد</b> را ۲ واحد زیاد کنیم، دور بعد همین دستور عنصر بعدی را جمع می‌کند. دستور از آدرس <code>loop</code> شروع می‌شود: بایت <code>loop</code> کد عمل، بایت‌های <code>loop+1</code> و <code>loop+2</code> فیلد addr1 و بایت‌های <b><code>loop+3</code> و <code>loop+4</code> فیلد addr2</b> هستند. چون ماشین ناهم‌تراز و Big Endian است، کلمهٔ ۱۶ بیتی در آدرس <code>loop+3</code> دقیقاً همان فیلد addr2 است؛ پس <code>add loop+3,two</code> آدرس عملوند دستور اول را ۲ واحد جلو می‌برد.
+</div>
+<asm>
+!| | | org | 100h |
+0100 | 03 0114 011A | loop: | add | sum,array | این دستور در هر دور تغییر می‌کند
+0105 | 03 0103 0118 | | add | loop+3,two | addr2 دستور بالا را ۲ واحد زیاد کن
+010A | 04 0116 0118 | | sub | count,two | شمارنده
+010F | 80 0116 0100 | | jnz | count,loop | تکرار
+--
+0114 | 0000 | sum: | dw | 0 |
+0116 | 00C8 | count: | dw | 200 |
+0118 | 0002 | two: | dw | 2 |
+011A | ???? … | array: | dw | 100 dup(?) |
+!| | | end | |
+</asm>
+<p>ردگیری: در دور اول دستور خانهٔ 0100 به شکل <span class="bits">03 0114 011A</span> است (جمع عنصر 0)؛ پس از آن <code>add loop+3,two</code> بایت‌های 0103–0104 را از <code>011A</code> به <code>011C</code> تغییر می‌دهد و دستور به <span class="bits">03 0114 011C</span> تبدیل می‌شود (جمع عنصر 1)؛ … و در پایان فیلد addr2 به <code>01E2h</code> رسیده است.</p>
+<div class="box warn"><span class="t">مزایا و معایب تغییر کد (Code alteration)</span>
+<ul>
+<li>تغییر کد برای <b>رمزنگاری</b> یا <b>طراحی قفل نرم‌افزاری</b> مفید است (تحلیل برنامه را سخت می‌کند).</li>
+<li>اما از دید <b>مهندسی نرم‌افزار</b> بد است (خوانایی، اشکال‌زدایی و نگهداری دشوار می‌شود).</li>
+<li>همچنین اگر با دقت مدیریت نشود، وقتی یک تکه کد باید <b>بیش از یک بار</b> اجرا شود <b>نتیجهٔ اشتباه</b> می‌دهد. در برنامهٔ بالا اگر برنامه دوباره اجرا شود، دستور اول با addr2 = 01E2h شروع می‌کند، نه 011Ah! راه‌حل: در ابتدای برنامه فیلد را دوباره مقداردهی کنیم (مثلاً <code>mov loop+3,init</code> که <code>init: dw array</code>) و sum و count را هم دوباره مقداردهی کنیم.</li>
+</ul>
+</div>
+
+<h2>روند اجرای برنامهٔ اسمبلی: اسمبلر، پیونددهنده و بارکننده</h2>
+{{fig:asm_flow}}
+<p>برنامهٔ سطح بالا ابتدا توسط کامپایلر به اسمبلی ترجمه می‌شود (یا برنامه از اول به اسمبلی نوشته شده است). <b>اسمبلر</b> آن را به یک <b>فایل شیء</b> (ماژول زبان ماشین) و یک <b>فایل فهرست</b> (<span class="en">listing</span>) تبدیل می‌کند. <b>پیونددهنده</b> فایل شیء برنامه را با فایل‌های شیء روال‌های کتابخانه‌ای ترکیب می‌کند و <b>فایل اجرایی</b> می‌سازد. سرانجام <b>بارکننده</b> فایل اجرایی را در حافظهٔ اصلی قرار می‌دهد و اجرا می‌کند.</p>
+
+<h3>اسمبلر (<span class="en">Assembler</span>)</h3>
+<p>اسمبلر زبان اسمبلی را به <b>فایل‌های شیء</b> (<span class="en">object files</span>) تبدیل می‌کند. همچنین <b>فایل فهرست</b> می‌سازد که متنی خوانا (کد ماشین هر خط کنار خود دستور، مثل جدول‌های این جزوه) است. فایل شیء ترکیبی از دستورهای ماشین، داده‌ها و اطلاعات لازم برای قرار دادن درست دستورها و داده‌ها در حافظه است.</p>
+<p><b>بیشتر اسمبلرها دوگذره (<span class="en">two-pass</span>) کار می‌کنند:</b></p>
+<ul>
+<li><b>گذر ۱</b>: همهٔ خط‌های برنامهٔ مبدأ را می‌خواند و (با یک شمارندهٔ مکان، <span class="en">Location Counter</span>) آدرس همهٔ برچسب‌ها را در <b>جدول نمادها</b> (<span class="en">Symbol Table</span>) ثبت می‌کند.</li>
+<li><b>گذر ۲</b>: با استفاده از اطلاعات جدول نمادها، کد ماشین واقعی هر خط برنامه را تولید می‌کند.</li>
+</ul>
+<p><b>چرا دو گذر؟</b> به دلیل <b>ارجاع رو به جلو</b> (<span class="en">forward reference</span>): در برنامهٔ ۲ ماشین ۳، دستور اول (<code>add sum,(arrptr)</code>) از برچسب‌هایی استفاده می‌کند که بعداً تعریف شده‌اند؛ اسمبلر هنگام رسیدن به این خط هنوز آدرس آن‌ها را نمی‌داند.</p>
+<div class="box ex"><span class="t">مثال ۳-۴: گذرهای اسمبلر برای برنامهٔ ۲ ماشین ۳</span>
+<div class="sol"><span class="t">گذر ۱ (شمارندهٔ مکان و جدول نمادها)</span>
+<table class="ltrt small"><thead><tr><th>خط</th><th>LC قبل</th><th>اندازه</th><th>نماد ثبت‌شده</th></tr></thead><tbody>
+<tr><td>org 100h</td><td>—</td><td>—</td><td>LC ← 0100</td></tr>
+<tr><td>loop: add …</td><td>0100</td><td>5</td><td>loop = 0100</td></tr>
+<tr><td>add / sub / jnz</td><td>0105 / 010A / 010F</td><td>5 هر کدام</td><td></td></tr>
+<tr><td>arrptr: dw</td><td>0114</td><td>2</td><td>arrptr = 0114</td></tr>
+<tr><td>sum: dw</td><td>0116</td><td>2</td><td>sum = 0116</td></tr>
+<tr><td>count: dw</td><td>0118</td><td>2</td><td>count = 0118</td></tr>
+<tr><td>two: dw</td><td>011A</td><td>2</td><td>two = 011A</td></tr>
+<tr><td>array: dw 100 dup</td><td>011C</td><td>200</td><td>array = 011C</td></tr>
+</tbody></table>
+<b>گذر ۲:</b> برای هر دستور، کد عمل از جدول کدهای عمل و آدرس‌ها از جدول نمادها خوانده می‌شود؛ مثلاً <code>add sum,(arrptr)</code> ⇐ <span class="bits">05 0116 0114</span>؛ برای <code>arrptr: dw array</code> هم مقدار <code>011C</code> نوشته می‌شود.
+</div></div>
+
+<h3>قالب فایل شیء</h3>
+<table class="full small">
+<thead><tr><th>بخش</th><th>محتوا</th></tr></thead>
+<tbody>
+<tr><td>سرآیند فایل شیء (<span class="en">header</span>)</td><td>اندازه و محل بخش‌های دیگر فایل را توصیف می‌کند.</td></tr>
+<tr><td>بخش متن (<span class="en">text segment</span>)</td><td>دستورهای ماشین.</td></tr>
+<tr><td>بخش داده (<span class="en">data segment</span>)</td><td>نمایش دودویی داده‌های فایل اسمبلی.</td></tr>
+<tr><td>اطلاعات جابه‌جایی (<span class="en">relocation information</span>)</td><td>دستورها و داده‌هایی را مشخص می‌کند که به <b>آدرس‌های مطلق</b> وابسته‌اند (اگر برنامه جای دیگری بار شود باید اصلاح شوند).</td></tr>
+<tr><td>جدول نمادها (<span class="en">symbol table</span>)</td><td>آدرس برچسب‌های خارجی (قابل استفاده در ماژول‌های دیگر) و فهرست <b>ارجاع‌های حل‌نشده</b> (برچسب‌هایی که در ماژول‌های دیگر تعریف شده‌اند).</td></tr>
+<tr><td>اطلاعات اشکال‌زدایی (<span class="en">debugging info</span>)</td><td>ارتباط کد ماشین با خط‌های برنامهٔ مبدأ و نام متغیرها برای اشکال‌زدا.</td></tr>
+</tbody></table>
+
+<h3>پیونددهنده (<span class="en">Linker</span>)</h3>
+<p>ابزاری است که فایل‌های شیء تولیدشده با کامپایل/اسمبل جداگانه را با هم ادغام می‌کند و یک <b>فایل اجرایی</b> می‌سازد. سه وظیفه دارد:</p>
+<ol>
+<li>برنامه را جست‌وجو می‌کند تا <b>روال‌های کتابخانه‌ای</b> مورد استفاده (مثل <code>printf()</code>، <code>scanf()</code>، روال‌های ریاضی و …) را پیدا کند.</li>
+<li><b>محل حافظه‌ای</b> را که کد هر ماژول اشغال خواهد کرد تعیین می‌کند و با اصلاح ارجاع‌های مطلق، دستورهای آن را <b>جابه‌جا (relocate)</b> می‌کند.</li>
+<li><b>ارجاع‌های میان فایل‌ها</b> را حل می‌کند.</li>
+</ol>
+{{fig:linker_fig}}
+<p>در شکل، ماژول main دو دستور <code>jal ???</code> (پرش به زیرروال) دارد که مقصدشان هنوز معلوم نیست؛ رکوردهای جابه‌جایی می‌گویند این‌ها به <code>sub</code> (در فایل شیء دیگر) و <code>printf</code> (در کتابخانهٔ C) ارجاع دارند. پیونددهنده همهٔ ماژول‌ها را پشت‌سرهم می‌چیند و آدرس واقعی را جایگزین <code>???</code> می‌کند.</p>
+
+<h3>بارکننده (<span class="en">Loader</span>)</h3>
+<p>بخشی از سیستم‌عامل است که فایل اجرایی موجود روی دیسک را به حافظه می‌آورد و اجرای آن را آغاز می‌کند. مراحل:</p>
+<ol>
+<li>خواندن سرآیند فایل اجرایی برای تعیین اندازهٔ بخش‌های متن و داده؛</li>
+<li>ساختن یک فضای آدرس جدید برای برنامه (توسط سیستم‌عامل)؛</li>
+<li>کپی کردن دستورها و داده‌ها در فضای آدرس تخصیص‌یافته؛</li>
+<li>کپی کردن آرگومان‌های ارسالی به برنامه روی پشته؛</li>
+<li>مقداردهی اولیهٔ ثبات‌های ماشین از جمله اشاره‌گر پشته؛</li>
+<li>پرش به یک روال آغازین (<span class="en">startup routine</span>) که آرگومان‌های برنامه را از پشته به ثبات‌ها کپی می‌کند و با بار کردن PC، روال اصلی (main) برنامه را فراخوانی می‌کند.</li>
+</ol>
+
+<h2>آدرس‌دهی بی‌واسطه (<span class="en">Immediate</span>)</h2>
+<p>در این روش <b>خود عملوند در قالب دستور (IF) قرار دارد</b>؛ بنابراین برای به دست آوردن آن هیچ دسترسی به ثبات یا حافظه لازم نیست (در شکل مسیرهای داخلی، مسیر ۴).</p>
+<div class="box ex"><span class="t">مثال‌ها</span>
+<ul>
+<li><code>sub cx,33</code> (در 8086/88): عدد 33 دادهٔ بی‌واسطه است که از محتوای ثبات cx کم می‌شود.</li>
+<li><code>addi $s0,255</code> (در پردازندهٔ MIPS): عدد 255 به عنوان دادهٔ بی‌واسطه به ثبات <code>$s0</code> اضافه می‌شود.</li>
+</ul>
+<b>همهٔ ماشین‌های موجود آدرس‌دهی بی‌واسطه دارند.</b> در نماد اسمبلی ماشین‌های نمونه، دادهٔ بی‌واسطه را با <code>#</code> نشان می‌دهیم (مثل <code>mov r,#data</code>).
+</div>
+
+<h2>ماشین نمونهٔ ۴</h2>
+<ul>
+<li>ماشین دوآدرسه؛ حافظهٔ اصلی <span class="m">2<sup>12</sup></span> واحد آدرس‌پذیر <b>(هر کدام ۴ بیت)</b>؛</li>
+<li>کلمه ۱۶ بیت (یعنی ۴ واحد آدرس‌پذیر)، ناهم‌تراز، Big Endian؛</li>
+<li>۱۶ ثبات همه‌منظوره R0 تا R15؛</li>
+<li>روش‌های آدرس‌دهی: حافظه‌ای مستقیم، حافظه‌ای غیرمستقیم، <span class="hg">ثباتی مستقیم، ثباتی غیرمستقیم و بی‌واسطه</span>؛</li>
+<li>سه قالب دستور مختلف:</li>
+</ul>
+<div class="twocol">
+<div><div class="fmt"><div>Opcode<small>4 bits</small></div><div>r1<small>4 bits</small></div><div>r2<small>4 bits</small></div></div><div class="fmt-cap">قالب I (۱۲ بیت = ۳ واحد)</div></div>
+<div><div class="fmt"><div>Opcode<small>4 bits</small></div><div>r<small>4 bits</small></div><div style="min-width:24mm">addr<small>12 bits</small></div></div><div class="fmt-cap">قالب II (۲۰ بیت = ۵ واحد)</div></div>
+<div><div class="fmt"><div>Opcode<small>4 bits</small></div><div>r<small>4 bits</small></div><div style="min-width:28mm">data<small>16 bits</small></div></div><div class="fmt-cap">قالب III (۲۴ بیت = ۶ واحد)</div></div>
+</div>
+<table class="ltrt small">
+<thead><tr><th>قالب</th><th>Opcode</th><th>Mnemonic</th><th>Operation</th></tr></thead>
+<tbody>
+<tr><td rowspan="5">I</td><td class="bits">0000</td><td><code>mov r1,r2</code></td><td class="mt">r1 ← (r2)</td></tr>
+<tr><td class="bits">0001</td><td><code>mov r1,(r2)</code></td><td class="mt">r1 ← (M<sub>(r2)</sub>)</td></tr>
+<tr><td class="bits">0010</td><td><code>mov (r1),r2</code></td><td class="mt">M<sub>(r1)</sub> ← (r2)</td></tr>
+<tr><td class="bits">0011</td><td><code>add r1,r2</code></td><td class="mt">r1 ← (r1) + (r2)</td></tr>
+<tr><td class="bits">0100</td><td><code>sub r1,r2</code></td><td class="mt">r1 ← (r1) − (r2)</td></tr>
+<tr><td rowspan="8">II</td><td class="bits">0101</td><td><code>mov r,addr</code></td><td class="mt">r ← (M<sub>addr</sub>)</td></tr>
+<tr><td class="bits">0110</td><td><code>mov addr,r</code></td><td class="mt">M<sub>addr</sub> ← (r)</td></tr>
+<tr><td class="bits">0111</td><td><code>mov r,(addr)</code></td><td class="mt">r ← (M<sub>(M<sub>addr</sub>)</sub>)</td></tr>
+<tr><td class="bits">1000</td><td><code>mov (addr),r</code></td><td class="mt">M<sub>(M<sub>addr</sub>)</sub> ← (r)</td></tr>
+<tr><td class="bits">1001</td><td><code>jz r,addr</code></td><td class="mt">if (r) = 0 then PC ← addr</td></tr>
+<tr><td class="bits">1010</td><td><code>jnz r,addr</code></td><td class="mt">if (r) ≠ 0 then PC ← addr</td></tr>
+<tr><td class="bits">1011</td><td><code>jneg r,addr</code></td><td class="mt">if (r) &lt; 0 then PC ← addr</td></tr>
+<tr><td class="bits">1100</td><td><code>jpos r,addr</code></td><td class="mt">if (r) &gt; 0 then PC ← addr</td></tr>
+<tr><td rowspan="3">III</td><td class="bits">1101</td><td><code>mov r,#data</code></td><td class="mt">r ← data</td></tr>
+<tr><td class="bits">1110</td><td><code>add r,#data</code></td><td class="mt">r ← (r) + data</td></tr>
+<tr><td class="bits">1111</td><td><code>sub r,#data</code></td><td class="mt">r ← (r) − data</td></tr>
+</tbody></table>
+<p>کد عمل ۴ بیتی همزمان <b>قالب و طول دستور</b> را هم مشخص می‌کند (کدهای 0000 تا 0100 قالب I، 0101 تا 1100 قالب II و 1101 تا 1111 قالب III).</p>
+
+<div class="box ex"><span class="t">پرسش اسلاید: طول ثبات‌های ماشین ۴</span>
+<div class="sol"><span class="t">پاسخ</span>
+<table class="ltrt small"><thead><tr><th>ثبات</th><th>طول</th><th class="fa">دلیل</th></tr></thead><tbody>
+<tr><td>MAR</td><td>12 bits</td><td class="fa">حافظه <span class="m">2<sup>12</sup></span> واحد آدرس‌پذیر دارد</td></tr>
+<tr><td>MBR</td><td>16 bits</td><td class="fa">طول کلمه</td></tr>
+<tr><td>IR</td><td>24 bits</td><td class="fa">بلندترین قالب (III)</td></tr>
+<tr><td>PC</td><td>12 bits</td><td class="fa">مثل MAR</td></tr>
+<tr><td>R0…R15</td><td>16 bits</td><td class="fa">طول کلمه</td></tr>
+</tbody></table>
+</div></div>
+
+<div class="box ex long"><span class="t">تمرین اسلاید: جمع دو آرایهٔ ۱۰ عنصری (C ← A + B) و ترجمهٔ آن</span>
+برنامه‌ای بنویسید که دو آرایهٔ ۱۰ عنصری A و B را جمع کند و بردار حاصل را در آرایهٔ ۱۰ عنصری C ذخیره کند؛ سپس آن را به کد ماشین ترجمه کنید.
+<div class="sol"><span class="t">ایدهٔ حل</span>
+سه ثبات R0، R1 و R2 اشاره‌گرهای A، B و C هستند (با دستور بی‌واسطه <code>mov R0,#A</code> <b>آدرس</b> A در R0 قرار می‌گیرد). R5 شمارندهٔ حلقه است. در هر دور با آدرس‌دهی ثباتی غیرمستقیم یک عنصر از A و B خوانده، جمع و در C نوشته می‌شود. سپس هر اشاره‌گر <b>۴ واحد</b> جلو می‌رود، چون هر کلمهٔ ۱۶ بیتی ۴ واحد آدرس‌پذیر ۴ بیتی را اشغال می‌کند.
+</div>
+<asm>
+!| | | org | 0 |
+000 | D00041 | | mov | R0,#A | R0 به آرایهٔ A اشاره کند (A = 041h)
+006 | D10069 | | mov | R1,#B | R1 به آرایهٔ B اشاره کند (B = 069h)
+00C | D20091 | | mov | R2,#C | R2 به آرایهٔ C اشاره کند (C = 091h)
+012 | D5000A | | mov | R5,#10 | R5 شمارندهٔ حلقه
+018 | 1A0 | loop: | mov | R10,(R0) | یک عنصر A در R10
+01B | 1B1 | | mov | R11,(R1) | یک عنصر B در R11
+01E | 3AB | | add | R10,R11 | جمع آن دو
+021 | 22A | | mov | (R2),R10 | ذخیره در عنصر متناظر C
+024 | E00004 | | add | R0,#4 | اشاره‌گر به عنصر بعدی A
+02A | E10004 | | add | R1,#4 | اشاره‌گر به عنصر بعدی B
+030 | E20004 | | add | R2,#4 | اشاره‌گر به عنصر بعدی C
+036 | F50001 | | sub | R5,#1 | کاهش شمارنده
+03C | A5018 | | jnz | R5,loop | اگر صفر نشد به loop
+--
+041 | ???? ×10 | A: | dw | 10 dup(?) | ۱۰ کلمه = ۴۰ واحد = 28h
+069 | ???? ×10 | B: | dw | 10 dup(?) |
+091 | ???? ×10 | C: | dw | 10 dup(?) |
+!| | | end | |
+</asm>
+<p><b>نحوهٔ محاسبهٔ آدرس‌ها (بر حسب واحد ۴ بیتی):</b> هر دستور قالب III شش واحد، قالب I سه واحد و قالب II پنج واحد طول دارد. چهار دستور اول در 000، 006، 00C و 012؛ <code>loop</code> در 018؛ سه دستور قالب I در 018، 01B، 01E و 021؛ سه دستور add و یک sub (قالب III) در 024، 02A، 030 و 036؛ و jnz (قالب II) در 03C که تا 040 ادامه دارد. پس A از <code>041h</code> شروع می‌شود؛ هر آرایه <span class="m">10 × 4 = 40 = 28h</span> واحد است، پس B = <span class="m">041h + 28h = 069h</span> و C = <span class="m">069h + 28h = 091h</span>.</p>
+<p><b>نحوهٔ ساختن کد ماشین:</b> هر رقم شانزده‌شانزدهی یک واحد ۴ بیتی است. <code>mov R0,#A</code> ⇐ کد عمل 1101 = D، ثبات 0، داده = 0041 ⇐ <code>D00041</code>. <code>mov R10,(R0)</code> ⇐ کد 0001 = 1، r1 = ثبات ۱۰ = A، r2 = 0 ⇐ <code>1A0</code>؛ به همین ترتیب <code>mov R11,(R1)</code> ⇐ <code>1B1</code> و <code>add R10,R11</code> ⇐ <code>3AB</code>. <code>jnz R5,loop</code> ⇐ کد 1010 = A، ثبات 5، آدرس 018 ⇐ <code>A5018</code>.</p>
+<table class="ltrt small" style="float:none"><thead><tr><th colspan="2">جدول نمادها</th></tr><tr><th>Symbol</th><th>Address</th></tr></thead><tbody>
+<tr><td>loop</td><td>018h</td></tr><tr><td>A</td><td>041h</td></tr><tr><td>B</td><td>069h</td></tr><tr><td>C</td><td>091h</td></tr></tbody></table>
+<div class="box warn" style="margin-bottom:0"><span class="t">توجه</span>
+این برنامه هم (مانند برنامهٔ ۲ ماشین ۳) پس از پایان حلقه به داده‌ها (آرایهٔ A) می‌رسد؛ در عمل باید پس از jnz کنترل را به سیستم‌عامل برگرداند.
+</div>
+</div>
+
+<h2>آدرس‌دهی شاخص‌دار (<span class="en">Indexed</span>)</h2>
+<p>آدرس عملوند از <b>جمع محتوای یک ثبات شاخص (<span class="en">index register</span>) با یک آدرس داده‌شده</b> ساخته می‌شود (هم ثبات شاخص و هم آدرس پایه در IF آمده‌اند).</p>
+<div class="box ex"><span class="t">مثال</span>
+<code>sub ax,array[bx]</code> (در 8086/88): array آدرسی نمادین است که با (bx) جمع می‌شود تا آدرس خانهٔ حافظه ساخته شود. این دستور انجام می‌دهد: <span class="m">ax ← (ax) − (M<sub>array+(bx)</sub>)</span>.
+<br><b>بیشتر ماشین‌های موجود آدرس‌دهی شاخص‌دار دارند.</b> این روش برای پیمایش آرایه‌ها بسیار مناسب است: آدرس پایه ثابت می‌ماند و فقط ثبات شاخص تغییر می‌کند.
+</div>
+
+<h2>ماشین نمونهٔ ۵</h2>
+<ul>
+<li>ماشین ۲/۳ آدرسه (بعضی دستورها سه عملوند دارند)؛ حافظهٔ اصلی <span class="m">2<sup>16</sup></span> واحد آدرس‌پذیر ۸ بیتی؛</li>
+<li>کلمه ۱۶ بیت، ناهم‌تراز، Big Endian؛ <b>۶۴ ثبات همه‌منظوره</b> R0 تا R63؛</li>
+<li>روش‌های آدرس‌دهی: ثباتی مستقیم، حافظه‌ای مستقیم، بی‌واسطه و <span class="hg">شاخص‌دار</span>؛ سه قالب دستور:</li>
+</ul>
+<div class="fmt"><div>Opcode<small>4 bits</small></div><div>r1<small>6 bits</small></div><div>r2<small>6 bits</small></div></div><div class="fmt-cap">قالب I (۱۶ بیت)</div>
+<div class="fmt"><div>Opcode<small>4 bits</small></div><div>r1<small>6 bits</small></div><div>r2<small>6 bits</small></div><div style="min-width:30mm">addr<small>16 bits</small></div></div><div class="fmt-cap">قالب II (۳۲ بیت)</div>
+<div class="fmt"><div style="min-width:24mm">Opcode<small>10 bits</small></div><div>r<small>6 bits</small></div><div style="min-width:30mm">data<small>16 bits</small></div></div><div class="fmt-cap">قالب III (۳۲ بیت)</div>
+<p>قالب III کد عمل ۱۰ بیتی دارد که همیشه با <span class="bits">1111</span> شروع می‌شود؛ چهار بیت اول همهٔ قالب‌ها کد عمل اصلی است و اگر <span class="bits">1111</span> باشد، ۶ بیت بعدی هم جزو کد عمل‌اند (به این روش <b>کد عمل گسترش‌پذیر</b>، <span class="en">expanding opcode</span>، می‌گویند).</p>
+<table class="ltrt small">
+<thead><tr><th>قالب</th><th>Opcode</th><th>Mnemonic</th><th>Operation</th></tr></thead>
+<tbody>
+<tr><td rowspan="6">I</td><td class="bits">0000</td><td><code>mov r1,r2</code></td><td class="mt">r1 ← (r2)</td></tr>
+<tr><td class="bits">0001</td><td><code>add r1,r2</code></td><td class="mt">r1 ← (r1) + (r2)</td></tr>
+<tr><td class="bits">0010</td><td><code>sub r1,r2</code></td><td class="mt">r1 ← (r1) − (r2)</td></tr>
+<tr><td class="bits">0011</td><td><code>and r1,r2</code></td><td class="mt">r1 ← (r1) ∧ (r2)</td></tr>
+<tr><td class="bits">0100</td><td><code>or r1,r2</code></td><td class="mt">r1 ← (r1) ∨ (r2)</td></tr>
+<tr><td class="bits">0101</td><td><code>xor r1,r2</code></td><td class="mt">r1 ← (r1) ⊕ (r2)</td></tr>
+<tr><td rowspan="9">II</td><td class="bits">0110</td><td><code>mov r1,addr(r2)</code></td><td class="mt">r1 ← (M<sub>addr+(r2)</sub>)</td></tr>
+<tr><td class="bits">0111</td><td><code>mov addr(r2),r1</code></td><td class="mt">M<sub>addr+(r2)</sub> ← (r1)</td></tr>
+<tr><td class="bits">1000</td><td><code>mov r1,r2,addr</code></td><td class="mt">r1 ← (r2); r2 ← (M<sub>addr</sub>)</td></tr>
+<tr><td class="bits">1001</td><td><code>mov addr,r1,r2</code></td><td class="mt">M<sub>addr</sub> ← (r1); r1 ← (r2)</td></tr>
+<tr><td class="bits">1010</td><td><code>je r1,r2,addr</code></td><td class="mt">if (r1) = (r2) then PC ← addr</td></tr>
+<tr><td class="bits">1011</td><td><code>jne r1,r2,addr</code></td><td class="mt">if (r1) ≠ (r2) then PC ← addr</td></tr>
+<tr><td class="bits">1100</td><td><code>jl r1,r2,addr</code></td><td class="mt">if (r1) &lt; (r2) then PC ← addr</td></tr>
+<tr><td class="bits">1101</td><td><code>jh r1,r2,addr</code></td><td class="mt">if (r1) &gt; (r2) then PC ← addr</td></tr>
+<tr><td class="bits">1110</td><td><code>call r1,addr(r2)</code></td><td class="mt">r1 ← (PC); PC ← addr + (r2)</td></tr>
+<tr><td rowspan="6">III</td><td class="bits">1111000000</td><td><code>mov r1,#data</code></td><td class="mt">r1 ← data</td></tr>
+<tr><td class="bits">1111000001</td><td><code>add r1,#data</code></td><td class="mt">r1 ← (r1) + data</td></tr>
+<tr><td class="bits">1111000010</td><td><code>sub r1,#data</code></td><td class="mt">r1 ← (r1) − data</td></tr>
+<tr><td class="bits">1111000011</td><td><code>and r1,#data</code></td><td class="mt">r1 ← (r1) ∧ data</td></tr>
+<tr><td class="bits">1111000100</td><td><code>or r1,#data</code></td><td class="mt">r1 ← (r1) ∨ data</td></tr>
+<tr><td class="bits">1111000101</td><td><code>xor r1,#data</code></td><td class="mt">r1 ← (r1) ⊕ data</td></tr>
+</tbody></table>
+<div class="box note"><span class="t">نکته: دستورهای ویژهٔ 1000، 1001 و 1110</span>
+<ul>
+<li><code>mov r1,r2,addr</code> دو کار می‌کند: ابتدا <span class="m">r1 ← (r2)</span> و سپس r2 را از حافظه بار می‌کند. اگر <span class="m">r1 = r2</span> انتخاب شود، کار اول بی‌اثر است و دستور عملاً «بار کردن ثبات از حافظه» می‌شود.</li>
+<li><code>mov addr,r1,r2</code> ابتدا (r1) را در حافظه می‌نویسد و سپس <span class="m">r1 ← (r2)</span>. با <span class="m">r1 = r2</span> عملاً «ذخیرهٔ ثبات در حافظه» است.</li>
+<li><code>call r1,addr(r2)</code> آدرس بازگشت (PC فعلی) را در r1 ذخیره می‌کند و به <span class="m">addr + (r2)</span> می‌پرد. با <span class="m">addr = 0</span> و r2 = ثباتی که آدرس بازگشت را دارد، می‌توان به سیستم‌عامل بازگشت.</li>
+</ul>
+</div>
+<div class="box ex"><span class="t">پرسش ۱ اسلاید: طول ثبات‌های ماشین ۵</span>
+<div class="sol"><span class="t">پاسخ</span>
+<span class="m">L<sub>MAR</sub> = 16</span>، <span class="m">L<sub>MBR</sub> = 16</span>، <span class="m">L<sub>PC</sub> = 16</span>، <span class="m">L<sub>IR</sub> = 32</span> (قالب‌های II و III هر دو ۳۲ بیتی‌اند) و <span class="m">L<sub>R0..R63</sub> = 16</span> بیت.
+</div></div>
+
+<div class="box ex long"><span class="t">پرسش ۲ اسلاید: جمع عناصر یک آرایهٔ ۱۰۰ عنصری و ترجمه به کد ماشین</span>
+<div class="sol"><span class="t">ایدهٔ حل</span>
+R0 انباره (مجموع) است و با <code>xor R0,R0</code> صفر می‌شود (هر عدد XOR خودش = 0). R1 ثبات شاخص است که از 0 شروع می‌شود و هر دور ۲ واحد (یک کلمه) زیاد می‌شود. R2 مقدار 200 (شاخص بعد از آخرین عنصر) را برای کنترل حلقه نگه می‌دارد. با آدرس‌دهی شاخص‌دار <code>mov R3,A(R1)</code> عنصر i ام خوانده می‌شود. در پایان با <code>mov sum,R0,R0</code> نتیجه در sum ذخیره و با <code>call R0,0(R63)</code> به سیستم‌عامل بازگشت می‌شود (فرض: R63 آدرس بازگشت را دارد).
+</div>
+<asm cols="ad,mc,lb,op,ar,cm">
+!| | | org | 100h |
+0100 | 5000 | | xor | R0,R0 | <span class="bits">0101 000000 000000</span> انباره = 0
+0102 | 0040 | | mov | R1,R0 | <span class="bits">0000 000001 000000</span> ثبات شاخص = 0
+0104 | F00200C8 | | mov | R2,#200 | <span class="bits">1111000000 000010 [00C8h]</span> شاخص پایان
+0108 | 60C10120 | loop: | mov | R3,A(R1) | <span class="bits">0110 000011 000001 [0120h]</span> بار کردن عنصر i ام A
+010C | 1003 | | add | R0,R3 | <span class="bits">0001 000000 000011</span> افزودن به انباره
+010E | F0410002 | | add | R1,#2 | <span class="bits">1111000001 000001 [0002h]</span> شاخص عنصر بعد
+0112 | B0420108 | | jne | R1,R2,loop | <span class="bits">1011 000001 000010 [0108h]</span> اگر شاخص ≠ 200 ادامه
+0116 | 9000011E | | mov | sum,R0,R0 | <span class="bits">1001 000000 000000 [011Eh]</span> ذخیرهٔ نتیجه در sum
+011A | E03F0000 | | call | R0,0(R63) | <span class="bits">1110 000000 111111 [0000h]</span> بازگشت به سیستم‌عامل
+--
+011E | 0000 | sum: | dw | 0 | متغیر مجموع
+0120 | ?????????? | A: | dw | 100 dup(?) | آرایهٔ ۱۰۰ عنصری
+!| | | end | |
+</asm>
+<p><b>نحوهٔ ساختن کد:</b> بیت‌های هر فیلد را پشت‌سرهم می‌نویسیم و چهارتا‌چهارتا به شانزده‌شانزدهی تبدیل می‌کنیم. مثلاً <code>mov R3,A(R1)</code>: <span class="m"><span class="bits">0110|000011|000001</span> = <span class="bits">0110 0000 1100 0001</span> = <code>60C1</code></span> و سپس آدرس A یعنی <code>0120</code>. دستورهای قالب I دو بایت و قالب‌های II و III چهار بایت‌اند؛ بنابراین آدرس‌ها: 0100، 0102، 0104، 0108، 010C، 010E، 0112، 0116، 011A و sum در 011E و A در 0120.</p>
+</div>
+
+<div class="box hw long"><span class="t">تکلیف ۱ (پرسش ۳ اسلاید): جمع محتوای R0، R1، …، R62 در R62 و ترجمه به کد ماشین</span>
+<div class="sol"><span class="t">تحلیل</span>
+در ماشین ۵ شمارهٔ ثبات‌ها <b>داخل خود دستور</b> (فیلدهای r1 و r2) است و هیچ روش آدرس‌دهی‌ای وجود ندارد که شمارهٔ ثبات را از یک ثبات یا حافظه بگیرد. همچنین همهٔ ۶۳ ثبات R0 تا R62 داده دارند و فقط R63 (که آدرس بازگشت را دارد) باقی می‌ماند. پس دو راه داریم: (الف) نوشتن ۶۲ دستور جمع پشت‌سرهم، یا (ب) یک حلقه با <b>کد خودتغییرده</b> که فیلد r2 دستور جمع را در هر دور یکی زیاد کند.
+</div>
+<p><b>راه‌حل الف: کد خطی (ساده و سریع)</b></p>
+<p>دستور <code>add R62,Rk</code> در قالب I برابر <span class="bits">0001 111110 kkkkkk</span> است؛ یعنی <span class="m">1F80h + k</span>. پس:</p>
+<asm>
+!| | | org | 100h |
+0100 | 1F80 | | add | R62,R0 | <span class="bits">0001 111110 000000</span>
+0102 | 1F81 | | add | R62,R1 | <span class="bits">0001 111110 000001</span>
+0104 | 1F82 | | add | R62,R2 |
+… | … | | … | … | در مجموع ۶۲ دستور؛ دستور k ام در آدرس 100h+2k و کد 1F80h+k
+0178 | 1FBC | | add | R62,R60 |
+017A | 1FBD | | add | R62,R61 | <span class="bits">0001 111110 111101</span>
+017C | E03F0000 | | call | R0,0(R63) | بازگشت به سیستم‌عامل (R0 دیگر لازم نیست)
+!| | | end | |
+</asm>
+<p>اندازهٔ برنامه: <span class="m">62×2 + 4 = 128</span> بایت. چون R62 از ابتدا مقدار خودش را دارد، در پایان <span class="m">R62 = R0 + R1 + … + R62</span> است.</p>
+
+<p><b>راه‌حل ب: حلقه با کد خودتغییرده (کوتاه‌تر)</b></p>
+<p>ترفند: ابتدا R61 را به R62 اضافه می‌کنیم تا R61 آزاد شود؛ R63 را هم در حافظه ذخیره می‌کنیم تا آزاد شود. حالا دو ثبات کمکی داریم. دستور <code>add R62,R0</code> را در حلقه اجرا می‌کنیم و هر بار <b>کلمهٔ این دستور</b> را از حافظه به R61 می‌آوریم، یکی زیاد می‌کنیم (شمارهٔ r2 یکی زیاد می‌شود) و برمی‌گردانیم؛ تا وقتی که دستور به <code>add R62,R61</code> (<code>1FBDh</code>) برسد که دیگر لازم نیست (R61 قبلاً جمع شده است).</p>
+<asm>
+!| | | org | 100h |
+0100 | 1FBD | | add | R62,R61 | R61 جمع شد و اکنون آزاد است
+0102 | 9FFF0124 | | mov | ret,R63,R63 | ذخیرهٔ آدرس بازگشت (R63) در حافظه
+0106 | F03F1FBD | | mov | R63,#1FBDh | R63 = کد «add R62,R61» (شرط پایان)
+010A | 1F80 | loop: | add | R62,R0 | این دستور هر دور تغییر می‌کند (R0، R1، …)
+010C | 8F7D010A | | mov | R61,R61,loop | R61 ← کلمهٔ دستور loop
+0110 | F07D0001 | | add | R61,#1 | شمارهٔ ثبات بعدی
+0114 | 9F7D010A | | mov | loop,R61,R61 | نوشتن دستور تغییریافته در حافظه
+0118 | BF7F010A | | jne | R61,R63,loop | تا رسیدن به add R62,R61 ادامه
+011C | 8FFF0124 | | mov | R63,R63,ret | بازیابی آدرس بازگشت
+0120 | E03F0000 | | call | R0,0(R63) | بازگشت به سیستم‌عامل
+0124 | 0000 | ret: | dw | 0 | محل ذخیرهٔ R63
+!| | | end | |
+</asm>
+<p>ردگیری: دور اول <code>add R62,R0</code> اجرا می‌شود و دستور به <code>1F81</code> تغییر می‌کند؛ … ؛ در دور آخر <code>add R62,R60</code> (<code>1FBC</code>) اجرا و دستور به <code>1FBD</code> تبدیل می‌شود که با R63 برابر است و حلقه تمام می‌شود. اندازه: ۴۰ بایت در برابر ۱۲۸ بایت؛ اما کندتر است (۵ دستور در هر دور) و همهٔ معایب کد خودتغییرده را دارد؛ مثلاً اگر دوباره اجرا شود دستور loop دیگر <code>1F80</code> نیست (باید در ابتدای برنامه دوباره مقداردهی شود). هر دو برنامه با شبیه‌ساز آزموده شده‌اند.</p>
+</div>
