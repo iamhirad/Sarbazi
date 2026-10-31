@@ -1,0 +1,701 @@
+<div class="banner">
+  <h1>چیت‌شیت جامع ساختار و زبان کامپیوتر</h1>
+  <div class="sub">بر اساس اسلایدهای دکتر سربازی‌آزاد — جلسه‌های ۱ تا ۵ — برای امتحان کتاب‌باز (Open-book)</div>
+  <div class="legend">
+    <span style="background:#fff5df">فرمول/قاعده</span><span style="background:#eef4fd">تعریف</span><span style="background:#ebf6ef">مثال حل‌شده</span><span style="background:#fdeceb">تله/خطای رایج</span><span style="background:#f3eefa">پرسش تشریحی</span>
+  </div>
+</div>
+<!--TOC-->
+<div class="cols">
+
+<h2>قواعد طلایی (فرمول‌های کلیدی)</h2>
+<div class="card k">
+<h3>طول فیلدها و ثبات‌ها</h3>
+<ul>
+<li>n بیت ⇐ <span class="m">2<sup>n</sup></span> حالت؛ M حالت ⇐ <span class="m">⌈log<sub>2</sub>M⌉</span> بیت. (۳۲ حالت ۵ بیت، ۱۰۰۰ حالت ۱۰ بیت)</li>
+<li>فیلد کد عمل = <span class="m">⌈log<sub>2</sub>(#ops)⌉</span>؛ فیلد آدرس = <span class="m">⌈log<sub>2</sub>(#units)⌉</span>؛ فیلد ثبات = <span class="m">⌈log<sub>2</sub>(#regs)⌉</span>.</li>
+<li><b>L<sub>MAR</sub> = L<sub>PC</sub></b> = طول آدرس حافظه = <span class="m">⌈log<sub>2</sub>(#addressable units)⌉</span></li>
+<li><b>L<sub>MBR</sub></b> = پهنای دسترسی (اگر گفته نشده = طول کلمه)</li>
+<li><b>L<sub>IR</sub></b> = طول <b>بلندترین</b> قالب دستور؛ <b>L<sub>ACC</sub> = L<sub>R</sub></b> = طول کلمه.</li>
+<li>معمولاً: واحد آدرس‌پذیر ≤ کلمه ≤ پهنای دسترسی؛ اگر چیزی گفته نشده، هر سه برابرند.</li>
+</ul>
+</div>
+<div class="card k">
+<h3>آدرس‌ها و گام‌ها</h3>
+<ul>
+<li>طول دستور بر حسب واحد = <span class="m">(بیت‌های دستور) / (بیت‌های واحد)</span> ⇐ گام شمارندهٔ مکان (LC).</li>
+<li>کلمه بر حسب واحد <span class="m">k = w/u</span> ⇐ گام اشاره‌گر آرایه = k؛ آرایهٔ N عنصری = <span class="m">N·k</span> واحد؛ آخرین عنصر = <span class="m">base + (N−1)·k</span>.</li>
+<li>حافظهٔ بایتی + کلمهٔ ۱۶ بیتی ⇐ گام 2؛ کلمهٔ ۳۲ بیتی ⇐ گام 4؛ حافظهٔ نیبلی (۴ بیتی) + کلمهٔ ۱۶ بیتی ⇐ گام 4.</li>
+<li><b>پرش نسبی:</b> <span class="m">d = target − (addr<sub>jump</sub> + len<sub>jump</sub>)</span>؛ منفی ⇐ <span class="m">2<sup>k</sup> − |d|</span> (۸ بیت: <span class="m">100h − |d|</span>)؛ بازهٔ ۸ بیتی <span class="m">−128…+127</span>.</li>
+<li>بانک در حافظهٔ k بانکی: <span class="m">bank = a mod k</span>، <span class="m">row = ⌊a/k⌋</span>. کلمهٔ هم‌تراز: <span class="m">a mod k = 0</span>.</li>
+<li>قطعه‌ای: <span class="m">PA = (SR) + LA</span>؛ صفحه‌ای: <span class="m">PA = (PR) ‖ LA</span>؛ نسبی: <span class="m">EA = (PC) + d</span>؛ شاخص‌دار: <span class="m">EA = addr + (Rx)</span>.</li>
+</ul>
+</div>
+<div class="card k">
+<h3>اعداد (n بیت)</h3>
+<table class="t tiny">
+<thead><tr><th class="fa">نمایش</th><th>Range</th><th class="fa">منفی کردن</th><th>#zeros</th></tr></thead>
+<tbody>
+<tr><td class="fa">بدون علامت</td><td>0 … 2<sup>n</sup>−1</td><td class="fa">—</td><td>1</td></tr>
+<tr><td class="fa">علامت-مقدار</td><td>−(2<sup>n−1</sup>−1) … 2<sup>n−1</sup>−1</td><td class="fa">معکوس MSB</td><td>2</td></tr>
+<tr><td class="fa">مکمل یک</td><td>−(2<sup>n−1</sup>−1) … 2<sup>n−1</sup>−1</td><td class="fa">معکوس همهٔ بیت‌ها: <span class="m">2<sup>n</sup>−1−x</span></td><td>2</td></tr>
+<tr><td class="fa">مکمل دو</td><td>−2<sup>n−1</sup> … 2<sup>n−1</sup>−1</td><td class="fa">معکوس + 1: <span class="m">2<sup>n</sup>−x</span></td><td>1</td></tr>
+<tr><td class="fa">Excess-K</td><td>−K … 2<sup>n</sup>−1−K</td><td class="fa">کد = مقدار + K</td><td>1</td></tr>
+</tbody></table>
+<ul>
+<li><b>سرریز:</b> فقط وقتی دو عملوند هم‌علامت‌اند و نتیجه علامت مخالف دارد؛ در مکمل دو معادل <span class="m">C<sub>in</sub>(MSB) ≠ C<sub>out</sub>(MSB)</span>.</li>
+<li>مکمل یک: نقلی خروجی را به نتیجه اضافه کن (end-around)؛ مکمل دو: نقلی خروجی را دور بریز.</li>
+<li>ممیز شناور سفارشی: <span class="m">(−1)<sup>S</sup> × 0.M × 2<sup>E−bias</sup></span>؛ IEEE: <span class="m">(−1)<sup>S</sup> × 1.F × 2<sup>E−127</sup></span> (single) / <span class="m">2<sup>E−1023</sup></span> (double).</li>
+</ul>
+</div>
+
+<h2>حافظه و نمادگذاری</h2>
+<div class="card d">
+<h3>تعریف‌ها</h3>
+<ul>
+<li><b>حافظه</b>: آرایهٔ خانه‌ها با آدرس 0 تا M−1. دسترسی با <b>MAR</b> (آدرس ← رمزگشا) و <b>MBR/MDR</b> (داده) و سیگنال‌های <b>Read/Write</b>.</li>
+<li><b>نوشتن</b>: <span class="m">MAR ← a; MBR ← data; Write</span>. <b>خواندن</b>: <span class="m">MAR ← a; Read ⇒ MBR ← (M<sub>(MAR)</sub>)</span>.</li>
+<li><b>واحد آدرس‌پذیر</b>: کوچک‌ترین گروه بیتی با آدرس یکتا (معمولاً ۸ بیت). <b>کلمه</b>: طول عملوندهای پردازش‌شده توسط CPU (ماشین n بیتی). <b>پهنای دسترسی</b>: بیت‌های جابه‌جاشده در یک دسترسی.</li>
+<li><b>هم‌تراز</b>: آدرس کلمه مضرب طول آن ⇐ یک دسترسی ☺. <b>ناهم‌تراز</b>: هر آدرسی ⇐ ممکن است دو دسترسی ☹ (وقتی کلمه از مرز سطر بگذرد).</li>
+<li><b>Big Endian</b>: بایت پرارزش در آدرس کوچک‌تر (IBM 360/370 و ماشین‌های درس). <b>Little Endian</b>: بایت کم‌ارزش در آدرس کوچک‌تر (Intel x86، RISC-V).</li>
+</ul>
+<table class="t mono tiny"><thead><tr><th>12345678h @100h</th><th>100</th><th>101</th><th>102</th><th>103</th></tr></thead>
+<tbody><tr><td>Big Endian</td><td>12</td><td>34</td><td>56</td><td>78</td></tr><tr><td>Little Endian</td><td>78</td><td>56</td><td>34</td><td>12</td></tr></tbody></table>
+</div>
+<div class="card">
+<h3>نمادگذاری و نمونه</h3>
+<p><span class="m">M<sub>a</sub></span> = خانهٔ a؛ <span class="m">(M<sub>a</sub>)</span> = محتوای آن؛ <span class="m">M<sub>(M<sub>a</sub>)</sub></span> = خانه‌ای که آدرسش محتوای a است؛ <span class="m">A ← B</span> = نوشتن. پرانتز دور ثبات = محتوای ثبات.</p>
+<p>حافظهٔ اسلاید (آدرس 0..15): <span class="bits">10 11 21 31 14 1010 61 17 81 91 110 111 1120 131 114 115</span></p>
+<ul>
+<li><span class="m">(M<sub>9</sub>) = 91</span>؛ <span class="m">M<sub>(M<sub>0</sub>)</sub> = M<sub>10</sub></span>؛ <span class="m">(M<sub>(M<sub>1</sub>)</sub>) = (M<sub>11</sub>) = 111</span></li>
+<li><span class="m">M<sub>(M<sub>0</sub>)</sub> ← (M<sub>0</sub>) + (M<sub>(M<sub>4</sub>)</sub>)</span> ⇒ <span class="m">M<sub>10</sub> ← 10 + 114 = 124</span></li>
+</ul>
+</div>
+<div class="card x">
+<h3>حافظهٔ ۴ بانکی (بایتی، کلمهٔ ۳۲ بیتی، ۲<sup>۱۶</sup> بایت)</h3>
+<p>MAR ۱۶ بیت: ۱۴ بیت پرارزش ⇐ رمزگشای سطر (<span class="m">2<sup>14</sup></span> کلمه)، ۲ بیت کم‌ارزش ⇐ انتخاب بانک؛ MBR ۳۲ بیت (۴×۸).
+مثال: <span class="m">1235h = …0100 1000 1101|01</span> ⇒ بانک 1، سطر <span class="m">048Dh = 1165</span>. کلمه از آدرس 5 ⇒ بایت‌های 5..8 ⇒ سطرهای 1 و 2 ⇒ دو دسترسی.</p>
+</div>
+
+<h2>قالب دستور، کد عمل و مسیرهای داخلی</h2>
+<div class="card d">
+<p>دستور = <b>عمل (Opcode)</b> + <b>عملوندها</b> (فاعل همیشه CPU است و ذکر نمی‌شود). ماشین n آدرسه: <span class="fmt"><span>Opcode</span><span>Op 1</span><span>…</span><span>Op n</span></span></p>
+<p><b>کد عمل می‌تواند نشان دهد:</b> ۱) نوع عمل ۲) تعداد عملوندها ۳) طول دستور (اگر چند قالب) ۴) نوع عملوندها (صحیح/حقیقی/علامت‌دار) ۵) طول عملوندها ۶) روش آدرس‌دهی.</p>
+<p><b>کد عمل گسترش‌پذیر</b> (ماشین ۵): ۴ بیت اول <span class="bits">1111</span> ⇐ ۶ بیت بعد هم جزو کد عمل است.</p>
+</div>
+<div class="card">
+<h3>مسیرهای داخلی ماشین</h3>
+<table class="tiny fa"><tbody>
+<tr><td>۱</td><td>واکشی دستور: حافظه ← CU</td><td>۴</td><td>دادهٔ بی‌واسطه: CU ← ALU</td></tr>
+<tr><td>۲</td><td>دسترسی داده: حافظه ⇄ ALU</td><td>۵</td><td>I/O از طریق CPU</td></tr>
+<tr><td>۳</td><td>فرمان/وضعیت: CU ⇄ ALU</td><td>۶</td><td>I/O با DMA (بدون CPU)</td></tr>
+</tbody></table>
+<p class="sm">نمونه: اجرای <code>sub num1,num2</code> در ماشین ۱ ⇒ مسیر ۱ (واکشی)، ۲ (خواندن M<sub>15</sub>)، ۲ (خواندن M<sub>10</sub>)، ۳ (فرمان تفریق)، ۲ (نوشتن M<sub>15</sub>).</p>
+</div>
+<div class="card">
+<h3>رمزگشایی و کدگذاری در ماشین ۱ (op 2 | a1 7 | a2 7)</h3>
+<p><span class="bits">01 0001111 0001010</span> ⇐ sub، a1=15، a2=10 ⇐ <span class="m">M<sub>15</sub> ← (M<sub>15</sub>) − (M<sub>10</sub>)</span> = <code>sub num1,num2</code>.
+<code>add 3,100</code> ⇐ <span class="bits">00 0000011 1100100</span> = <code>01E4h</code>؛ <code>A1B5h</code> = <span class="bits">10 1000011 0110101</span> ⇐ <span class="m">M<sub>67</sub> ← (M<sub>53</sub>)</span>.</p>
+</div>
+
+<h2>ثبات‌ها و چرخهٔ واکشی</h2>
+<div class="card d">
+<ul>
+<li><b>ثبات n بیتی</b> = n فلیپ‌فلاپ با کنترل گروهی (کلاک مشترک).</li>
+<li><b>PIPO</b> (ورود و خروج موازی؛ ثبات‌های معمولی)، <b>SIPO</b> (سریال← موازی؛ گیرنده)، <b>PISO</b> (موازی← سریال؛ با MUX و <span class="m">Load/Shift'</span>)، <b>SISO</b> (خط تأخیر n کلاکی).</li>
+<li><b>یکپارچه (Register File)</b>: مثل حافظهٔ کوچک با رمزگشا ⇐ هر لحظه یک ثبات. <b>مجزا (Isolated)</b>: خطوط جدا ⇐ دسترسی موازی.</li>
+<li><b>آدرس‌پذیر</b> (R0–R15 در IBM 360، AX/BX/… در 8086) / <b>غیرآدرس‌پذیر</b> (MAR، MBR، IR، PC).</li>
+<li><b>همه‌منظوره</b> (R0–R15 در 360) / <b>خاص‌منظوره</b> (CX شمارش حلقه، DX ضرب/تقسیم/I/O در 8086).</li>
+<li><b>MAR</b> آدرس سیکل حافظه؛ <b>MBR</b> دادهٔ مبادله؛ <b>IR</b> دستور واکشی‌شده؛ <b>PC</b> آدرس دستور <b>بعدی</b>.</li>
+</ul>
+<p><b>واکشی:</b> <span class="m">MAR ← (PC); MBR ← (M<sub>(MAR)</sub>); IR ← (MBR); PC ← (PC) + len</span> ⇐ رمزگشایی ⇐ خواندن عملوندها ⇐ اجرا ⇐ نوشتن نتیجه. PC هنگام اجرا به دستور بعد اشاره می‌کند.</p>
+<p class="sm"><b>SIPO</b> با ورودی 1,0,1,1: <span class="bits">1000 → 0100 → 1010 → 1101</span> (Q3..Q0). <b>PISO</b> با 1011: خروجی سریال 1,1,0,1 (اول LSB).</p>
+</div>
+
+<h2>روش‌های آدرس‌دهی (۸ روش)</h2>
+<div class="card long">
+<table class="tiny">
+<thead><tr><th>#</th><th>روش</th><th>عملوند / آدرس مؤثر</th><th>دسترسی حافظه برای عملوند</th><th>مثال</th></tr></thead>
+<tbody>
+<tr><td>۱</td><td><b>مستقیم</b> (ثباتی/حافظه‌ای)</td><td class="mt">(R) / (M<sub>a</sub>)</td><td>0 / 1</td><td class="mt">mov ax,array ; L 2,NUM</td></tr>
+<tr><td>۲</td><td><b>غیرمستقیم</b> (ثباتی/حافظه‌ای)</td><td class="mt">(M<sub>(R)</sub>) / (M<sub>(M<sub>a</sub>)</sub>)</td><td>1 / 2</td><td class="mt">L 2,0(3) ; call far ptr [p1]</td></tr>
+<tr><td>۳</td><td><b>بی‌واسطه</b></td><td>خود عملوند در IF</td><td>0</td><td class="mt">sub cx,33 ; addi $s0,255</td></tr>
+<tr><td>۴</td><td><b>شاخص‌دار</b></td><td class="mt">(M<sub>a+(Rx)</sub>)</td><td>1</td><td class="mt">sub ax,array[bx]</td></tr>
+<tr><td>۵</td><td><b>ضمنی</b></td><td>در تعریف دستور (ACC، cx، …)</td><td>—</td><td class="mt">loop addr ; MR 2,4</td></tr>
+<tr><td>۶</td><td><b>نسبی</b></td><td class="mt">EA = (PC) + d</td><td>(پرش)</td><td class="mt">jcxz loop_addr</td></tr>
+<tr><td>۷</td><td><b>قطعه‌ای</b></td><td class="mt">PA = (SR) + LA</td><td>+ یک جمع</td><td>جابه‌جایی بدون تغییر کد</td></tr>
+<tr><td>۸</td><td><b>صفحه‌ای</b></td><td class="mt">PA = (PR) ‖ LA</td><td>بدون جمع</td><td>الحاق بیت‌ها</td></tr>
+</tbody></table>
+<ul class="sm">
+<li><code>loop addr</code> (8086): <span class="m">cx ← (cx)−1; if (cx)≠0: PC ← addr</span>. <code>MR 2,4</code> (360): <span class="m">R2:R3 ← (R3)×(R4)</span> ⇐ R3 ضمنی.</li>
+<li>غیرمستقیم چندسطحی: یک سطح <span class="m">M<sub>(M<sub>a</sub>)</sub></span>، دو سطح <span class="m">M<sub>(M<sub>(M<sub>a</sub>)</sub>)</sub></span>؛ بیشتر ماشین‌ها یک سطح، تعداد کمی دو سطح.</li>
+<li>تقریباً همهٔ ماشین‌ها: مستقیم، غیرمستقیم، بی‌واسطه؛ بیشتر ماشین‌ها: شاخص‌دار.</li>
+</ul>
+</div>
+<div class="card x">
+<h3>مثال: <span class="m">(M<sub>200</sub>)=300, (M<sub>300</sub>)=400, (M<sub>400</sub>)=7, (R3)=300</span></h3>
+<table class="t tiny"><thead><tr><th class="fa">روش</th><th>EA</th><th>Operand</th></tr></thead><tbody>
+<tr><td class="fa">مستقیم a=200</td><td>200</td><td>300</td></tr>
+<tr><td class="fa">غیرمستقیم ۱ سطحی</td><td>300</td><td>400</td></tr>
+<tr><td class="fa">غیرمستقیم ۲ سطحی</td><td>400</td><td>7</td></tr>
+<tr><td class="fa">ثباتی مستقیم R3</td><td>—</td><td>300</td></tr>
+<tr><td class="fa">ثباتی غیرمستقیم (R3)</td><td>300</td><td>400</td></tr>
+</tbody></table>
+</div>
+
+<h2>ماشین‌های نمونه (جدول کامل کد عمل‌ها)</h2>
+<div class="card">
+<h3>ماشین ۱ — دوآدرسه</h3>
+<p class="spec">۱۲۸ خانهٔ ۱۶ بیتی؛ <span class="fmt"><span>op 2</span><span>a1 7</span><span>a2 7</span></span> = ۱۶ بیت؛ <span class="m">L<sub>MAR</sub>=7, L<sub>MBR</sub>=16</span></p>
+{{gen:m1}}
+</div>
+<div class="card">
+<h3>ماشین ۲ — دوآدرسه (بدون پرش!)</h3>
+<p class="spec"><span class="m">2<sup>16</sup>×8</span> بیت؛ کلمه ۱۶؛ <span class="fmt"><span>op 8</span><span>a1 16</span><span>a2 16</span></span> = ۵ بایت؛ <span class="m">MAR=16, MBR=16, IR=40, PC=16</span></p>
+{{gen:m2}}
+</div>
+<div class="card">
+<h3>ماشین ۳ — دوآدرسه + غیرمستقیم + پرش شرطی</h3>
+<p class="spec">مثل ماشین ۲؛ کلمهٔ ۱۶ بیتی ناهم‌تراز، Big Endian؛ <span class="m">MAR=16, MBR=16, IR=40, PC=16</span>. در پرش‌ها a1 = متغیر شرط، a2 = مقصد. پرش غیرشرطی و بی‌واسطه ندارد.</p>
+{{gen:m3}}
+</div>
+<div class="card">
+<h3>ماشین ۴ — دوآدرسه، ۱۶ ثبات، حافظهٔ ۴ بیتی</h3>
+<p class="spec"><span class="m">2<sup>12</sup>×4</span> بیت؛ کلمه ۱۶ = <b>۴ واحد</b>؛ ناهم‌تراز، BE؛ R0..R15؛ هر رقم هگز = یک واحد = یک فیلد. <span class="m">MAR=12, MBR=16, IR=24, PC=12, R=16</span></p>
+{{gen:m4}}
+</div>
+<div class="card">
+<h3>ماشین ۵ — ۲/۳ آدرسه، ۶۴ ثبات</h3>
+<p class="spec"><span class="m">2<sup>16</sup>×8</span> بیت؛ کلمه ۱۶؛ ناهم‌تراز، BE؛ R0..R63؛ آدرس‌دهی: ثباتی، مستقیم، بی‌واسطه، شاخص‌دار. <span class="m">MAR=16, MBR=16, IR=32, PC=16, R=16</span></p>
+{{gen:m5}}
+<p class="sm">با <span class="m">r1=r2</span>: <code>mov r,r,addr</code> = بار کردن از حافظه، <code>mov addr,r,r</code> = ذخیره. بازگشت به OS: <code>call R0,0(R63)</code> (R63 = آدرس بازگشت). <code>xor R0,R0</code> = صفر کردن.</p>
+</div>
+<div class="card">
+<h3>ماشین تک‌آدرسه (انباره‌ای)</h3>
+<p class="spec"><span class="m">2<sup>16</sup>×4</span> بیت؛ کلمه ۱۶ = ۴ واحد؛ ناهم‌تراز، BE؛ <span class="fmt"><span>op 4</span><span>addr/data 16</span></span> = ۵ واحد؛ <span class="m">MAR=16, MBR=16, ACC=16, IR=20, PC=16</span></p>
+{{gen:m1a}}
+</div>
+<div class="card">
+<h3>ماشین ۶ — صفرآدرسه (پشته‌ای)</h3>
+<p class="spec"><span class="m">2<sup>32</sup>×8</span> بیت؛ کلمه ۳۲؛ آدرس‌دهی: ضمنی، مستقیم، بی‌واسطه؛ SP به اولین خانهٔ <b>خالی</b> اشاره می‌کند. *در اسلاید کد jn اشتباهاً 08 (= j) آمده است.</p>
+{{gen:m6}}
+</div>
+<div class="card">
+<h3>ماشین ۷ — تک‌آدرسه با پرش نسبی</h3>
+<p class="spec"><span class="m">2<sup>32</sup>×8</span> بیت؛ کلمه ۳۲ (مکمل دو)، ناهم‌تراز، BE؛ آدرس‌دهی: مستقیم، غیرمستقیم، بی‌واسطه، نسبی. <span class="m">MAR=32, MBR=32, ACC=32, IR=40, PC=32</span></p>
+{{gen:m7}}
+</div>
+
+<h2>روش گام‌به‌گام ترجمه به کد ماشین</h2>
+<div class="card k">
+<ol>
+<li><b>طول هر قالب</b> را بر حسب واحد آدرس‌پذیر حساب کن (بایت یا نیبل).</li>
+<li><b>گذر ۱:</b> LC = مقدار <code>org</code>. برای هر خط: آدرس = LC؛ برچسب را در جدول نمادها ثبت کن؛ LC += طول (دستور یا <code>dw</code> = یک کلمه؛ <code>dw N dup(?)</code> = N کلمه). داده‌ها معمولاً بعد از کد می‌آیند.</li>
+<li><b>گذر ۲:</b> برای هر دستور: کد عمل ‖ فیلدها (آدرس از جدول نمادها) ⇐ بیت‌ها را پشت‌سرهم بنویس و چهارتا چهارتا هگز کن (مخصوصاً وقتی فیلدها مضرب ۴ نیستند، مثل ماشین ۵).</li>
+<li><b>پرش نسبی:</b> <span class="m">d = target − next</span>؛ منفی را مکمل دو کن؛ اگر در بازه نیست از پرش مطلق (<code>jmpl</code>) استفاده کن.</li>
+<li>مقدار اولیهٔ داده‌ها: <code>dw array</code> = آدرس array؛ <code>dw ?</code> = <span class="bits">????</span>؛ عدد منفی = مکمل دو (‎−1 = FFFF/FFFFFFFF).</li>
+<li>در پایان برنامه کنترل را به OS برگردان (وگرنه CPU داده‌ها را به عنوان دستور اجرا می‌کند).</li>
+</ol>
+</div>
+<div class="card x">
+<h3>نمونهٔ کامل: جمع آرایهٔ ۱۰۰ کلمه‌ای در ماشین ۳ (غیرمستقیم)</h3>
+<pre><span class="cm">addr  machine code   source</span>
+                     org  100h
+0100  05 0116 0114   <span class="lb">loop:</span> add sum,(arrptr)
+0105  03 0114 011A         add arrptr,two
+010A  04 0118 011A         sub count,two
+010F  80 0118 0100         jnz count,loop
+0114  011C           <span class="lb">arrptr:</span> dw array
+0116  0000           <span class="lb">sum:</span>    dw 0
+0118  00C8           <span class="lb">count:</span>  dw 200   <span class="cm">; 100 iters</span>
+011A  0002           <span class="lb">two:</span>    dw 2
+011C  ????…          <span class="lb">array:</span>  dw 100 dup(?)</pre>
+</div>
+<div class="card x">
+<h3>نمونهٔ کدگذاری در هر ماشین (همه آزموده‌شده)</h3>
+<table class="t mono tiny"><thead><tr><th>M</th><th class="l">Instruction</th><th class="l">Code</th><th class="l">How</th></tr></thead><tbody>
+<tr><td>4</td><td class="l">mov R0,#041h</td><td class="l">D00041</td><td class="l">D|0|0041 (1 hex = 1 field)</td></tr>
+<tr><td>4</td><td class="l">mov R10,(R0)</td><td class="l">1A0</td><td class="l">1|A|0</td></tr>
+<tr><td>4</td><td class="l">add R10,R11</td><td class="l">3AB</td><td class="l">3|A|B</td></tr>
+<tr><td>4</td><td class="l">jnz R5,018h</td><td class="l">A5018</td><td class="l">A|5|018</td></tr>
+<tr><td>5</td><td class="l">mov R3,A(R1)</td><td class="l">60C1 0120</td><td class="l">0110|000011|000001</td></tr>
+<tr><td>5</td><td class="l">add R0,R3</td><td class="l">1003</td><td class="l">1000h+0·40h+3</td></tr>
+<tr><td>5</td><td class="l">mov R2,#200</td><td class="l">F002 00C8</td><td class="l">F000h+0·40h+2</td></tr>
+<tr><td>5</td><td class="l">add R1,#2</td><td class="l">F041 0002</td><td class="l">F000h+1·40h+1</td></tr>
+<tr><td>5</td><td class="l">jne R1,R2,108h</td><td class="l">B042 0108</td><td class="l">B000h+1·40h+2</td></tr>
+<tr><td>5</td><td class="l">add R62,Rk</td><td class="l">1F80h+k</td><td class="l">0001|111110|k</td></tr>
+<tr><td>5</td><td class="l">call R0,0(R63)</td><td class="l">E03F 0000</td><td class="l">E000h+0+3Fh</td></tr>
+<tr><td>1A</td><td class="l">load (0055)</td><td class="l">90055</td><td class="l">9|0055</td></tr>
+<tr><td>1A</td><td class="l">add #-1</td><td class="l">1FFFF</td><td class="l">−1 = FFFF</td></tr>
+<tr><td>6</td><td class="l">push x (5Dh)</td><td class="l">01 0000005D</td><td class="l">5 bytes</td></tr>
+<tr><td>6</td><td class="l">add / jnz / j</td><td class="l">03 / 0A / 08</td><td class="l">1 byte</td></tr>
+<tr><td>7</td><td class="l">jpos continue</td><td class="l">83 34</td><td class="l">@128h → 15Eh: 15E−12A</td></tr>
+<tr><td>7</td><td class="l">jmp loop</td><td class="l">84 A2</td><td class="l">@15Ch → 100h: −5Eh</td></tr>
+<tr><td>7</td><td class="l">jnz loop</td><td class="l">80 96</td><td class="l">@168h → 100h: −6Ah</td></tr>
+</tbody></table>
+<p class="sm">1A = ماشین تک‌آدرسه. در ماشین ۷ پرش با فاصلهٔ کمتر از ‎−128 (مثلاً ‎−140) ممکن نیست ⇐ <code>jmpl</code>.</p>
+</div>
+
+<h2>الگوهای آمادهٔ برنامه‌نویسی اسمبلی</h2>
+<div class="card">
+<h3>رهنمودها (Directives) — کد ماشین تولید نمی‌کنند</h3>
+<table class="t tiny"><tbody>
+<tr><td class="l"><code>org X</code></td><td class="fa">ادامه از آدرس X</td><td class="l"><code>lbl: dw v</code></td><td class="fa">یک کلمه با مقدار v</td></tr>
+<tr><td class="l"><code>dw N dup(?)</code></td><td class="fa">N کلمهٔ نامعلوم</td><td class="l"><code>dw 0,1,18 dup(?)</code></td><td class="fa">چند مقدار پشت‌سرهم</td></tr>
+<tr><td class="l"><code>end</code></td><td class="fa">پایان برنامهٔ مبدأ</td><td class="l"><code>label+k</code></td><td class="fa">k واحد بعد از برچسب</td></tr>
+</tbody></table>
+</div>
+<div class="card">
+<h3>حلقهٔ شمارشی و اشاره‌گر (ماشین ۳)</h3>
+<pre><span class="lb">loop:</span> add  sum,curr     <span class="cm">; body ...</span>
+      sub  count,one    <span class="cm">; count--</span>
+      jnz  count,loop
+      jnz  one,OS_ret   <span class="cm">; "always" jump</span>
+<span class="lb">count:</span> dw N
+<span class="lb">one:</span>   dw 1           <span class="cm">; no immediates!</span></pre>
+<p class="sm">مجموع فیبوناچی متناوب: هر دور <code>add sum,curr / sub sum,next / add curr,next / add next,curr</code> با count=50 (۱۰۰ جمله).</p>
+</div>
+<div class="card">
+<h3>بدون غیرمستقیم: کد خودتغییرده (ماشین ۳)</h3>
+<pre><span class="lb">loop:</span> add  sum,array    <span class="cm">; addr2 field = loop+3</span>
+      add  loop+3,two   <span class="cm">; patch: next element</span>
+      sub  count,two
+      jnz  count,loop</pre>
+<p class="sm">فیلد addr2 از بایت <code>loop+3</code> شروع می‌شود (۱ بایت کد عمل + ۲ بایت addr1). <span class="r">در اجرای دوباره باید فیلد را دوباره مقداردهی کرد.</span></p>
+</div>
+<div class="card">
+<h3>ثبات‌ها + غیرمستقیم ثباتی (ماشین ۴: C = A + B)</h3>
+<pre>      mov R0,#A ; mov R1,#B ; mov R2,#C
+      mov R5,#10
+<span class="lb">loop:</span> mov R10,(R0)
+      mov R11,(R1)
+      add R10,R11
+      mov (R2),R10
+      add R0,#4 ; add R1,#4 ; add R2,#4
+      sub R5,#1
+      jnz R5,loop      <span class="cm">; A=041h B=069h C=091h</span></pre>
+</div>
+<div class="card">
+<h3>شاخص‌دار (ماشین ۵: جمع آرایه)</h3>
+<pre>      xor  R0,R0         <span class="cm">; sum = 0</span>
+      mov  R1,R0         <span class="cm">; index = 0</span>
+      mov  R2,#200       <span class="cm">; end index</span>
+<span class="lb">loop:</span> mov  R3,A(R1)
+      add  R0,R3
+      add  R1,#2
+      jne  R1,R2,loop
+      mov  sum,R0,R0     <span class="cm">; store</span>
+      call R0,0(R63)     <span class="cm">; return to OS</span></pre>
+</div>
+<div class="card">
+<h3>انباره‌ای (تک‌آدرسه: ۲۰ جملهٔ فیبوناچی)</h3>
+<pre><span class="lb">loop:</span> load (p1) ; store sum
+      load (p2) ; add sum
+      store (p3)          <span class="cm">; A[i+2]=A[i]+A[i+1]</span>
+      load p1 ; add #4 ; store p1
+      add #4 ; store p2 ; add #4 ; store p3
+      load counter ; add #-1 ; store counter
+      jnz loop            <span class="cm">; tests ACC</span>
+      j OS_return_addr
+<span class="lb">p1:</span> dw array ; <span class="lb">p2:</span> dw array+4 ; <span class="lb">p3:</span> dw array+8
+<span class="lb">counter:</span> dw 18 ; <span class="lb">array:</span> dw 0,1,18 dup(?)</pre>
+<p class="sm">کد ماشین: داده‌ها از 0055h (۱۷ دستور × ۵ واحد)؛ p1=0055، p2=0059، p3=005D، counter=0061، sum=0065، array=0069.</p>
+</div>
+<div class="card">
+<h3>پشته‌ای (ماشین ۶)</h3>
+<pre>push x ; push y ; add ; pop x   <span class="cm">; x = x+y</span>
+sp++                            <span class="cm">; x back on top</span>
+push counter ; push #1 ; sub
+pop counter ; sp++              <span class="cm">; [counter]</span>
+push #loop ; jnz                <span class="cm">; cond, then target</span>
+push #OS_return_addr ; j</pre>
+<p class="sm"><b>ترفند:</b> <code>pop x</code> داده را پاک نمی‌کند ⇒ <code>pop x / sp++</code> = ذخیره بدون برداشتن (dup ندارد). اتحاد: <span class="m">ΣF<sub>0..n−1</sub> = F<sub>n+1</sub> − 1</span> ⇒ برنامهٔ کوتاه‌تر.</p>
+</div>
+<div class="card">
+<h3>ترفندهای کوچک</h3>
+<ul class="sm">
+<li><b>جابه‌جایی بدون متغیر کمکی:</b> <code>xor x,y / xor y,x / xor x,y</code>.</li>
+<li><b>صفر کردن:</b> <code>xor R,R</code> یا <code>sub x,x</code>. <b>دو برابر:</b> <code>add r,r</code>. <b>ضرب در ۴:</b> دو بار <code>add</code>.</li>
+<li><b>پرش غیرشرطی بدون دستور مخصوص:</b> پرش شرطی روی متغیری که همیشه ≠ 0 است.</li>
+<li><b>ثابت‌ها بدون بی‌واسطه:</b> در حافظه تعریف کن (<code>one: dw 1</code>)؛ با شمارندهٔ 200 و گام 2 یک ثابت کمتر لازم است.</li>
+<li><b>نگهبان (sentinel):</b> مقدار ویژه قبل/بعد آرایه برای حذف یک شرط (مرتب‌سازی Gnome).</li>
+</ul>
+<table class="t mono tiny"><thead><tr><th colspan="5">بازگشت به سیستم‌عامل</th></tr></thead><tbody>
+<tr><td>M3: jnz one,OS</td><td>M5: call R0,0(R63)</td><td>1-addr: j OS</td><td>M6: push #OS ; j</td><td>M7: jmpl OS</td></tr></tbody></table>
+</div>
+<div class="card">
+<h3>مرتب‌سازی Gnome (تنها مرتب‌سازی غیربازگشتی با یک حلقه)</h3>
+<pre>i := 1;
+while i &lt; n do
+  if A[i] &gt; A[i+1] then
+    begin swap(A[i],A[i+1]);
+          if i &gt; 1 then i := i-1; end
+  else i := i+1;</pre>
+<p class="sm">در ماشین ۷: <span class="m">ACC = A[i+1] − A[i]</span>، <code>jpos continue</code> (مرتب)؛ نگهبان <code>80000000h</code> قبل از آرایه؛ پایان وقتی <span class="m">p = array + 396</span>. <span class="r">اگر A[1] ≥ 0 تفریق با نگهبان سرریز می‌کند ⇒ نگهبان <code>C0000000h</code> یا بررسی <span class="m">p = array</span>.</span></p>
+</div>
+
+<h2>اسمبلر، پیونددهنده، بارکننده و جابه‌جایی</h2>
+<div class="card d">
+<p><b>روند:</b> برنامهٔ سطح بالا ⇐ <b>کامپایلر</b> ⇐ اسمبلی ⇐ <b>اسمبلر</b> ⇐ فایل شیء (+ فایل فهرست) ⇐ <b>پیونددهنده</b> (+ کتابخانه‌ها) ⇐ فایل اجرایی ⇐ <b>بارکننده</b> ⇐ برنامه در حافظه.</p>
+<p><b>اسمبلر دوگذره:</b> گذر ۱ با شمارندهٔ مکان آدرس برچسب‌ها را در <b>جدول نمادها</b> ثبت می‌کند؛ گذر ۲ کد ماشین را تولید می‌کند. دلیل: <b>ارجاع رو به جلو</b> (استفاده از برچسبی که بعداً تعریف شده).</p>
+<p><b>فایل شیء:</b> ۱) سرآیند (اندازه و محل بخش‌ها) ۲) بخش متن (دستورها) ۳) بخش داده ۴) اطلاعات جابه‌جایی (وابسته به آدرس مطلق) ۵) جدول نمادها (برچسب‌های خارجی + ارجاع‌های حل‌نشده) ۶) اطلاعات اشکال‌زدایی.</p>
+<p><b>پیونددهنده (۳ کار):</b> ۱) یافتن روال‌های کتابخانه‌ای (printf، scanf، …) ۲) تعیین محل حافظهٔ هر ماژول و <b>جابه‌جایی</b> ارجاع‌های مطلق ۳) حل ارجاع‌های میان فایل‌ها (مثلاً <code>jal ???</code> ⇐ <code>jal printf</code>).</p>
+<p><b>بارکننده (۶ گام):</b> ۱) خواندن سرآیند ۲) ساخت فضای آدرس ۳) کپی دستورها و داده‌ها ۴) کپی آرگومان‌ها روی پشته ۵) مقداردهی ثبات‌ها و SP ۶) پرش به روال آغازین که main را صدا می‌زند.</p>
+</div>
+<div class="card w">
+<h3>جابه‌جایی برنامه (Relocating loader)</h3>
+<p>اگر برنامه برای <code>org 100h</code> اسمبل شده ولی از <code>50100h</code> بار شود ⇒ همهٔ <b>آدرس‌ها</b> <span class="m">+50000h</span> می‌شوند. <b>Q1:</b> دادهٔ بی‌واسطه‌ای که عدد است (<code>addi 4</code>) نباید تغییر کند ولی آن که آدرس است (<code>subi array+396</code>، <code>mov R0,#A</code>) باید تغییر کند ⇐ فقط اسمبلر می‌داند (رکورد جابه‌جایی). <b>Q2:</b> اشاره‌گرهای داخل داده (<code>p: dw array</code>) هم باید جابه‌جا شوند؛ آدرس‌های ساخته‌شده در زمان اجرا اصلاً قابل اصلاح نیستند. <b>راه‌حل: آدرس‌دهی قطعه‌ای</b> ⇐ کد دست‌نخورده، بارکننده فقط ثبات قطعه را <code>00050000h</code> می‌کند.</p>
+</div>
+
+<h2>ماشین پشته‌ای و نمادگذاری لهستانی</h2>
+<div class="card d">
+<ul>
+<li>پشتهٔ سخت‌افزاری LIFO داخل CPU؛ SP به جای خالی بعدی اشاره می‌کند (SP=0 یعنی خالی).</li>
+<li><span class="m">push x: Stack<sub>(SP)</sub> ← x; SP ← SP+1</span> &nbsp; <span class="m">pop: SP ← SP−1; return Stack<sub>(SP)</sub></span></li>
+<li>تابع: <span class="m">pop t1; pop t2; t3 ← func(t1,t2); push t3</span>. تفریق/تقسیم: <b>پایینی − بالایی</b> (اول a بعد b ⇒ <span class="m">a−b</span>).</li>
+<li>مثال اسلاید: <code>push #-10; push Num(100); push #77; pop Num</code> ⇒ Num = 77، SP = 2، پشته [−10, 100]؛ سپس <code>add</code> ⇒ [90]، SP = 1.</li>
+</ul>
+</div>
+<div class="card k">
+<h3>میانوندی ← پسوندی (لهستانی)</h3>
+<p><b>روش اسلاید:</b> ۱) پرانتزگذاری کامل ۲) از درونی‌ترین: پرانتز راست ← عملگر، پرانتز چپ حذف.</p>
+<p><b>روش پشته‌ای (ایستگاه قطار):</b> عملوند ⇐ خروجی؛ عملگر ⇐ تا وقتی بالای پشته اولویت ≥ دارد pop به خروجی، سپس push؛ «(» push؛ «)» ⇐ pop تا «(»؛ پایان ⇐ pop همه. اولویت: <span class="m">* / &gt; + −</span>، هم‌اولویت‌ها چپ‌به‌راست.</p>
+<p><b>محاسبه:</b> چپ به راست؛ عملوند ⇐ push؛ عملگر ⇐ دو تا pop، نتیجه push. <b>پیشوندی</b>: عملگر قبل از عملوندها (از راست بخوان).</p>
+<p><b>مزایا:</b> بدون پرانتز و بدون نگرانی اولویت؛ مناسب ماشین پشته‌ای. <b>عیب:</b> برای انسان ناخوانا.</p>
+</div>
+<div class="card x">
+<h3>مثال‌های حل‌شده</h3>
+<p class="mw"><span class="c">(x+y−10−t/d+10*s−z) / (20*t−z/t+100*w)</span></p>
+<p>⇐ <code>xy+10-td/-10s*+z-20t*zt/-100w*+/</code> (چپ‌به‌راست استاندارد). پرانتزگذاری اسلاید <code>…10s*z-+…</code> هم درست و هم‌ارزش است.</p>
+<p>ردگیری (SP اولیه 2): بیشینهٔ SP = 6 (۴ خانهٔ آزاد لازم)؛ در پایان <code>pop Result</code> و SP = 2.</p>
+<table class="t tiny"><thead><tr><th>Infix</th><th>Postfix</th><th>Prefix</th></tr></thead><tbody>
+<tr><td>a+b*c−d</td><td>abc*+d−</td><td>−+a*bcd</td></tr>
+<tr><td>(a+b)*(c−d)/e</td><td>ab+cd−*e/</td><td>/*+ab−cde</td></tr>
+<tr><td>a*b+c*d−e</td><td>ab*cd*+e−</td><td>−+*ab*cde</td></tr>
+<tr><td>a−(b−c)</td><td>abc−−</td><td>−a−bc</td></tr>
+</tbody></table>
+<p class="sm"><code>ab+cd-*e/</code> با a=2,b=3,c=7,d=1,e=5: <span class="m">[2]→[2,3]→[5]→[5,7]→[5,7,1]→[5,6]→[30]→[30,5]→[6]</span>.</p>
+</div>
+
+<h2>مبناها و تبدیل‌ها</h2>
+<div class="card k">
+<ul>
+<li><b>مبنای R ← دهدهی:</b> <span class="m">Σ<sub>k=−m</sub><sup>n−1</sup> a<sub>k</sub>R<sup>k</sup></span>. مثال: <span class="m">1101.101<sub>2</sub>=13.625</span>، <span class="m">572.6<sub>8</sub>=378.75</span>، <span class="m">2A.8<sub>16</sub>=42.5</span>، <span class="m">341.24<sub>5</sub>=96.56</span>.</li>
+<li><b>دهدهی ← R (صحیح):</b> تقسیم‌های متوالی بر R؛ اولین باقی‌مانده = LSB. <span class="m">43 = 101011<sub>2</sub></span>، <span class="m">156 = 9C<sub>16</sub></span>.</li>
+<li><b>دهدهی ← R (کسری):</b> ضرب‌های متوالی در R؛ اولین رقم صحیح = MSB. <span class="m">0.3125 = 0.0101<sub>2</sub></span>، <span class="m">0.8125 = 0.64<sub>8</sub></span>، <span class="m">0.1 = 0.0(0011)…<sub>2</sub></span> (متناوب!).</li>
+<li><b>میان توان‌های ۲:</b> هر رقم را با i بیت بنویس، از ممیز گروه‌های j بیتی بساز: <span class="m">7452<sub>8</sub> = 111 100 101 010 = F2A<sub>16</sub></span>؛ <span class="m">3AF.C<sub>16</sub> = 1657.6<sub>8</sub></span>؛ <span class="m">10110111<sub>2</sub> = 2313<sub>4</sub></span>.</li>
+<li>نمادها: C <code>0xF2</code>؛ Verilog <code>8'b11110000 = 8'hF0 = 8'd240</code>.</li>
+</ul>
+</div>
+<div class="card">{{gen:hex}}</div>
+<div class="card"><h3>توان‌های ۲</h3>{{gen:pow2}}
+<p class="sm"><span class="m">2<sup>10</sup>=K, 2<sup>20</sup>=M, 2<sup>30</sup>=G, 2<sup>40</sup>=T</span>؛ <span class="m">log<sub>2</sub>10 ≈ 3.32</span>؛ هر رقم هگز = ۴ بیت، هر رقم اکتال = ۳ بیت.</p></div>
+
+<h2>اعداد علامت‌دار و سرریز</h2>
+<div class="card">{{gen:signed4}}</div>
+<div class="card k">
+<h3>علامت-مقدار (SM)</h3>
+<p>جمع <span class="m">A+B</span>: اگر <span class="m">A<sub>s</sub>=B<sub>s</sub></span> ⇒ <span class="m">(A<sub>s</sub> | A<sub>m</sub>+B<sub>m</sub>)</span>؛ وگرنه بزرگ منهای کوچک با علامت بزرگ‌تر:</p>
+<table class="t tiny"><tbody>
+<tr><td>A<sub>s</sub>=1, A<sub>m</sub>&lt;B<sub>m</sub> → (0 | B<sub>m</sub>−A<sub>m</sub>)</td><td>A<sub>s</sub>=1, A<sub>m</sub>&gt;B<sub>m</sub> → (1 | A<sub>m</sub>−B<sub>m</sub>)</td></tr>
+<tr><td>A<sub>s</sub>=0, A<sub>m</sub>&lt;B<sub>m</sub> → (1 | B<sub>m</sub>−A<sub>m</sub>)</td><td>A<sub>s</sub>=0, A<sub>m</sub>&gt;B<sub>m</sub> → (0 | A<sub>m</sub>−B<sub>m</sub>)</td></tr>
+</tbody></table>
+<p>تفریق: شرط اول <span class="m">A<sub>s</sub>≠B<sub>s</sub></span> ⇒ <span class="m">(A<sub>s</sub> | A<sub>m</sub>+B<sub>m</sub>)</span>، بقیه همان. ضرب/تقسیم: <span class="m">(A<sub>s</sub>⊕B<sub>s</sub> | A<sub>m</sub>×B<sub>m</sub>)</span>. <span class="r">جمع/تفریق SM پیچیده‌تر و پرسخت‌افزارتر از مکمل‌هاست.</span></p>
+<p class="sm">مثال‌ها (۸ بیت): <span class="bits">00110100</span> = +52، <span class="bits">10010011</span> = −19؛ منفی <span class="bits">00100001</span> = <span class="bits">10100001</span>.</p>
+</div>
+<div class="card k">
+<h3>مکمل یک و مکمل دو</h3>
+<ul>
+<li>مکمل یک: <span class="m">−x = 2<sup>n</sup>−x−1</span>؛ <span class="m">−12 = 11110011</span> (۸ بیت). جمع: نقلی خروجی MSB به نتیجه اضافه شود.</li>
+<li>مکمل دو: <span class="m">−x = 2<sup>n</sup>−x</span> = مکمل یک + 1؛ <span class="m">−12 = 11110100</span>. میان‌بر: از راست تا اولین 1 کپی، بقیه معکوس. جمع: نقلی دور ریخته شود.</li>
+<li>تفریق: <span class="m">A − B = A + (−B)</span>.</li>
+<li>سریع ۸ بیتی: <span class="bits">−1=FF −2=FE −8=F8 −10=F6 −16=F0 −100=9C −127=81 −128=80</span>؛ ۱۶ بیتی: <span class="bits">−1=FFFF −200=FF38</span>.</li>
+<li>کسری: <span class="m">01011.011</span> SM ⇒ <span class="m">11011.011</span>؛ 1s ⇒ <span class="m">11000.010 → 00111.101</span>؛ 2s ⇒ <span class="m">01001.011 → 10110.101</span> (افزودن 1 به LSB).</li>
+</ul>
+</div>
+<div class="card x">
+<h3>مثال‌های ۴ بیتی اسلاید</h3>
+<table class="t mono tiny"><thead><tr><th>Sys</th><th>Op</th><th>Binary</th><th>Result</th><th class="fa">وضعیت</th></tr></thead><tbody>
+<tr><td>1s</td><td>−2+−5</td><td>1101+1010=1 0111→1000</td><td>−7</td><td class="fa">OK</td></tr>
+<tr><td>1s</td><td>+5+−5</td><td>0101+1010=1111</td><td>−0</td><td class="fa">OK</td></tr>
+<tr><td>1s</td><td>−3+−7</td><td>1100+1000=1 0100→0101</td><td>+5</td><td class="fa r">سرریز</td></tr>
+<tr><td>2s</td><td>−2+−6</td><td>1110+1010=1 1000</td><td>−8</td><td class="fa">OK</td></tr>
+<tr><td>2s</td><td>+6+−3</td><td>0110+1101=1 0011</td><td>+3</td><td class="fa">OK</td></tr>
+<tr><td>2s</td><td>−3+−6</td><td>1101+1010=1 0111</td><td>+7</td><td class="fa r">سرریز (Cin0/Cout1)</td></tr>
+<tr><td>2s</td><td>+5+6</td><td>0101+0110=1011</td><td>−5</td><td class="fa r">سرریز (Cin1/Cout0)</td></tr>
+<tr><td>2s</td><td>6−1</td><td>0110+1111=1 0101</td><td>+5</td><td class="fa">OK</td></tr>
+<tr><td>2s</td><td>−5−4</td><td>1011+1100=1 0111</td><td>+7</td><td class="fa r">سرریز</td></tr>
+</tbody></table>
+</div>
+<div class="card q">
+<h3>اثبات‌ها (تکلیف): جمع‌کنندهٔ دودویی</h3>
+<p><b>مکمل یک:</b> افزودن نقلی چرخشی = کم کردن <span class="m">2<sup>n</sup>−1</span>. حالت‌ها: ‎(+,+) بی‌نقلی ✓؛ ‎(+,−): <span class="m">R=(2<sup>n</sup>−1)+(A−|B|)</span>؛ اگر <span class="m">A&gt;|B|</span> نقلی ⇒ <span class="m">A−|B|</span> ✓؛ وگرنه <span class="m">2<sup>n</sup>−1−(|B|−A)</span> ✓؛ ‎(−,−): <span class="m">2<sup>n</sup>−|A|−1+2<sup>n</sup>−|B|−1 = 2<sup>n</sup>+2<sup>n</sup>−(|A|+|B|)−2</span>، نقلی ⇒ <span class="m">2<sup>n</sup>−(|A|+|B|)−1</span> ✓.</p>
+<p><b>مکمل دو:</b> جمع‌کننده <span class="m">(a+b) mod 2<sup>n</sup></span>. ‎(+,−): <span class="m">2<sup>n</sup>+(A−|B|)</span> ✓ هر دو حالت؛ ‎(−,−): <span class="m">2<sup>n</sup>+2<sup>n</sup>−(|A|+|B|)</span> ⇒ دور ریختن ⇒ <span class="m">2<sup>n</sup>−(|A|+|B|)</span> ✓. سرریز: (+,+) ⇒ Cout=0، نتیجهٔ منفی یعنی Cin=1؛ (−,−) ⇒ Cout=1، نتیجهٔ مثبت یعنی Cin=0.</p>
+</div>
+<div class="card k">
+<h3>نمایش افزونی (Excess-K)</h3>
+<p>کد = مقدار + K؛ توزیع یکنواخت با <span class="m">K = 2<sup>n−1</sup></span> یا <span class="m">2<sup>n−1</sup>−1</span> (۴ بیت: Excess-8 یا 7؛ ۳ بیت: Excess-4 ⇒ 000=−4 … 111=3). K دیگر ⇒ ناهمسان (Excess-5 در ۴ بیت: −5…+10). <span class="m">Excess-2<sup>n−1</sup></span> = مکمل دو با MSB معکوس. Excess-127: <span class="m">−20 → 01101011</span>، <span class="m">10000101 → 6</span>.</p>
+</div>
+
+<h2>ممیز ثابت و ممیز شناور</h2>
+<div class="card k">
+<h3>ممیز ثابت</h3>
+<p>تعداد بیت‌های صحیح/کسری ثابت؛ ممیز فرضی. ۸ بیت (۶.۲) مکمل دو: <span class="m">011010.11 = 26.75</span>، <span class="m">111110.11 = −1.25</span>؛ بازه <span class="m">−32 … 31.75</span> با گام <span class="m">0.25</span>؛ <span class="m">−5.5 = 111010.10</span>. عیب: بازهٔ محدود.</p>
+</div>
+<div class="card k">
+<h3>قالب سفارشی ۱۲ بیتی اسلاید</h3>
+<p><span class="fmt"><span>S 1</span><span>M 7</span><span>E 4</span></span> &nbsp;<span class="m">V = (−1)<sup>S</sup> × 0.M × 2<sup>E−8</sup></span> (مانتیس SM، نما Excess-8)</p>
+<p><b>کدگذاری:</b> ۱) به دودویی ۲) نرمال کن <span class="m">0.1xxx × 2<sup>e</sup></span> ۳) <span class="m">E = e + bias</span> ۴) M = ۷ بیت بعد از ممیز (بقیه <b>بریده</b> می‌شود) ۵) S.</p>
+<table class="t mono tiny"><thead><tr><th class="fa">مورد</th><th>S M E</th><th>Value</th></tr></thead><tbody>
+<tr><td class="fa">بزرگ‌ترین</td><td>0 1111111 1111</td><td>+127</td></tr>
+<tr><td class="fa">کوچک‌ترین</td><td>1 1111111 1111</td><td>−127</td></tr>
+<tr><td class="fa">بزرگ‌ترین منفی</td><td>1 0000001 0000</td><td>−2<sup>−15</sup></td></tr>
+<tr><td class="fa">کوچک‌ترین مثبت</td><td>0 0000001 0000</td><td>2<sup>−15</sup> (نرمال: 2<sup>−9</sup>)</td></tr>
+<tr><td class="fa">−3.625 = −0.11101×2²</td><td>1 1110100 1010</td><td>نرمال</td></tr>
+<tr><td class="fa">25.375 = 0.11001011×2⁵</td><td>0 1100101 1101</td><td>25.25 ‼</td></tr>
+<tr><td class="fa">10.75 / −12.25</td><td>0 1010110 1100 / 1 1100010 1100</td><td></td></tr>
+<tr><td class="fa">−23.0 / 23.0</td><td>1 1011100 1101 / 0 1011100 1101</td><td></td></tr>
+<tr><td class="fa">0.248046875</td><td>0 1111111 0110</td><td>0.1111111×2⁻²</td></tr>
+<tr><td class="fa">صفر (درست)</td><td>0 0000000 0000</td><td>0.0×2<sup>−8</sup></td></tr>
+</tbody></table>
+</div>
+<div class="card k">
+<h3>جمع/تفریق، ضرب و تقسیم</h3>
+<ol>
+<li><b>هم‌ترازی:</b> مانتیس عدد با نمای کوچک‌تر را به اندازهٔ اختلاف نماها به راست شیفت بده (بیت‌ها از دست می‌روند).</li>
+<li>جمع/تفریق مانتیس‌ها.</li>
+<li>نرمال‌سازی: سرریز مانتیس ⇒ شیفت راست و E+1 (LSB بریده)؛ صفر پیشرو ⇒ شیفت چپ و E−1؛ مانتیس صفر ⇒ <b>E = 0</b>.</li>
+</ol>
+<p><b>ضرب:</b> <span class="m">S=S<sub>1</sub>⊕S<sub>2</sub>, M=M<sub>1</sub>×M<sub>2</sub>, E=E<sub>1</sub>+E<sub>2</sub>−bias</span> (بایاس اضافه). <b>تقسیم:</b> <span class="m">E=E<sub>1</sub>−E<sub>2</sub>+bias</span> (بایاس حذف‌شده). </p>
+<pre>3 x 2.5:  3 = 0 1100000 1010 ; 2.5 = 0 1010000 1010
+M = 0.11 x 0.101 = 0.01111 ; E = 1010+1010-1000 = 1100
+normalize: 0.1111 x 2^-1 -> E = 1011
+result = 0 1111000 1011 = 0.1111 x 2^3 = 7.5</pre>
+</div>
+<div class="card x">
+<h3>مثال‌های جمع اسلاید (S M E)</h3>
+<pre><span class="cm">11.5 + 23.25</span>
+11.5  = 0 1011100 1100   (0.10111 x 2^4)
+23.25 = 0 1011101 1101   (0.1011101 x 2^5)
+align 11.5 -> 0 0101110 1101  (shift 1)
+0101110 + 1011101 = 10001011  (8 bits!)
+truncate LSB, E+1 -> 0 1000101 1110 = <b>34.5</b> (not 34.75)
+<span class="cm">0.6015625 + 12.375  (exact 12.9765625)</span>
+0.6015625 = 0 1001101 1000   (0.1001101 x 2^0)
+12.375    = 0 1100011 1100   (0.1100011 x 2^4)
+align: shift 4 -> 0 0000100 1100 (lost 1101)
+0000100 + 1100011 = 1100111 -> <b>12.875</b>
+<span class="cm">(slide used E=0111 by mistake -> 12.625)</span></pre>
+<p class="sm"><b>پیام:</b> در جمع/تفریق ممیز شناور عدد کوچک‌تر فدای بزرگ‌تر می‌شود؛ هرچه اختلاف نما بیشتر، جریمه بیشتر.</p>
+<pre><span class="cm">R0=10.75 R1=-12.25 R2=-23.0 R3=0.248046875</span>
+FSUB R0,R1 -> R0 = 0 1011100 1101 = 23.0
+FADD R2,R0 -> R2 = 0 0000000 1101 = 0.0 x 2^5
+FADD R3,R2 -> R3 shifted 7 bits -> <b>0.0 !!!</b>
+fix: zero = 0 0000000 0000 = 0.0 x 2^-8</pre>
+</div>
+<div class="card q">
+<h3>پرسش‌های مفهومی</h3>
+<ul class="sm">
+<li><b>چرا نرمال‌سازی؟</b> ۱) بهترین استفاده از بیت‌های مانتیس (دقت بیشینه) ۲) یکتایی نمایش هر عدد.</li>
+<li><b>چرا کوچک‌ترین نما برای صفر؟</b> کمینه کردن خطای محاسبه (در هم‌ترازی، مانتیس صفر شیفت می‌خورد نه عدد دیگر).</li>
+<li><b>مزایای نمای بایاس‌دار:</b> ۱) صفر = الگوی تمام‌صفر ۲) مقایسهٔ نماها ساده (بدون علامت) ۳) آزمون صفر با مدار اعداد صحیح ۴) بدون کد عمل جدا برای پرش صفر/ناصفر ممیز شناور. <b>معایب:</b> بایاس اضافه در ضرب، بایاس حذف‌شده در تقسیم.</li>
+</ul>
+</div>
+
+<h2>استاندارد IEEE 754</h2>
+<div class="card k">
+<p><span class="fmt"><span>S</span><span>E</span><span>F</span></span> <span class="m">V = (−1)<sup>S</sup> × 1.F × 2<sup>E−bias</sup></span>؛ <b>Single</b>: 1+8+23، bias=127؛ <b>Double</b>: 1+11+52، bias=1023؛ بیت ۱ پنهان (ذخیره نمی‌شود).</p>
+<p><b>کدگذاری:</b> ۱) دودویی ۲) <span class="m">1.xxx × 2<sup>e</sup></span> ۳) <span class="m">E = e+127</span> (۸ بیت) ۴) F = بیت‌های بعد از ممیز، با صفر پر/گرد شود ۵) گروه‌های ۴ بیتی ⇐ هگز. <b>رمزگشایی:</b> برعکس؛ اگر E=0 ⇐ غیرنرمال <span class="m">0.F × 2<sup>−126</sup></span>.</p>
+<pre>-6.5 = -110.1 = -1.101 x 2^2 ; E = 2+127 = 129
+     = 1 10000001 10100000000000000000000 = <b>C0D00000</b>
+110.1      -> 1.101   x 2^2   (store 101)
+0.00101101 -> 1.01101 x 2^-3  (store 01101)
+C2F00000 = 1 10000101 111000.. = -1.111 x 2^6 = -120
+85.125 = 1.010101001 x 2^6 -> 42AA4000</pre>
+</div>
+<div class="card">{{gen:ieee}}<p class="sm">Double: <span class="m">1.0 = 3FF0000000000000</span>، <span class="m">−6.5 = C01A000000000000</span>، <span class="m">0.1 ≈ 3FB999999999999A</span>.</p></div>
+<div class="card">
+<table class="t tiny"><thead><tr><th></th><th>Denormalized</th><th>Normalized</th><th>≈ Decimal</th></tr></thead><tbody>
+<tr><th>Single</th><td>±2<sup>−149</sup> … (1−2<sup>−23</sup>)×2<sup>−126</sup></td><td>±2<sup>−126</sup> … (2−2<sup>−23</sup>)×2<sup>127</sup></td><td>±10<sup>−44.85</sup> … 10<sup>38.53</sup></td></tr>
+<tr><th>Double</th><td>±2<sup>−1074</sup> … (1−2<sup>−52</sup>)×2<sup>−1022</sup></td><td>±2<sup>−1022</sup> … (2−2<sup>−52</sup>)×2<sup>1023</sup></td><td>±10<sup>−323.3</sup> … 10<sup>308.3</sup></td></tr>
+</tbody></table>
+<div class="two">
+<table class="t tiny"><thead><tr><th>E</th><th>F</th><th>Value</th></tr></thead><tbody>
+<tr><td>00…0</td><td>0</td><td>±0 (برابر)</td></tr>
+<tr><td>00…0</td><td>≠0</td><td>±0.F×2<sup>1−bias</sup></td></tr>
+<tr><td>00…1–11…0</td><td>any</td><td>±1.F×2<sup>E−bias</sup></td></tr>
+<tr><td>11…1</td><td>0</td><td>±∞</td></tr>
+<tr><td>11…1</td><td>≠0</td><td>NaN</td></tr>
+</tbody></table>
+<table class="t tiny"><thead><tr><th>Operation</th><th>Result</th></tr></thead><tbody>
+<tr><td>n ÷ ±∞</td><td>0</td></tr><tr><td>±∞×±∞, ±finite×±∞</td><td>±∞</td></tr>
+<tr><td>±nonZero ÷ ±0</td><td>±∞</td></tr><tr><td>∞+∞, ∞−(−∞)</td><td>+∞</td></tr>
+<tr><td>−∞−∞, −∞+(−∞)</td><td>−∞</td></tr><tr><td>∞−∞, −∞+∞</td><td>NaN</td></tr>
+<tr><td>±0÷±0, ±∞÷±∞, ±∞×0</td><td>NaN</td></tr><tr><td>NaN == NaN</td><td>false</td></tr>
+</tbody></table>
+</div>
+</div>
+
+<h2>کدهای دهدهی و کاراکتری</h2>
+<div class="card">
+<p><b>BCD</b>: هر رقم ۴ بیت. <span class="m">7089652 → 0111 0000 1000 1001 0110 0101 0010</span>. دسته‌بندی: وزن‌دار (همه‌مثبت/مختلط) و بی‌وزن؛ ۴ بیتی، ۵ بیتی، بیش از ۵ بیت.</p>
+<table class="t mono tiny"><thead><tr><th>d</th><th>8421</th><th>Ex-3</th><th>5421</th><th>84-2-1</th><th>7421</th><th>5311</th><th>631-1</th><th>2421</th></tr></thead><tbody>
+<tr><td>0</td><td>0000</td><td>0011</td><td>0000</td><td>0000</td><td>0000</td><td>0000</td><td>0011</td><td>0000</td></tr>
+<tr><td>1</td><td>0001</td><td>0100</td><td>0001</td><td>0111</td><td>0001</td><td>0001</td><td>0010</td><td>0001</td></tr>
+<tr><td>2</td><td>0010</td><td>0101</td><td>0010</td><td>0110</td><td>0010</td><td>0011</td><td>0101</td><td>0010</td></tr>
+<tr><td>3</td><td>0011</td><td>0110</td><td>0011</td><td>0101</td><td>0011</td><td>0100</td><td>0111</td><td>0011</td></tr>
+<tr><td>4</td><td>0100</td><td>0111</td><td>0100</td><td>0100</td><td>0100</td><td>0101</td><td>0110</td><td>0100</td></tr>
+<tr><td>5</td><td>0101</td><td>1000</td><td>0101</td><td>1011</td><td>0101</td><td>1000</td><td>1001</td><td>1011</td></tr>
+<tr><td>6</td><td>0110</td><td>1001</td><td>0110</td><td>1010</td><td>0110</td><td>1001</td><td>1000</td><td>1100</td></tr>
+<tr><td>7</td><td>0111</td><td>1010</td><td>0111</td><td>1001</td><td>1000</td><td>1011</td><td>1010</td><td>1101</td></tr>
+<tr><td>8</td><td>1000</td><td>1011</td><td>1011</td><td>1000</td><td>1001</td><td>1100</td><td>1101</td><td>1110</td></tr>
+<tr><td>9</td><td>1001</td><td>1100</td><td>1100</td><td>1111</td><td>1010</td><td>1101</td><td>1100</td><td>1111</td></tr>
+</tbody></table>
+<table class="t mono tiny"><thead><tr><th>d</th><th>2-of-5</th><th>63210</th><th>Shift-cnt</th><th>86421</th><th>51111</th><th>50 43210</th><th>543210</th></tr></thead><tbody>
+<tr><td>0</td><td>00011</td><td>00001</td><td>00000</td><td>00000</td><td>00000</td><td>01 00001</td><td>000001</td></tr>
+<tr><td>1</td><td>00101</td><td>00011</td><td>00001</td><td>00001</td><td>00001</td><td>01 00010</td><td>000010</td></tr>
+<tr><td>2</td><td>00110</td><td>00101</td><td>00011</td><td>00010</td><td>00011</td><td>01 00100</td><td>000100</td></tr>
+<tr><td>3</td><td>01001</td><td>01001</td><td>00111</td><td>00011</td><td>00111</td><td>01 01000</td><td>001000</td></tr>
+<tr><td>4</td><td>01010</td><td>01010</td><td>01111</td><td>00100</td><td>01111</td><td>01 10000</td><td>010000</td></tr>
+<tr><td>5</td><td>01100</td><td>01100</td><td>11111</td><td>00101</td><td>10000</td><td>10 00001</td><td>100001</td></tr>
+<tr><td>6</td><td>10001</td><td>10001</td><td>11110</td><td>01000</td><td>11000</td><td>10 00010</td><td>100010</td></tr>
+<tr><td>7</td><td>10010</td><td>10010</td><td>11100</td><td>01001</td><td>11100</td><td>10 00100</td><td>100100</td></tr>
+<tr><td>8</td><td>10100</td><td>10100</td><td>11000</td><td>10000</td><td>11110</td><td>10 01000</td><td>101000</td></tr>
+<tr><td>9</td><td>11000</td><td>11000</td><td>10000</td><td>10001</td><td>11111</td><td>10 10000</td><td>110000</td></tr>
+</tbody></table>
+<p class="sm">9876543210 (one-hot): رقم d ⇐ فقط بیت d یک است (۱۰ بیت).</p>
+</div>
+<div class="card k">
+<ul class="sm">
+<li><b>خودمکمل</b>: مکمل ۹ با NOT بیتی؛ <b>Excess-3، 631-1، 2421، 51111</b> (و 84-2-1). شرط لازم برای کد وزن‌دار: جمع وزن‌ها = ۹.</li>
+<li><b>Excess-3 = BCD + 3</b>؛ <span class="m">395 → 0110 1100 1000</span>.</li>
+<li><b>جمع BCD:</b> اگر رقم &gt; 9 یا نقلی داد ⇒ +6 (<span class="bits">0110</span>): <span class="m">27+15: 0011 1100 → 0100 0010 = 42</span>.</li>
+<li><b>2-out-of-5:</b> دقیقاً دو بیت ۱ ⇒ آشکارسازی خطای تک‌بیتی.</li>
+<li><b>گری:</b> اعداد متوالی یک بیت اختلاف؛ <span class="m">g<sub>n−1</sub>=b<sub>n−1</sub>, g<sub>i</sub>=b<sub>i+1</sub>⊕b<sub>i</sub></span>؛ برعکس <span class="m">b<sub>i</sub>=b<sub>i+1</sub>⊕g<sub>i</sub></span>.</li>
+</ul>
+{{gen:gray}}
+</div>
+<div class="card">
+<h3>ASCII (۷ بیتی) — ستون = ۳ بیت پرارزش، سطر = ۴ بیت کم‌ارزش</h3>
+{{gen:ascii}}
+<ul class="sm">
+<li><span class="m">'0'=30h, 'A'=41h=65, 'a'=61h=97, SP=20h, LF=0Ah, CR=0Dh, DEL=7Fh</span>.</li>
+<li>تفاوت حرف کوچک/بزرگ = بیت ۵ (20h): کوچک <span class="m">OR 20h</span>، بزرگ <span class="m">AND DFh</span>، تعویض <span class="m">XOR 20h</span>. رقم ← مقدار: <span class="m">−30h</span> یا <span class="m">AND 0Fh</span>.</li>
+<li><b>ASCII</b>: ۸ بیت (۷ + توازن) در PCها. توازن زوج: <span class="m">'A'→01000001</span>، <span class="m">'C'→11000011</span>. <b>EBCDIC</b>: ۸ بیتی IBM. <b>Unicode</b>: همهٔ زبان‌ها، UTF-8/16/32.</li>
+</ul>
+<table class="t mono tiny"><thead><tr><th>Code point</th><th>UTF-8 bytes</th></tr></thead><tbody>
+<tr><td>U+0000–007F</td><td>0xxxxxxx</td></tr>
+<tr><td>U+0080–07FF</td><td>110xxxxx 10xxxxxx</td></tr>
+<tr><td>U+0800–FFFF</td><td>1110xxxx 10xxxxxx 10xxxxxx</td></tr>
+<tr><td>U+10000–10FFFF</td><td>11110xxx 10xxxxxx ×3</td></tr>
+</tbody></table>
+<p class="sm">«س» = U+0633 ⇒ <span class="bits">11011000 10110011</span> = <code>D8 B3</code>؛ «CSL» = <code>43 53 4C</code>.</p>
+</div>
+
+<h2>آدرس‌دهی نسبی، قطعه‌ای، صفحه‌ای و چندکاربره</h2>
+<div class="card d">
+<ul>
+<li><b>نسبی:</b> بیشتر پرش‌ها نزدیک‌اند ⇒ به‌جای آدرس کامل، جابه‌جایی کوتاه (بیت کمتر). اسمبلر d را از آدرس مقصد و محل فعلی می‌سازد. کد فقط با پرش نسبی <b>مستقل از مکان</b> است. <code>jcxz loop_addr</code> (8086، d هشت بیتی).</li>
+<li><b>قطعه‌ای:</b> آدرس فیزیکی = آدرس منطقی + ثبات قطعه. <span class="g">مثبت:</span> OS (پیونددهنده/بارکننده) دردسر کمتر، کد تغییر نمی‌کند. <span class="r">منفی:</span> یک جمع برای هر دسترسی ⇒ اجرای کندتر. (8086: <span class="m">seg×16 + off</span>)</li>
+<li><b>صفحه‌ای:</b> صفحه <span class="m">2<sup>P</sup></span> کلمه، حافظه <span class="m">2<sup>M</sup></span> ⇒ ثبات صفحه <span class="m">M−P</span> بیت، آدرس منطقی P بیت، <span class="m">2<sup>M−P</sup></span> صفحه. <span class="g">مثبت:</span> بدون جمع (فقط الحاق) ⇒ مزایای قطعه‌ای بدون عیبش. <span class="r">منفی:</span> شروع فقط در مضرب <span class="m">2<sup>P</sup></span>، حداقل طول <span class="m">2<sup>P</sup></span>، برنامهٔ بزرگ‌تر ⇒ چند صفحه، مدیریت دشوار.</li>
+</ul>
+</div>
+<div class="card x">
+<ul class="sm">
+<li>صفحه‌ای: حافظه <span class="m">2<sup>16</sup></span>، صفحه 1024، PR=<span class="bits">000101</span>، LA=0A3h ⇒ <span class="m">000101‖0010100011 = 14A3h</span>.</li>
+<li>حافظه <span class="m">2<sup>20</sup></span>، صفحهٔ 4K ⇒ PR ۸ بیت، LA ۱۲ بیت، ۲۵۶ صفحه؛ برنامهٔ 10K ⇒ ۳ صفحه، ۲K هدر.</li>
+<li>قطعه‌ای: <span class="m">0003A000h + 00001234h = 0003B234h</span>؛ صفحهٔ 64K با PR=0003h ⇒ <span class="m">00031234h</span>.</li>
+<li>SR=00050000h، <code>load (p)</code> با p=16Fh و (p)=17Fh ⇒ دسترسی به <span class="m">5016Fh</span> سپس <span class="m">5017Fh</span>.</li>
+</ul>
+</div>
+<div class="card">
+<h3>پشتیبانی چندکاربره</h3>
+<ul class="sm">
+<li>هر کاربر هنگام login بخشی از حافظه (بسته به سطح کاربر) می‌گیرد و هنگام logout آزاد می‌شود؛ CPU با <b>تسهیم زمانی</b> میان کاربران فعال تقسیم می‌شود.</li>
+<li>OS جدول کاربران فعال دارد: User ID، شروع/پایان قطعه، حق دسترسی/اولویت، اشاره‌گر به Context، …</li>
+<li><b>Context</b> = ثبات‌ها (قطعه/صفحه، PC، وضعیت، …)؛ ذخیرهٔ متن کاربر قبلی و بار متن بعدی = <b>تعویض متن</b>. زمان‌بر ⇒ برش زمانی طولانی‌تر = بهرهٔ بهتر CPU. GPUها: فایل ثبات بزرگ ⇒ تعویض متن بدون تأخیر.</li>
+<li>حفاظت: بررسی آدرس با شروع/پایان قطعه و حق دسترسی.</li>
+</ul>
+</div>
+
+<h2>فون‌نویمان، فلین و ابررایانه‌ها</h2>
+<div class="card d">
+<ul class="sm">
+<li><b>فون‌نویمان (۱۹۴۵):</b> برنامه و داده در <b>یک حافظه</b>؛ CPU = CU + ALU؛ ورودی/خروجی؛ چرخهٔ واکشی–رمزگشایی–اجرا. گلوگاه: یک مسیر CPU–حافظه، یک دستور در لحظه ⇒ ساختارهای پیشرفته برای بهبود کارایی.</li>
+<li><b>CU</b>: واکشی، رمزگشایی، فرستادن سیگنال کنترلی. <b>ALU</b>: عملیات حسابی و منطقی.</li>
+</ul>
+<table class="tiny"><thead><tr><th>دسته</th><th>تعریف</th><th>نمونه</th></tr></thead><tbody>
+<tr><td><b>SISD</b></td><td>یک IS، یک DS</td><td>همان فون‌نویمان، تک‌هسته‌ای</td></tr>
+<tr><td><b>SIMD</b></td><td>یک CU، n واحد PU</td><td>برداری (Cray-1)، GPU، SSE/AVX؛ بیشتر ابررایانه‌های اولیه</td></tr>
+<tr><td><b>MISD</b></td><td>چند IS روی یک DS</td><td>خط لوله، سیستولیک (محل اختلاف؛ «وجود ندارد»)؛ خط لوله مقرون‌به‌صرفه‌ترین</td></tr>
+<tr><td><b>MIMD</b></td><td>چند CU/PU/MU مستقل</td><td>چندکامپیوتری؛ تقریباً همهٔ ابررایانه‌های فعلی، چندهسته‌ای</td></tr>
+</tbody></table>
+<p class="sm">سه دستهٔ SIMD/MISD/MIMD = «ساختارهای پیشرفته». IS = جریان دستور، DS = جریان داده.</p>
+</div>
+<div class="card">
+<table class="tiny"><thead><tr><th>سیستم</th><th>سال</th><th>نوع</th><th>مشخصات کلیدی</th></tr></thead><tbody>
+<tr><td>Cray-1</td><td>1975</td><td>SIMD</td><td>160 MFLOPS، برداری، 8MB</td></tr>
+<tr><td>Cray T3E</td><td>1995</td><td>MIMD</td><td>تا 3 TF، Alpha 21164A، 1350 MF/PE، 40–2048 PE، چنبرهٔ ۳بعدی، 10GB–1TB</td></tr>
+<tr><td>Earth Simulator</td><td>2002</td><td>Multi-SIMD</td><td>640 گره × 8 برداری = 5120، 8 GF/پردازنده ⇒ 40 TF، 10TB، 350M$</td></tr>
+<tr><td>BlueGene</td><td>2004–07</td><td>MIMD</td><td>360 TF، 65536 گره، چنبرهٔ ۳بعدی، 130M$</td></tr>
+<tr><td>Cray X1</td><td>—</td><td>SIMD–MIMD</td><td>PVP + T3E؛ 4 MSP × 12.8 GF/گره؛ NUMA تا 1024 گره</td></tr>
+<tr><td>Roadrunner</td><td>2008</td><td>MIMD</td><td>اولین پتافلاپس: 1.33 PF، 12960 Cell (9 هسته)، 3.9MW، 133M$</td></tr>
+<tr><td>LineShine</td><td>2026</td><td>MIMD</td><td>≈2.735 EF، 13,789,440 هسته، 13PB، 42.2MW، ≈1B$</td></tr>
+</tbody></table>
+<p class="sm"><b>FLOPS</b> = عمل ممیز شناور در ثانیه؛ TOP500 هر ۶ ماه؛ <span class="m">K 10<sup>3</sup>, M 10<sup>6</sup>, G 10<sup>9</sup>, T 10<sup>12</sup>, P 10<sup>15</sup>, E 10<sup>18</sup></span>. ده رتبهٔ اول (ژوئن ۲۰۲۶): LineShine، El Capitan، Frontier، Aurora، JUPITER، Eagle، HPC6، Fugaku، Alps، LUMI. مغز: ≈1.2 PF، 20W، 1400cm³ (≈۱۱۵۰ برابر کم‌مصرف‌تر)؛ K-Computer (10 PF) یک ثانیه از مغز را در ۴۰ دقیقه.</p>
+</div>
+
+<h2>پرسش‌های تشریحی با پاسخ کوتاه</h2>
+<div class="card q long">
+<ol class="sm">
+<li><b>مدل برنامهٔ ذخیره‌شده؟</b> برنامه و داده در یک حافظه؛ اجرای برنامهٔ دیگر فقط با بار کردن آن (بدون سیم‌کشی دوباره).</li>
+<li><b>چرا زبان اسمبلی؟</b> حافظه و زمان کمتر، کارهای وابسته به سخت‌افزار، کارهای حساس به زمان، ISR و برنامه‌های مقیم؛ (شکستن قفل و ویروس). دانش رابط با OS/BIOS، نمایش داده، دسترسی به دستور/داده/I/O.</li>
+<li><b>چرا اسمبلر دوگذره است؟</b> ارجاع رو به جلو؛ گذر ۱ جدول نمادها، گذر ۲ کد.</li>
+<li><b>اگر بعد از حلقه به OS برنگردیم؟</b> PC به داده‌ها می‌رسد و CPU آن‌ها را دستور فرض می‌کند ⇒ رفتار نامعلوم.</li>
+<li><b>مزایا و معایب کد خودتغییرده؟</b> خوب برای رمزنگاری و قفل نرم‌افزاری؛ بد از نظر مهندسی نرم‌افزار و نتیجهٔ غلط در اجرای چندباره.</li>
+<li><b>چرا آدرس‌دهی نسبی؟</b> پرش‌ها نزدیک‌اند ⇒ فیلد کوتاه‌تر، دستور کوتاه‌تر؛ کد مستقل از مکان.</li>
+<li><b>قطعه‌ای در برابر صفحه‌ای؟</b> قطعه: جمع (کند) ولی انعطاف؛ صفحه: الحاق (سریع) ولی مرز و طول ثابت.</li>
+<li><b>مشکل بارکنندهٔ جابه‌جاکننده؟</b> تشخیص آدرس از عدد در فیلدهای بی‌واسطه و اشاره‌گرهای داده.</li>
+<li><b>تعویض متن چیست و چرا مهم است؟</b> ذخیره/بار ثبات‌های کاربر؛ هزینه‌بر ⇒ برش زمانی بزرگ‌تر.</li>
+<li><b>چرا مکمل دو رایج است؟</b> یک صفر، جمع‌کنندهٔ ساده (بی‌نقلی چرخشی)، تفریق = جمع با مکمل.</li>
+<li><b>چرا جمع SM سخت است؟</b> مقایسهٔ اندازه‌ها، جمع‌کننده و تفریق‌کننده، انتخاب علامت.</li>
+<li><b>چرا 0.1 دقیق نیست؟</b> بسط دودویی متناوب است؛ اعداد حقیقی تقریبی‌اند چون بیت‌ها محدودند.</li>
+<li><b>نقش ثبات‌های MAR/MBR/IR/PC؟</b> بخش ۴.</li>
+<li><b>MISD چرا محل اختلاف است؟</b> بعضی می‌گویند ماشین واقعی ندارد؛ بعضی خط لوله و سیستولیک را MISD می‌دانند.</li>
+<li><b>نمادگذاری لهستانی چرا؟</b> بدون پرانتز/اولویت، مستقیم روی پشته محاسبه می‌شود.</li>
+<li><b>فرق Register File و Isolated؟</b> یکی در هر لحظه / دسترسی موازی.</li>
+<li><b>فایدهٔ نگهبان؟</b> حذف بررسی مرز در حلقه (کد ساده‌تر و سریع‌تر).</li>
+</ol>
+</div>
+
+<h2>تله‌های امتحانی و خطاهای اسلاید</h2>
+<div class="card w long">
+<ul class="sm">
+<li><b>jpos:</b> در ماشین‌های ۳، ۴ و تک‌آدرسه <span class="m">&gt; 0</span>؛ در ماشین ۷ <span class="m">≥ 0</span>.</li>
+<li>جابه‌جایی نسبی از <b>دستور بعدی</b> حساب می‌شود، نه از خود پرش.</li>
+<li>حافظهٔ نیبلی (ماشین ۴ و تک‌آدرسه): آدرس‌ها بر حسب ۴ بیت؛ هر رقم هگز یک واحد؛ کلمه = ۴ واحد.</li>
+<li>ماشین ۲ پرش ندارد (باز کردن حلقه)؛ ماشین ۳ بی‌واسطه و پرش غیرشرطی ندارد (ثابت‌ها در حافظه).</li>
+<li>MBR = پهنای دسترسی، نه واحد آدرس‌پذیر؛ IR = بلندترین قالب؛ PC = MAR.</li>
+<li>pop داده را پاک نمی‌کند؛ در ماشین ۶ اول شرط بعد آدرس مقصد push می‌شود؛ sub = پایینی − بالایی.</li>
+<li>ثابت منفی در دستور: مکمل دو با طول فیلد (‎−1 = FFFF در ۱۶ بیت).</li>
+<li>در مکمل دو، <span class="m">−(−2<sup>n−1</sup>)</span> قابل نمایش نیست (سرریز). جمع دو عدد ناهم‌علامت هرگز سرریز نمی‌کند.</li>
+<li>FP: هم‌ترازی به سمت نمای بزرگ‌تر؛ مانتیس بریده می‌شود (نه گرد) در قالب اسلاید؛ نتیجهٔ صفر ⇒ نما صفر.</li>
+<li>IEEE: نمای تمام‌صفر یعنی <span class="m">2<sup>−126</sup></span> و 0.F (نه 1.F و نه <span class="m">2<sup>−127</sup></span>).</li>
+<li>جمع BCD: +6 برای رقم &gt; 9 یا نقلی.</li>
+<li>کلمهٔ ناهم‌تراز که از مرز سطر بگذرد ⇒ دو دسترسی.</li>
+</ul>
+<p><b>خطاهای اسلاید (در جزوه اصلاح شده‌اند):</b> کد jn ماشین ۶ (نوشته‌شده 08 = j؛ درست 0B)؛ <code>load temp1</code> در 12Ah ماشین ۷ (01 ⇐ درست 00)؛ نمای 0.6015625 (0111 ⇐ درست 1000، نتیجه 12.875)؛ فیبوناچی ماشین ۶ با counter=10 جمع ۲۲ جمله (=28656) است، برای ۲۰ جمله counter=9 (=10945)؛ سرریز نگهبان مرتب‌سازی؛ UFT ⇐ UTF.</p>
+</div>
+
+<h2>داده‌های مرجع</h2>
+<div class="card">
+<h3>فیبوناچی (<span class="m">ΣF<sub>0..n−1</sub> = F<sub>n+1</sub>−1</span>؛ <span class="m">Σ<sub>0..n</sub>(−1)<sup>i</sup>F<sub>i</sub> = (−1)<sup>n</sup>F<sub>n−1</sub>−1</span>)</h3>
+{{gen:fib}}
+</div>
+<div class="card">
+<h3>اعداد اول</h3>
+{{gen:primes}}
+</div>
+
+
+</div>

@@ -1,0 +1,103 @@
+@font-face{font-family:"Vazirmatn";src:url(../jozveh/fonts/Vazirmatn-Regular.woff2);font-weight:400}
+@font-face{font-family:"Vazirmatn";src:url(../jozveh/fonts/Vazirmatn-Medium.woff2);font-weight:500}
+@font-face{font-family:"Vazirmatn";src:url(../jozveh/fonts/Vazirmatn-Bold.woff2);font-weight:700}
+@font-face{font-family:"Vazirmatn";src:url(../jozveh/fonts/Vazirmatn-Black.woff2);font-weight:900}
+@font-face{font-family:"JBMono";src:url(../jozveh/fonts/JetBrainsMono-Regular.woff2);font-weight:400}
+@font-face{font-family:"JBMono";src:url(../jozveh/fonts/JetBrainsMono-Bold.woff2);font-weight:700}
+
+:root{
+  --ink:#151b28; --muted:#5b6475; --line:#cfd6e2;
+  --blue:#1f5fbf; --navy:#0f2a57; --blue-bg:#eef4fd;
+  --green:#17703f; --green-bg:#ebf6ef;
+  --amber:#8a5600; --amber-bg:#fff5df;
+  --red:#b3261e; --red-bg:#fdeceb;
+  --purple:#5f3596; --purple-bg:#f3eefa;
+  --code-bg:#f3f5f9;
+}
+@page{
+  size:A4;
+  margin:10mm 8mm 10mm 8mm;
+  @top-right{content:"چیت‌شیت ساختار و زبان کامپیوتر — جلسه‌های ۱ تا ۵";font-family:"Vazirmatn";font-size:7pt;color:#7a8394;vertical-align:bottom;padding-bottom:1.5mm}
+  @top-left{content:"Computer Structure & Language — Open-book cheat sheet";font-family:"Vazirmatn";font-size:7pt;color:#7a8394;vertical-align:bottom;padding-bottom:1.5mm}
+  @bottom-center{content:counter(page, persian);font-family:"Vazirmatn";font-size:8pt;color:#333}
+}
+*{box-sizing:border-box}
+html{font-size:7.9pt}
+body{font-family:"Vazirmatn",sans-serif;color:var(--ink);line-height:1.55;margin:0;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact;orphans:1;widows:1}
+p{margin:.25em 0 .35em}
+b{font-weight:700}
+ul,ol{margin:.15em 0 .3em;padding-right:4.2mm;padding-left:0}
+li{margin:.05em 0}
+sup,sub{font-size:.72em;line-height:0}
+
+.m{direction:ltr;unicode-bidi:isolate;white-space:nowrap;display:inline-block}
+.mw{direction:ltr;unicode-bidi:isolate}
+code,.c{display:inline-block;font-family:"JBMono",monospace;font-size:.9em;direction:ltr;unicode-bidi:isolate;background:var(--code-bg);padding:0 .22em;border-radius:2px;white-space:nowrap;line-height:1.35}
+.bits{display:inline-block;font-family:"JBMono",monospace;font-size:.92em;direction:ltr;unicode-bidi:isolate;white-space:nowrap}
+.r{color:var(--red);font-weight:700}
+.g{color:var(--green);font-weight:700}
+.bl{color:var(--blue);font-weight:700}
+.mut{color:var(--muted)}
+.sm{font-size:.9em}
+
+/* banner */
+.banner{background:linear-gradient(120deg,#0f2a57,#1f5fbf 70%,#3d86e6);color:#fff;border-radius:4px;padding:3mm 5mm 3mm;margin-bottom:2.5mm}
+.banner h1{margin:0;font-size:15pt;font-weight:900;line-height:1.45}
+.banner .sub{font-size:8.2pt;opacity:.92}
+.banner .legend{margin-top:1.2mm;font-size:7.4pt}
+.banner .legend span{display:inline-block;border-radius:2px;padding:0 1.6mm;margin-left:1.2mm;color:#111}
+.toc{columns:3;column-gap:4mm;font-size:7.3pt;background:#f3f5f9;border:1px solid var(--line);border-radius:3px;padding:1.5mm 3mm;margin-bottom:2.5mm}
+.toc div{display:flex;break-inside:avoid}
+.toc div a{color:inherit;text-decoration:none}
+.toc .dots{flex:1;border-bottom:1px dotted #9aa3b5;margin:0 1mm;transform:translateY(-1mm)}
+.toc .pg{font-weight:700;color:var(--blue)}
+
+.cols{column-count:2;column-gap:4.5mm;column-rule:1px solid #dde3ec;column-fill:auto}
+
+h2{position:relative;font-size:9pt;font-weight:900;color:#fff;background:var(--navy);margin:2.2mm 0 1.2mm;padding:.5mm 2mm .7mm;border-radius:2px;break-after:avoid;break-inside:avoid;line-height:1.5}
+h2 .sn{display:inline-block;background:#ffd36b;color:#111;border-radius:2px;padding:0 1.3mm;margin-left:1.6mm;font-size:.92em}
+h3{font-size:8.1pt;font-weight:900;color:var(--blue);margin:0 0 .5mm;line-height:1.45;break-after:avoid}
+
+.card{border:1px solid var(--line);border-radius:3px;padding:1mm 2mm 1.1mm;margin:0 0 1.5mm;break-inside:avoid;background:#fff}
+.card.long{break-inside:auto}
+.card.k{background:var(--amber-bg);border-color:#e9c97a}
+.card.d{background:var(--blue-bg);border-color:#bcd0f0}
+.card.x{background:var(--green-bg);border-color:#b5dcc3}
+.card.w{background:var(--red-bg);border-color:#efb7b2}
+.card.q{background:var(--purple-bg);border-color:#d2c3ea}
+.card.k h3{color:var(--amber)} .card.x h3{color:var(--green)} .card.w h3{color:var(--red)} .card.q h3{color:var(--purple)}
+
+table{border-collapse:collapse;width:100%;margin:.6mm 0 .8mm;font-size:.93em;break-inside:auto}
+th,td{border:1px solid #d7dde8;padding:.25mm 1mm;vertical-align:middle;line-height:1.38}
+th{background:#e7edf6;color:var(--navy);font-weight:700}
+tbody tr:nth-child(even) td{background:#f9fafc}
+tr{break-inside:avoid}
+table.t{direction:ltr}
+table.t td,table.t th{text-align:center}
+table.t td.l,table.t th.l{text-align:left}
+table.t td.fa,table.t th.fa{unicode-bidi:plaintext;text-align:right}
+table.t td.op{font-family:"JBMono";font-size:.95em;white-space:nowrap}
+table.t td.mn{font-family:"JBMono";font-size:.95em;text-align:left;white-space:nowrap}
+table.t td.ex{text-align:left;white-space:nowrap}
+table.mono td{font-family:"JBMono";font-size:.93em}
+table.fa td{text-align:right}
+td.c,th.c{text-align:center}
+td.mt{direction:ltr;unicode-bidi:isolate;white-space:nowrap}
+table.tiny{font-size:.86em}
+table.tiny td,table.tiny th{padding:.1mm .6mm}
+
+.spec{font-size:.95em;color:#26324a;margin:.2mm 0 .4mm}
+.fmt{direction:ltr;display:inline-flex;margin:.3mm .8mm .3mm 0;vertical-align:middle}
+.fmt span{border:1px solid #34507f;border-left:none;padding:0 1.4mm;font-size:.85em;background:#f7faff;color:#1f5fbf;line-height:1.5;white-space:nowrap}
+.fmt span:first-child{border-left:1px solid #34507f}
+.fmt span i{font-style:normal;color:#666;font-size:.9em}
+
+pre{font-family:"JBMono",monospace;font-size:.84em;direction:ltr;text-align:left;background:var(--code-bg);border:1px solid #e1e6ee;border-radius:2px;padding:.8mm 2mm;margin:.6mm 0 .8mm;line-height:1.42;white-space:pre;unicode-bidi:isolate;break-inside:avoid;overflow:hidden}
+pre .cm{color:#6b7a90}
+pre .lb{color:#9a3d00;font-weight:700}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:1.5mm}
+.two > *{min-width:0}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.2mm}
+hr{border:none;border-top:1px dashed var(--line);margin:1mm 0}
+.mk{font-size:3px;color:#0f2a57;line-height:0}
