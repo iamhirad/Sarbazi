@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ساختار و زبان کامپیوتر — جزوه و چیت‌شیت</title>
+<meta name="description" content="جزوهٔ کامل فارسی (۱۱۲ صفحه) و چیت‌شیت ۸ صفحه‌ای درس ساختار و زبان کامپیوتر، جلسه‌های ۱ تا ۵، با حل کامل همهٔ تمرین‌ها.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="ساختار و زبان کامپیوتر — جزوه و چیت‌شیت">
+<meta property="og:description" content="جزوهٔ کامل فارسی و چیت‌شیت امتحان کتاب‌باز، جلسه‌های ۱ تا ۵، با حل کامل تمرین‌ها.">
+<meta property="og:url" content="https://iamhirad.github.io/Sarbazi/">
+<meta property="og:image" content="https://iamhirad.github.io/Sarbazi/assets/og.png">
+<meta property="og:locale" content="fa_IR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0f2a57">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<style>
+@font-face{font-family:"Vazirmatn";src:url(assets/fonts/Vazirmatn-Regular.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Vazirmatn";src:url(assets/fonts/Vazirmatn-Bold.woff2) format("woff2");font-weight:700;font-display:swap}
+@font-face{font-family:"Vazirmatn";src:url(assets/fonts/Vazirmatn-Black.woff2) format("woff2");font-weight:900;font-display:swap}
+
+:root{
+  --bg:#f5f7fb; --surface:#ffffff; --ink:#152033; --muted:#5b6475; --line:#dfe5ee;
+  --brand:#1f5fbf; --brand-ink:#ffffff; --navy:#0f2a57; --accent:#ffd36b;
+  --chip:#eef4fd; --chip-ink:#1f4f9a; --shadow:0 1px 2px rgba(16,30,60,.06),0 8px 24px rgba(16,30,60,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1420; --surface:#161e2d; --ink:#e7ecf5; --muted:#9aa6ba; --line:#263247;
+    --brand:#5b9bff; --brand-ink:#0b1220; --navy:#0b1730; --accent:#ffd36b;
+    --chip:#1c2a44; --chip-ink:#a9c8ff; --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1420; --surface:#161e2d; --ink:#e7ecf5; --muted:#9aa6ba; --line:#263247;
+  --brand:#5b9bff; --brand-ink:#0b1220; --navy:#0b1730; --accent:#ffd36b;
+  --chip:#1c2a44; --chip-ink:#a9c8ff; --shadow:none;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Vazirmatn",Tahoma,sans-serif;line-height:1.85;font-size:16px}
+a{color:var(--brand)}
+.wrap{max-width:1040px;margin:0 auto;padding:0 16px}
+
+header.hero{background:linear-gradient(140deg,#0f2a57 0%,#1f5fbf 62%,#3d86e6 100%);color:#fff;padding:44px 0 92px}
+.hero .kicker{font-size:14px;opacity:.85}
+.hero h1{font-size:clamp(26px,5vw,40px);font-weight:900;line-height:1.45;margin:6px 0 10px}
+.hero p{max-width:640px;margin:0;opacity:.92}
+.hero .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.hero .tags span{border:1px solid rgba(255,255,255,.45);border-radius:999px;padding:2px 12px;font-size:13px;background:rgba(255,255,255,.08)}
+
+main{margin-top:-64px}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}
+.thumb{display:block;background:#e9eef6;aspect-ratio:210/150;overflow:hidden;border-bottom:1px solid var(--line)}
+.thumb img{width:100%;height:100%;object-fit:cover;object-position:top;display:block}
+.card .body{padding:18px 20px 20px;display:flex;flex-direction:column;gap:10px;flex:1}
+.card h2{margin:0;font-size:21px;font-weight:900}
+.card .desc{margin:0;color:var(--muted);font-size:15px}
+.meta{display:flex;flex-wrap:wrap;gap:6px}
+.meta span{background:var(--chip);color:var(--chip-ink);border-radius:6px;padding:0 9px;font-size:13px}
+.actions{display:flex;gap:10px;margin-top:auto;padding-top:6px}
+.btn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:10px;padding:10px 14px;font-weight:700;font-size:15px;text-decoration:none;border:1px solid var(--brand);min-height:46px}
+.btn.primary{background:var(--brand);color:var(--brand-ink)}
+.btn.ghost{color:var(--brand);background:transparent}
+.btn svg{width:18px;height:18px;flex:none}
+
+section.block{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:20px 22px;margin-top:20px}
+section.block h3{margin:0 0 10px;font-size:19px;font-weight:900}
+.toc{display:grid;grid-template-columns:1fr 1fr;gap:6px 26px;margin:0;padding:0;list-style:none}
+.toc li{display:flex;gap:10px;align-items:baseline;font-size:15px}
+.toc li b{color:var(--brand);min-width:56px;flex:none;font-weight:700}
+.feat{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:4px}
+.feat div{border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.feat strong{display:block;font-size:15px}
+.feat p{margin:2px 0 0;color:var(--muted);font-size:14px}
+
+.share{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:20px;background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:12px 16px}
+.share code{direction:ltr;unicode-bidi:isolate;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;background:var(--chip);color:var(--chip-ink);padding:2px 8px;border-radius:6px;word-break:break-all}
+.share button{font:inherit;font-weight:700;font-size:14px;border:1px solid var(--brand);background:transparent;color:var(--brand);border-radius:8px;padding:4px 14px;cursor:pointer;min-height:40px}
+
+footer{color:var(--muted);font-size:14px;padding:28px 0 40px;text-align:center}
+.theme-toggle{position:absolute;top:14px;left:16px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:999px;width:40px;height:40px;cursor:pointer;display:grid;place-items:center}
+.theme-toggle svg{width:18px;height:18px}
+header.hero{position:relative}
+
+@media (max-width:760px){
+  .cards{grid-template-columns:1fr}
+  .toc{grid-template-columns:1fr}
+  .feat{grid-template-columns:1fr}
+  header.hero{padding:34px 0 84px}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <button class="theme-toggle" type="button" aria-label="تغییر حالت روشن و تاریک" onclick="toggleTheme()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+  </button>
+  <div class="wrap">
+    <div class="kicker">دانشکدهٔ مهندسی کامپیوتر — دانشگاه صنعتی شریف</div>
+    <h1>ساختار و زبان کامپیوتر<br>جزوه و چیت‌شیت</h1>
+    <p>بر اساس اسلایدهای درس دکتر حمید سربازی‌آزاد، جلسه‌های ۱ تا ۵. توضیح کامل همهٔ اسلایدها، همهٔ مثال‌ها و حل کامل تمرین‌ها و تکلیف‌ها، به‌همراه یک چیت‌شیت فشرده برای امتحان کتاب‌باز.</p>
+    <div class="tags"><span>فارسی و راست‌به‌چپ</span><span>کدهای ماشین آزموده با شبیه‌ساز</span><span>اصلاح خطاهای اسلاید</span><span>رایگان</span></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="cards">
+    <article class="card">
+      <a class="thumb" href="CSL_Jozveh_Persian.pdf" target="_blank" rel="noopener"><img src="assets/jozveh.webp" alt="صفحهٔ نخست جزوهٔ ساختار و زبان کامپیوتر" width="840" height="600" loading="eager"></a>
+      <div class="body">
+        <h2>جزوهٔ کامل</h2>
+        <p class="desc">توضیح مفصل جلسه‌های ۱ تا ۵ با شکل‌ها، مثال‌ها و حل گام‌به‌گام همهٔ تمرین‌ها: برنامهٔ اسمبلی، ترجمه به کد ماشین و ردگیری اجرا.</p>
+        <div class="meta"><span>{{JOZ_PAGES}} صفحه</span><span>{{JOZ_SIZE}}</span><span>PDF</span><span>A4</span></div>
+        <div class="actions">
+          <a class="btn primary" href="CSL_Jozveh_Persian.pdf" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>مشاهده</a>
+          <a class="btn ghost" href="CSL_Jozveh_Persian.pdf" download><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>دانلود</a>
+        </div>
+      </div>
+    </article>
+    <article class="card">
+      <a class="thumb" href="CSL_CheatSheet.pdf" target="_blank" rel="noopener"><img src="assets/cheatsheet.webp" alt="صفحهٔ نخست چیت‌شیت ساختار و زبان کامپیوتر" width="840" height="600" loading="eager"></a>
+      <div class="body">
+        <h2>چیت‌شیت امتحان</h2>
+        <p class="desc">خلاصهٔ فشردهٔ دوستونه برای امتحان کتاب‌باز: فرمول‌ها، جدول کد عمل همهٔ ماشین‌ها، الگوهای برنامه‌نویسی، IEEE 754، کدها، پرسش‌های تشریحی و تله‌های امتحانی.</p>
+        <div class="meta"><span>{{CS_PAGES}} صفحه</span><span>{{CS_SIZE}}</span><span>PDF</span><span>مناسب چاپ رنگی</span></div>
+        <div class="actions">
+          <a class="btn primary" href="CSL_CheatSheet.pdf" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>مشاهده</a>
+          <a class="btn ghost" href="CSL_CheatSheet.pdf" download><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>دانلود</a>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <div class="share">
+    <span>لینک این صفحه برای هم‌کلاسی‌ها:</span>
+    <code id="link">https://iamhirad.github.io/Sarbazi/</code>
+    <button type="button" onclick="copyLink(this)">کپی لینک</button>
+  </div>
+
+  <section class="block">
+    <h3>فصل‌های جزوه</h3>
+    <ul class="toc">
+      <li><b>فصل ۱</b><span>ساختار فون‌نویمان، طبقه‌بندی فلین، ابررایانه‌ها و معرفی درس</span></li>
+      <li><b>فصل ۲</b><span>حافظهٔ اصلی، قالب دستور، مسیرهای داخلی و زبان اسمبلی (ماشین‌های ۱ و ۲)</span></li>
+      <li><b>فصل ۳</b><span>ثبات‌ها، روش‌های آدرس‌دهی، اسمبلر، پیونددهنده و بارکننده، ماشین‌های ۳ تا ۶، نمادگذاری لهستانی</span></li>
+      <li><b>فصل ۴</b><span>نمایش داده‌ها: مبناها، مکمل‌ها، افزونی، ممیز ثابت و شناور، IEEE 754، کدهای دهدهی و کاراکتری</span></li>
+      <li><b>فصل ۵</b><span>آدرس‌دهی نسبی، قطعه‌ای و صفحه‌ای، مرتب‌سازی و جمع ۱۰۰ عدد اول در ماشین ۷، سیستم چندکاربره</span></li>
+      <li><b>پیوست‌ها</b><span>خلاصهٔ همهٔ ماشین‌های نمونه و واژه‌نامهٔ انگلیسی–فارسی</span></li>
+    </ul>
+  </section>
+
+  <section class="block">
+    <h3>چه چیزهایی در این مجموعه هست</h3>
+    <div class="feat">
+      <div><strong>حل کامل تمرین‌ها</strong><p>همهٔ مثال‌ها و تکلیف‌های اسلایدها، از برنامهٔ اسمبلی تا کد ماشین و ردگیری.</p></div>
+      <div><strong>کدهای آزموده‌شده</strong><p>برنامه‌های ترجمه‌شده با شبیه‌ساز همان ماشین فرضی اجرا و بررسی شده‌اند.</p></div>
+      <div><strong>اصلاح خطاهای اسلاید</strong><p>اشتباه‌های تایپی و محاسباتی اسلایدها در کادرهای «توجه» مشخص و اصلاح شده‌اند.</p></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <h3>نکته برای چاپ</h3>
+    <p style="margin:0;color:var(--muted)">چیت‌شیت را یک‌رو و ترجیحاً رنگی چاپ کنید تا کادرهای رنگی (فرمول، تعریف، مثال، تله و پرسش تشریحی) از هم جدا دیده شوند. برای جزوه، چاپ دورو با حاشیهٔ پیش‌فرض مناسب است.</p>
+  </section>
+</main>
+
+<footer class="wrap">
+  آخرین به‌روزرسانی: {{UPDATED}} · <a href="https://github.com/iamhirad/Sarbazi" rel="noopener">مخزن گیت‌هاب</a>
+</footer>
+
+<script>
+function toggleTheme(){
+  var root=document.documentElement;
+  var dark=root.getAttribute('data-theme')==='dark' ||
+    (!root.getAttribute('data-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  var next=dark?'light':'dark';
+  root.setAttribute('data-theme',next);
+  try{localStorage.setItem('theme',next);}catch(e){}
+}
+(function(){try{var t=localStorage.getItem('theme');if(t){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();
+function copyLink(btn){
+  var url=document.getElementById('link').textContent.trim();
+  function done(){var old=btn.textContent;btn.textContent='کپی شد ✓';setTimeout(function(){btn.textContent=old;},1600);}
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(done,fallback);}else{fallback();}
+  function fallback(){var r=document.createRange();r.selectNodeContents(document.getElementById('link'));var s=window.getSelection();s.removeAllRanges();s.addRange(r);try{document.execCommand('copy');done();}catch(e){}}
+}
+</script>
+</body>
+</html>
