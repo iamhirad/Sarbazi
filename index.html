@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ساختار و زبان کامپیوتر — جزوه و چیت‌شیت</title>
+<title>ساختار و زبان کامپیوتر — جزوه، چیت‌شیت و حل میان‌ترم‌ها</title>
 <meta name="description" content="جزوهٔ کامل فارسی (۱۱۲ صفحه) و چیت‌شیت ۸ صفحه‌ای درس ساختار و زبان کامپیوتر، جلسه‌های ۱ تا ۵، با حل کامل همهٔ تمرین‌ها.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="ساختار و زبان کامپیوتر — جزوه و چیت‌شیت">
-<meta property="og:description" content="جزوهٔ کامل فارسی و چیت‌شیت امتحان کتاب‌باز، جلسه‌های ۱ تا ۵، با حل کامل تمرین‌ها.">
+<meta property="og:title" content="ساختار و زبان کامپیوتر — جزوه، چیت‌شیت و حل میان‌ترم‌ها">
+<meta property="og:description" content="جزوهٔ کامل فارسی، چیت‌شیت امتحان کتاب‌باز و الگوهای حل مسئله با حل میان‌ترم‌های ۹۸ تا ۱۴۰۲.">
 <meta property="og:url" content="https://iamhirad.github.io/Sarbazi/">
 <meta property="og:image" content="https://iamhirad.github.io/Sarbazi/assets/og.png">
 <meta property="og:locale" content="fa_IR">
@@ -50,7 +50,7 @@ header.hero{background:linear-gradient(140deg,#0f2a57 0%,#1f5fbf 62%,#3d86e6 100
 .hero .tags span{border:1px solid rgba(255,255,255,.45);border-radius:999px;padding:2px 12px;font-size:13px;background:rgba(255,255,255,.08)}
 
 main{margin-top:-64px}
-.cards{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}
 .thumb{display:block;background:#e9eef6;aspect-ratio:210/150;overflow:hidden;border-bottom:1px solid var(--line)}
 .thumb img{width:100%;height:100%;object-fit:cover;object-position:top;display:block}
@@ -84,6 +84,9 @@ footer{color:var(--muted);font-size:14px;padding:28px 0 40px;text-align:center}
 .theme-toggle svg{width:18px;height:18px}
 header.hero{position:relative}
 
+@media (max-width:980px){
+  .cards{grid-template-columns:1fr 1fr}
+}
 @media (max-width:760px){
   .cards{grid-template-columns:1fr}
   .toc{grid-template-columns:1fr}
@@ -99,8 +102,8 @@ header.hero{position:relative}
   </button>
   <div class="wrap">
     <div class="kicker">دانشکدهٔ مهندسی کامپیوتر — دانشگاه صنعتی شریف</div>
-    <h1>ساختار و زبان کامپیوتر<br>جزوه و چیت‌شیت</h1>
-    <p>بر اساس اسلایدهای درس دکتر حمید سربازی‌آزاد، جلسه‌های ۱ تا ۵. توضیح کامل همهٔ اسلایدها، همهٔ مثال‌ها و حل کامل تمرین‌ها و تکلیف‌ها، به‌همراه یک چیت‌شیت فشرده برای امتحان کتاب‌باز.</p>
+    <h1>ساختار و زبان کامپیوتر<br>جزوه، چیت‌شیت و حل میان‌ترم‌ها</h1>
+    <p>بر اساس اسلایدهای درس دکتر حمید سربازی‌آزاد، جلسه‌های ۱ تا ۵. توضیح کامل همهٔ اسلایدها، همهٔ مثال‌ها و حل کامل تمرین‌ها و تکلیف‌ها، به‌همراه یک چیت‌شیت فشرده برای امتحان کتاب‌باز و مجموعهٔ الگوهای حل مسئله با حل کامل میان‌ترم‌های ۹۸ تا ۱۴۰۲.</p>
     <div class="tags"><span>فارسی و راست‌به‌چپ</span><span>کدهای ماشین آزموده با شبیه‌ساز</span><span>اصلاح خطاهای اسلاید</span><span>رایگان</span></div>
   </div>
 </header>
@@ -124,10 +127,22 @@ header.hero{position:relative}
       <div class="body">
         <h2>چیت‌شیت امتحان</h2>
         <p class="desc">خلاصهٔ فشردهٔ دوستونه برای امتحان کتاب‌باز: فرمول‌ها، جدول کد عمل همهٔ ماشین‌ها، الگوهای برنامه‌نویسی، IEEE 754، کدها، پرسش‌های تشریحی و تله‌های امتحانی.</p>
-        <div class="meta"><span>۸ صفحه</span><span>۱٫۳ مگابایت</span><span>PDF</span><span>مناسب چاپ رنگی</span></div>
+        <div class="meta"><span>۹ صفحه</span><span>۱٫۳ مگابایت</span><span>PDF</span><span>مناسب چاپ رنگی</span></div>
         <div class="actions">
           <a class="btn primary" href="CSL_CheatSheet.pdf" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>مشاهده</a>
           <a class="btn ghost" href="CSL_CheatSheet.pdf" download><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>دانلود</a>
+        </div>
+      </div>
+    </article>
+    <article class="card">
+      <a class="thumb" href="CSL_Patterns.pdf" target="_blank" rel="noopener"><img src="assets/patterns.webp" alt="صفحهٔ نخست ایده‌ها و الگوهای حل مسئله" width="840" height="600" loading="eager"></a>
+      <div class="body">
+        <h2>الگوها + حل میان‌ترم‌ها</h2>
+        <p class="desc">ایده‌های تکراری حل مسئله از ساده تا پیشرفته با کد (جابه‌جایی XOR، مرتب‌سازی Gnome، popcount، کد خودتغییرده و …) و حل کامل میان‌ترم‌های ۹۸ تا ۱۴۰۲.</p>
+        <div class="meta"><span>۱۰ صفحه</span><span>۰٫۸ مگابایت</span><span>PDF</span><span>کدهای آزموده</span></div>
+        <div class="actions">
+          <a class="btn primary" href="CSL_Patterns.pdf" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>مشاهده</a>
+          <a class="btn ghost" href="CSL_Patterns.pdf" download><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>دانلود</a>
         </div>
       </div>
     </article>
@@ -157,6 +172,9 @@ header.hero{position:relative}
       <div><strong>حل کامل تمرین‌ها</strong><p>همهٔ مثال‌ها و تکلیف‌های اسلایدها، از برنامهٔ اسمبلی تا کد ماشین و ردگیری.</p></div>
       <div><strong>کدهای آزموده‌شده</strong><p>برنامه‌های ترجمه‌شده با شبیه‌ساز همان ماشین فرضی اجرا و بررسی شده‌اند.</p></div>
       <div><strong>اصلاح خطاهای اسلاید</strong><p>اشتباه‌های تایپی و محاسباتی اسلایدها در کادرهای «توجه» مشخص و اصلاح شده‌اند.</p></div>
+      <div><strong>حل میان‌ترم‌ها</strong><p>هر چهار سؤال میان‌ترم‌های ۹۸ تا ۱۴۰۲: طول ثبات‌ها، برنامه، تحلیل و کد ماشین.</p></div>
+      <div><strong>۲۴ الگوی آماده</strong><p>از جابه‌جایی XOR تا مرتب‌سازی و کد خودتغییرده، هر کدام با کد اسمبلی.</p></div>
+      <div><strong>چک‌لیست سؤال ۳</strong><p>روش گام‌به‌گام برای «این برنامه چه می‌کند؟» با ترفندهای سال‌های قبل.</p></div>
     </div>
   </section>
 
@@ -167,7 +185,7 @@ header.hero{position:relative}
 </main>
 
 <footer class="wrap">
-  آخرین به‌روزرسانی: ۱۰ آبان ۱۴۰۵ · <a href="https://github.com/iamhirad/Sarbazi" rel="noopener">مخزن گیت‌هاب</a>
+  آخرین به‌روزرسانی: ۱۲ آبان ۱۴۰۵ · <a href="https://github.com/iamhirad/Sarbazi" rel="noopener">مخزن گیت‌هاب</a>
 </footer>
 
 <script>
