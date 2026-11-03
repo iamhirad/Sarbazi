@@ -668,6 +668,44 @@ C2F00000 = 1 10000101 111000.. = -1.111 x 2^6 = -120
 </ol>
 </div>
 
+<h2>میان‌ترم‌های ۹۸ تا ۱۴۰۲ و الگوهای پرتکرار</h2>
+<div class="card k">
+<h3>هر سال همین ۴ سؤال (ماشین تازه)</h3>
+<p class="sm">۱) طول ثبات‌ها (۱ نمره) ۲) نوشتن برنامه (۳–۴) ۳) «چه می‌کند؟» (۳) ۴) ترجمهٔ سؤال ۳ به کد ماشین (۲–۳). حل کامل هر پنج سال و ۲۴ الگوی آزموده در فایل جدا: <b>CSL_Patterns.pdf</b>.</p>
+<table class="t tiny"><thead><tr><th>Year</th><th>unit/word</th><th>MAR,PC</th><th>MBR</th><th>IR</th><th class="fa">سؤال ۲</th><th class="fa">جواب سؤال ۳</th></tr></thead><tbody>
+<tr><td>1402</td><td>6b / 4u</td><td>24</td><td>24</td><td>54</td><td class="fa">جمع متناوب پیشوندی</td><td class="fa">popcount عدد c</td></tr>
+<tr><td>1401</td><td>7b / 3u</td><td>21</td><td>21</td><td>49</td><td class="fa">تکمیل Gnome با XOR</td><td class="fa">a = −10 (XOR روی دستور)</td></tr>
+<tr><td>1400</td><td>4b / 4u</td><td>16</td><td>16</td><td>52</td><td class="fa">جمع ۱۰۰ فیبوناچی</td><td class="fa">A = ۱۰۰ جملهٔ فیبوناچی</td></tr>
+<tr><td>1399</td><td>6b / 4u</td><td>24</td><td>24</td><td>36</td><td class="fa">مرتب‌سازی ۱۰۰ کلمه</td><td class="fa">وارونه کردن ۲۶ کلمهٔ اول</td></tr>
+<tr><td>1398</td><td>4b / 8u</td><td>32</td><td>32</td><td>48</td><td class="fa">e<sup>x</sup> با دقت 2<sup>−10</sup></td><td class="fa">شمارش NaN و غیرنرمال</td></tr>
+</tbody></table>
+</div>
+<div class="card">
+<h3>الگوهای کد (نماد ماشین ۱۴۰۲: کلمه = ۴ واحد)</h3>
+<table class="t tiny codewrap" style="table-layout:fixed"><colgroup><col style="width:22%"><col></colgroup><thead><tr><th class="fa">الگو</th><th class="l">Core code</th></tr></thead><tbody>
+<tr><td class="fa">جابه‌جایی XOR</td><td class="l"><code>xor a,b / xor b,a / xor a,b</code></td></tr>
+<tr><td class="fa">+۱ و −۱ بدون inc</td><td class="l"><code>sub x,#FFFFFFh</code> / <code>add x,#FFFFFFh</code></td></tr>
+<tr><td class="fa">تست مقدار (فقط پرچم)</td><td class="l"><code>add y,#0</code> یا <code>mov t,#0 / or t,(p)</code></td></tr>
+<tr><td class="fa">مقایسه</td><td class="l"><code>mov t,b / sub t,a / jneg L</code></td></tr>
+<tr><td class="fa">پیمایش آرایه</td><td class="l"><code>add s,(p) / add p,#4 / sub n,#1 / jnz loop</code></td></tr>
+<tr><td class="fa">فیبوناچی (۲ جمله در دور)</td><td class="l"><code>add a,b / add sum,a / add b,a / add sum,b</code></td></tr>
+<tr><td class="fa">جمع متناوب</td><td class="l"><code>add s,(p) / mov (p),s / add p,#4</code> <code>sub s,(p) / mov (p),s / add p,#4</code></td></tr>
+<tr><td class="fa">popcount / ضرب</td><td class="l">ماسک: <code>and t,mask / jz skip / … / add mask,mask / jnz loop</code></td></tr>
+<tr><td class="fa">توان ۲</td><td class="l"><code>t = x−1 ; and t,x ; jz yes</code></td></tr>
+<tr><td class="fa">قدر مطلق</td><td class="l"><code>xor x,#FFFFFFh / add x,#1</code></td></tr>
+<tr><td class="fa">Gnome</td><td class="l"><code>t = A[i+1]−A[i] ; jneg swap ; p += 4</code> <code>swap: xor×3 ; if p ≠ A: p −= 4</code></td></tr>
+<tr><td class="fa">کد خودتغییرده</td><td class="l"><code>add loop+5,#4</code> (فیلد addr2) ؛ <code>xor loop+k,#X</code> (تبدیل دستور)</td></tr>
+</tbody></table>
+</div>
+<div class="card w">
+<h3>چک‌لیست سؤال «چه می‌کند؟»</h3>
+<ol class="sm">
+<li>آدرس همهٔ خط‌ها (بر حسب واحد)؛ ۲) اجرا از اولین org؛ <code>dw</code> در مسیر اجرا = دستور. ۳) پرش به وسط دستور (<code>loop-6</code>) ⇒ رمزگشایی از نو. ۴) عملوندی که به کد اشاره دارد (<code>loop+1</code>، <code>Arr+10</code>) ⇒ کد خودتغییرده. ۵) عملوندهای هم‌پوشان (<code>c-3 = a</code>، <code>s-4 = c+4</code>). ۶) <code>#100</code> بر حسب واحد است. ۷) ۲–۳ دور ردگیری، سپس شرط پایان (سرریز ماسک، برخورد اشاره‌گرها، رسیدن فیلد به هدف).</li>
+</ol>
+<p class="sm"><b>تبدیل فیلد با add:</b> کلمه‌ای که از واحد k شروع می‌شود؛ اگر فیلد e بیت بالاتر از LSB کلمه باشد، <span class="m">+d</span> به فیلد = <span class="m">+d·2<sup>e</sup></span> به کلمه (۱۴۰۰: <code>add Arr+10,#8</code> = آدرس +۴).</p>
+<p class="sm"><b>تله‌های سال‌ها:</b> <code>jpos</code> فقط &gt;0 ⇒ Gnome با عددهای برابر بی‌پایان (۱۴۰۱)؛ کد Arr سال ۱۴۰۰ برای org 0 ساخته شده؛ در ۱۴۰۱ قبل از 43Dh علامت # نیامده.</p>
+</div>
+
 <h2>تله‌های امتحانی و خطاهای اسلاید</h2>
 <div class="card w long">
 <ul class="sm">

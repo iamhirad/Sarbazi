@@ -101,3 +101,5 @@ pre .lb{color:#9a3d00;font-weight:700}
 .three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.2mm}
 hr{border:none;border-top:1px dashed var(--line);margin:1mm 0}
 .mk{font-size:3px;color:#0f2a57;line-height:0}
+table.t td.fa{white-space:normal}
+table.codewrap code{white-space:normal;display:inline}

@@ -1,0 +1,507 @@
+<div class="banner">
+  <h1>ایده‌ها و الگوهای حل مسئله + حل کامل میان‌ترم‌های ۹۸ تا ۱۴۰۲</h1>
+  <div class="sub">ساختار و زبان کامپیوتر — دکتر سربازی‌آزاد — از ساده تا پیشرفته، با کد. همهٔ کدها روی شبیه‌ساز همان ماشین اجرا و آزموده شده‌اند.</div>
+  <div class="legend">
+    <span style="background:#dff3e6">سطح ۱ پایه</span><span style="background:#e4edfb">سطح ۲ آرایه</span><span style="background:#fff0d0">سطح ۳ حساب و بیت</span><span style="background:#fbe2e0">سطح ۴ مرتب‌سازی</span><span style="background:#eee5f9">سطح ۵ ترفند و خودتغییرده</span>
+  </div>
+</div>
+<!--TOC-->
+
+<h2>نقشهٔ امتحان: میان‌ترم‌های ۹۸ تا ۱۴۰۲ در یک نگاه</h2>
+<div class="card k">
+<h3>الگوی ثابت هر سال (۹۰ دقیقه، ۱۰ نمره)</h3>
+<p>هر سال یک <b>ماشین فرضی تازه</b> با جدول کد عمل داده می‌شود و <b>همیشه همین چهار سؤال</b> می‌آید:</p>
+<table class="tiny"><thead><tr><th>سؤال</th><th>موضوع</th><th>نمره</th><th>کجای این برگه</th></tr></thead><tbody>
+<tr><td>۱</td><td>طول همهٔ ثبات‌های ماشین</td><td>۱</td><td>بخش ۲</td></tr>
+<tr><td>۲</td><td>نوشتن برنامه (مرتب‌سازی، فیبوناچی، سری، جمع متناوب، تکمیل برنامه)</td><td>۳ تا ۴</td><td>بخش‌های ۵ تا ۱۰ و حل‌ها</td></tr>
+<tr><td>۳</td><td>«این برنامه چه می‌کند؟» با کد فریبنده</td><td>۳</td><td>بخش ۴ و ۹</td></tr>
+<tr><td>۴</td><td>ترجمهٔ برنامهٔ سؤال ۳ به کد ماشین</td><td>۲ تا ۳</td><td>بخش ۳</td></tr>
+</tbody></table>
+</div>
+<div class="card">
+<table class="tiny"><thead><tr><th>سال</th><th>حافظه / واحد / کلمه</th><th>ثبات / پرچم</th><th>سؤال ۲</th><th>ترفند سؤال ۳</th><th>جواب سؤال ۳</th></tr></thead><tbody>
+<tr><td><b>۱۴۰۲</b></td><td class="mt">2<sup>24</sup> × 6b / word 24 (4u)</td><td>PSR: z s</td><td>پرکردن A<sub>i</sub> با جمع متناوب پیشوندی</td><td>برچسب‌های here±k، ماسک دوبرابرشونده، <code>sub #FFFFFFh</code> = +1</td><td>s = تعداد بیت‌های ۱ عدد c</td></tr>
+<tr><td><b>۱۴۰۱</b></td><td class="mt">2<sup>21</sup> × 7b / word 21 (3u)</td><td>PSR: z s v</td><td>تکمیل مرتب‌سازی Gnome با جابه‌جایی XOR</td><td>XOR روی خود دستور: <code>add</code> ⇄ <code>jmp next</code></td><td>a = −10 (یک دور در میان کم می‌کند)</td></tr>
+<tr><td><b>۱۴۰۰</b></td><td class="mt">2<sup>14</sup> × 16b, unit 4b</td><td>—</td><td>جمع ۱۰۰ جملهٔ فیبوناچی</td><td>dw در وسط کد = ۴ دستور؛ کد خودتغییرده</td><td>A[0..99] = فیبوناچی</td></tr>
+<tr><td><b>۱۳۹۹</b></td><td class="mt">2<sup>24</sup> × 6b / word 24 (4u)</td><td>R0..R31</td><td>مرتب‌سازی صعودی ۱۰۰ کلمه</td><td><code>dw 41006h</code> = دستور؛ پرش به <code>loop-6</code>؛ #100 بر حسب واحد</td><td>وارونه کردن ۲۶ کلمهٔ اول</td></tr>
+<tr><td><b>۱۳۹۸</b></td><td class="mt">2<sup>29</sup> × 32b, unit 4b</td><td>R0..R15 (R0=0)</td><td>e<sup>x</sup> با دقت 2<sup>−10</sup></td><td>اعداد ممیز شناور که در واقع دستورند؛ اجرا از org 0</td><td>شمارش NaN و غیرنرمال‌ها</td></tr>
+</tbody></table>
+</div>
+<div class="grid">
+<div class="card x">
+<h3>روند پیشنهادی سر جلسه</h3>
+<ol class="sm">
+<li>جدول ماشین را بخوان و اول <b>طول هر قالب بر حسب واحد</b> را کنار جدول بنویس (۱ دقیقه، به همهٔ سؤال‌ها کمک می‌کند).</li>
+<li>سؤال ۱ را فوراً بنویس (بخش ۲).</li>
+<li>سؤال ۳: آدرس همهٔ خط‌ها را حساب کن، سپس کد را <b>واقعاً</b> اجرا کن (جدول ردگیری) — بخش ۴.</li>
+<li>سؤال ۴ با همان آدرس‌ها تقریباً آماده است؛ فقط فیلدها را کنار هم بگذار.</li>
+<li>سؤال ۲ را از الگوهای آماده بساز و با یک ورودی کوچک دستی امتحان کن.</li>
+</ol>
+</div>
+<div class="card w">
+<h3>چیزهایی که هر سال عوض می‌شود</h3>
+<ul class="sm">
+<li><b>طول واحد آدرس‌پذیر</b> (۴، ۶، ۷ بیت) ⇒ گام اشاره‌گر = کلمه/واحد (۸، ۴، ۳، ۴).</li>
+<li><b>شرط پرش‌ها:</b> <code>jpos</code> گاهی ≥ 0 (۱۳۹۹) و گاهی &gt; 0 (۱۴۰۱: s∨z = 0).</li>
+<li><b>پرچم‌ها:</b> فقط دستورهای حسابی/منطقی PSR را عوض می‌کنند (نه <code>mov</code>).</li>
+<li><b>بازگشت به OS:</b> <code>jmp R31</code>، <code>jmp (FFFEh)</code>، <code>jmp (1FFFFDh)</code>، <code>je R0,R0,OS</code>، <code>jz OS</code>.</li>
+<li><b>بیت‌های حالت آدرس‌دهی</b> (i, d, x, y, z) جای متفاوتی در قالب دارند.</li>
+</ul>
+</div>
+</div>
+
+<h2>دستور پخت سؤال ۱: طول ثبات‌ها</h2>
+<div class="grid">
+<div class="card k">
+<h3>قاعده</h3>
+<ul class="sm">
+<li><b>MAR = PC</b> = تعداد بیت آدرس = <span class="m">log<sub>2</sub>(#واحدها)</span>. اگر حافظه بر حسب کلمه داده شد، اول به واحد تبدیل کن: <span class="m">#units = #words × (w/u)</span>.</li>
+<li><b>MBR</b> = طول کلمه (پهنای دسترسی).</li>
+<li><b>IR</b> = طول <b>بلندترین</b> قالب دستور (بیت).</li>
+<li><b>ثبات‌های همه‌منظوره / ACC</b> = طول کلمه؛ <b>PSR</b> = تعداد پرچم‌ها؛ <b>SP</b> = log<sub>2</sub>(اندازهٔ پشته) یا طول آدرس.</li>
+</ul>
+</div>
+<div class="card">
+<h3>جواب پنج سال</h3>
+<table class="t tiny"><thead><tr><th>Year</th><th>#units</th><th>MAR</th><th>PC</th><th>MBR</th><th>IR</th><th>Others</th></tr></thead><tbody>
+<tr><td>1402</td><td>2<sup>24</sup></td><td>24</td><td>24</td><td>24</td><td>54 (F I)</td><td>PSR 2</td></tr>
+<tr><td>1401</td><td>2<sup>21</sup></td><td>21</td><td>21</td><td>21</td><td>49 (F I)</td><td>PSR 3</td></tr>
+<tr><td>1400</td><td>2<sup>14</sup>×4=2<sup>16</sup></td><td>16</td><td>16</td><td>16</td><td>52 (F III)</td><td>—</td></tr>
+<tr><td>1399</td><td>2<sup>24</sup></td><td>24</td><td>24</td><td>24</td><td>36 (F III)</td><td>R0..R31: 24</td></tr>
+<tr><td>1398</td><td>2<sup>29</sup>×8=2<sup>32</sup></td><td>32</td><td>32</td><td>32</td><td>48 (F III)</td><td>R0..R15: 32</td></tr>
+</tbody></table>
+</div>
+</div>
+
+<h2>دستور پخت سؤال ۴: ترجمه به کد ماشین</h2>
+<div class="grid">
+<div class="card k">
+<h3>گام‌ها</h3>
+<ol class="sm">
+<li><b>طول قالب‌ها بر حسب واحد:</b> بیت‌های قالب ÷ بیت واحد (باید بخش‌پذیر باشد).</li>
+<li><b>شمارندهٔ مکان:</b> از <code>org</code>؛ هر خط LC += طول؛ <code>dw</code> = تعداد مقدار × واحدهای کلمه؛ برچسب‌ها را در جدول نمادها بنویس.</li>
+<li><b>عبارت‌های آدرس</b> مثل <code>A+400</code>، <code>c-3</code>، <code>loop-6</code> و <code>here+14</code> همگی بر حسب <b>واحد</b> حساب می‌شوند، نه کلمه.</li>
+<li>برای هر دستور: کد عمل ‖ بیت‌های حالت ‖ فیلدها؛ اعداد منفی به مکمل دو با <b>طول همان فیلد</b> (<code>#-2</code> در ۲۱ بیت = 1FFFFEh).</li>
+<li>نمایش: واحد ۴ بیتی ⇐ هر رقم هگز یک واحد. واحد ۶ بیتی ⇐ هر واحد = ۲ رقم <b>اکتال</b>. واحد ۷ بیتی ⇐ دودویی فیلدها (یا هگز هر واحد).</li>
+<li><code>dw ?</code> را با <span class="bits">????</span> یا «نامعلوم» بنویس؛ برچسب بیرونی (OS) را نمادین بگذار.</li>
+</ol>
+</div>
+<div class="card">
+<h3>طول قالب‌ها (حفظ نکن، حساب کن)</h3>
+<table class="t tiny"><thead><tr><th>Year</th><th>unit</th><th>word</th><th>F I</th><th>F II</th><th>F III</th><th>F V</th></tr></thead><tbody>
+<tr><td>1402</td><td>6</td><td>4u</td><td>54b = 9u</td><td>30b = 5u</td><td>—</td><td>—</td></tr>
+<tr><td>1401</td><td>7</td><td>3u</td><td>49b = 7u</td><td>28b = 4u</td><td>—</td><td>—</td></tr>
+<tr><td>1400</td><td>4</td><td>4u</td><td>36b = 9u</td><td>20b = 5u</td><td>52b = 13u</td><td>—</td></tr>
+<tr><td>1399</td><td>6</td><td>4u</td><td>18b = 3u</td><td>12b = 2u</td><td>36b = 6u</td><td>30b = 5u</td></tr>
+<tr><td>1398</td><td>4</td><td>8u</td><td>40b = 10u</td><td>12b = 3u</td><td>48b = 12u</td><td>—</td></tr>
+</tbody></table>
+<p class="sm"><b>تشخیص قالب از بیت‌های اول</b> (برای سؤال ۳): ۱۳۹۹: <span class="bits">1…</span>=V، <span class="bits">00</span>=I، <span class="bits">010</span>=II، <span class="bits">011</span>=III. ۱۳۹۸: نیبل اول 0=I، F=III، بقیه=II. ۱۴۰۰: کد عمل 000–010=I، 011–100=II، 101–111=III. ۱۴۰۱/۱۴۰۲: اگر دو بیت حالت عملوند دوم <span class="bits">11</span> باشد ⇐ قالب II.</p>
+</div>
+</div>
+
+<h2>دستور پخت سؤال ۳: «این برنامه چه می‌کند؟»</h2>
+<div class="card k">
+<h3>چک‌لیست رمزگشایی (به ترتیب)</h3>
+<ol class="sm">
+<li><b>آدرس هر خط را حساب کن</b> (مثل سؤال ۴). بدون آدرس دقیق نمی‌شود فهمید <code>loop-6</code> یا <code>here+14</code> کجاست.</li>
+<li><b>نقطهٔ شروع:</b> اجرا از اولین <code>org</code> شروع می‌شود؛ اگر آنجا <code>dw</code> است، آن عدد را <b>دستور</b> فرض کن (۱۳۹۸: <code>dw -1.0e+109</code> = <code>je R0,R0,330h</code>).</li>
+<li><b>هر <code>dw</code> وسط کد:</b> بیت‌هایش را بنویس و از روی بیت‌های اول قالب را تشخیص بده (۱۳۹۹: <code>dw 41006h</code> = <code>add R1,R0</code>).</li>
+<li><b>پرش به وسط دستور</b> (<code>loop-6</code>): از همان واحد به بعد، بیت‌ها را از نو رمزگشایی کن؛ ممکن است دستور بعدی (مثل <code>mov R1,#807004h</code>) هرگز آن‌طور که نوشته شده اجرا نشود.</li>
+<li><b>عملوندی که به کد اشاره می‌کند</b> (<code>loop+1</code>، <code>Arr+10</code>، <code>s-4</code>): ببین کدام فیلد کدام دستور است ⇐ کد خودتغییرده.</li>
+<li><b>عملوندهای هم‌پوشان:</b> <code>c-3</code> ممکن است همان <code>a</code> باشد (<code>xor a,a</code> = صفر)، <code>s-4</code> همان <code>c+4</code>.</li>
+<li><b>«#عدد» بر حسب واحد است:</b> <code>mov R1,#100</code> با کلمهٔ ۴ واحدی یعنی ۲۵ کلمه.</li>
+<li><b>جدول ردگیری</b> با ۲ تا ۳ دور کامل بکش و الگو را پیدا کن؛ سپس شرط پایان (شمارنده، سرریز ماسک، برخورد اشاره‌گرها) را بررسی کن.</li>
+<li>جواب را <b>به زبان مسئله</b> بنویس (مثلاً «تعداد بیت‌های ۱ را می‌شمارد») و جزئیات حاشیه‌ای (عنصری که بررسی نمی‌شود، مقدار نهایی متغیرها) را هم بگو.</li>
+</ol>
+</div>
+<div class="grid">
+<div class="card d">
+<h3>فرمول تغییر یک فیلد با add روی کلمه</h3>
+<p class="sm">کلمه‌ای که از واحد k دستور شروع می‌شود، بیت‌های <span class="m">[k·u, k·u + w)</span> دستور را می‌پوشاند. اگر کم‌ارزش‌ترین بیت فیلد، e بیت بالاتر از کم‌ارزش‌ترین بیت این کلمه باشد، برای افزودن d به فیلد باید <span class="m">d·2<sup>e</sup></span> به کلمه اضافه کرد.</p>
+<ul class="sm">
+<li>۱۴۰۲: <code>add loop+5,#4</code> ⇐ فیلد addr2 دقیقاً واحدهای ۵ تا ۸ (e = 0) ⇒ آدرس +۴.</li>
+<li>۱۴۰۰: <code>add Arr+10,#8</code> ⇐ کلمه = بیت‌های ۴..۱۹ دستور، addr1 = بیت‌های ۳..۱۸ ⇒ e = 1 ⇒ +۸ یعنی آدرس +۴.</li>
+<li>۱۴۰۰: <code>add Arr+14,#4</code> ⇐ addr2 = بیت‌های ۲۰..۳۵ = دقیقاً واحدهای ۵..۸ ⇒ +۴.</li>
+</ul>
+</div>
+<div class="card d">
+<h3>جدول ترفندهای دیده‌شده</h3>
+<table class="tiny"><tbody>
+<tr><td>داده‌ای که دستور است</td><td>۹۸، ۹۹، ۱۴۰۰</td></tr>
+<tr><td>پرش به وسط دستور</td><td>۹۹ (loop-6)، ۱۴۰۲ (here±k)</td></tr>
+<tr><td>تغییر فیلد آدرس برای پیمایش آرایه</td><td>۱۴۰۰، اسلاید ماشین ۳</td></tr>
+<tr><td>XOR روی دستور برای تبدیل آن</td><td>۱۴۰۱</td></tr>
+<tr><td>ماسک ۱،۲،۴،… تا سرریز</td><td>۱۴۰۲</td></tr>
+<tr><td>دو اشاره‌گر که به هم می‌رسند</td><td>۹۹</td></tr>
+<tr><td>R0 همیشه صفر (<code>je R0,R0</code>، <code>x(R0)</code>)</td><td>۹۸</td></tr>
+<tr><td>تفریق با −۱ = افزایش</td><td>۱۴۰۲</td></tr>
+<tr><td>برچسب‌های بی‌استفاده برای گمراه کردن</td><td>۱۴۰۱ (arr، k)</td></tr>
+</tbody></table>
+</div>
+</div>
+
+<h2>الگوهای سطح ۱: پایه</h2>
+<p class="sm">نمادگذاری کدهای بخش‌های ۵ تا ۹: <b>ماشین میان‌ترم ۱۴۰۲</b> (دوآدرسهٔ حافظه-حافظه، کلمه = ۴ واحد، پرچم z و s؛ <code>#</code> بی‌واسطه، <code>(x)</code> غیرمستقیم). در ماشین‌های دیگر فقط گام اشاره‌گر و نام پرش‌ها عوض می‌شود. <code>jmp OS</code> یعنی بازگشت به سیستم‌عامل.</p>
+<div class="grid">
+<div class="card">
+<h3><span class="lvl l1">۱</span>صفر کردن، ±۱ و تست مقدار</h3>
+<p class="sm"><code>xor x,x</code> یا <code>mov x,#0</code>؛ <code>sub x,#FFFFFFh</code> = x+1 (۱۴۰۲)؛ <code>add y,#0</code> یا <code>mov t,#0 / or t,y</code> فقط برای به‌روز کردن پرچم‌ها.</p>
+{{code:zero_inc}}
+</div>
+<div class="card">
+<h3><span class="lvl l1">۱</span>حلقهٔ شمارشی</h3>
+<p class="sm">شمارنده را از N کم کن و <code>jnz</code> بزن (پرچم از <code>sub</code>). معادل‌ها: <code>loop r,addr</code> (۹۹)، <code>loop- / loop+</code> (۹۸)، <code>dec n / jne n,#0,L</code> (۱۴۰۰).</p>
+{{code:count_loop}}
+<span class="tag">۱۴۰۰</span><span class="tag">۱۴۰۲</span><span class="tag">همهٔ اسلایدها</span>
+</div>
+<div class="card">
+<h3><span class="lvl l1">۱</span>جابه‌جایی با XOR (بدون متغیر کمکی)</h3>
+<p class="sm"><span class="m">a⊕b⊕b = a</span>. شرط: a و b <b>دو خانهٔ متفاوت</b> باشند (اگر یک خانه باشند، صفر می‌شود!).</p>
+{{code:swap_xor}}
+<span class="tag">اسلاید ماشین ۲</span><span class="tag">۱۴۰۱</span>
+</div>
+<div class="card">
+<h3><span class="lvl l1">۱</span>جابه‌جایی با موقت / با اشاره‌گر</h3>
+{{code:swap_tmp}}
+{{code:swap_ptr}}
+<p class="sm">جمع/تفریق: <span class="m">a=a+b; b=a−b; a=a−b</span> (در ماشین دوآدرسه یک منفی‌سازی لازم دارد). ۱۳۹۹ دستور <code>swap (R1),(R2)</code> دارد.</p>
+</div>
+<div class="card d">
+<h3><span class="lvl l1">۱</span>پرش بدون شرط و بازگشت</h3>
+<table class="t tiny"><thead><tr><th class="l">Machine</th><th class="l">Always jump</th><th class="l">Return to OS</th></tr></thead><tbody>
+<tr><td class="l">1402</td><td class="l">jmp L</td><td class="l">jz/jmp OS</td></tr>
+<tr><td class="l">1401</td><td class="l">jmp L</td><td class="l">jmp (1FFFFDh)</td></tr>
+<tr><td class="l">1400</td><td class="l">je x,x… / jmp (p)</td><td class="l">jmp (FFFEh)</td></tr>
+<tr><td class="l">1399</td><td class="l">jmp+ Rk,L / jnz R≠0,L</td><td class="l">jmp R31</td></tr>
+<tr><td class="l">1398</td><td class="l">je R0,R0,L</td><td class="l">je R0,R0,OS</td></tr>
+<tr><td class="l">M3 slide</td><td class="l">jnz one,L</td><td class="l">jnz one,OS</td></tr>
+</tbody></table>
+<p class="sm"><code>call</code> آدرس بازگشت را در ثبات (۹۹: <code>call r,addr</code>) یا خانهٔ ثابت (۱۴۰۰: FFFEh، ۱۴۰۱: 1FFFFDh) می‌گذارد و بازگشت با پرش غیرمستقیم است.</p>
+</div>
+</div>
+
+<h2>الگوهای سطح ۲: آرایه</h2>
+<div class="grid">
+<div class="card">
+<h3><span class="lvl l2">۲</span>جمع آرایه با اشاره‌گر</h3>
+<p class="sm">اشاره‌گر <code>p</code> با <code>#A</code> شروع و هر دور یک کلمه (اینجا ۴ واحد) جلو می‌رود.</p>
+{{code:arr_sum}}
+</div>
+<div class="card">
+<h3><span class="lvl l2">۲</span>بیشینه</h3>
+<p class="sm">مقایسه = تفریق در متغیر موقت و پرش روی علامت.</p>
+{{code:arr_max}}
+</div>
+<div class="card">
+<h3><span class="lvl l2">۲</span>شمارش عناصر منفی</h3>
+<p class="sm">ترفند «تست»: <code>mov t,#0 / or t,(p)</code> مقدار را می‌آورد و پرچم‌ها را هم تنظیم می‌کند.</p>
+{{code:arr_count_neg}}
+</div>
+<div class="card">
+<h3><span class="lvl l2">۲</span>وارونه کردن با دو اشاره‌گر</h3>
+<p class="sm">p از اول و q از آخر؛ جابه‌جایی و نزدیک شدن تا وقتی <span class="m">p &lt; q</span>. (همان ایدهٔ سؤال ۳ سال ۹۹.)</p>
+{{code:reverse}}
+<span class="tag">۱۳۹۹</span>
+</div>
+<div class="card">
+<h3><span class="lvl l2">۲</span>جمع پیشوندی</h3>
+{{code:prefix}}
+</div>
+<div class="card">
+<h3><span class="lvl l2">۲</span>جمع متناوب پیشوندی <span class="m">A<sub>i</sub> = Σ<sub>j≤i</sub>(−1)<sup>j</sup>A<sub>j</sub></span></h3>
+<p class="sm">علامت را با <b>باز کردن حلقه به اندازهٔ ۲</b> مدیریت کن: یک بار add (j زوج) و یک بار sub (j فرد). مقدار قدیمی A<sub>j</sub> قبل از بازنویسی خوانده می‌شود.</p>
+{{code:altsum}}
+<span class="tag">۱۴۰۲ سؤال ۲</span>
+</div>
+<div class="card">
+<h3><span class="lvl l2">۲</span>مجموع n جملهٔ فیبوناچی</h3>
+<p class="sm">ترفند «دو جمله در هر دور»: <code>a+=b; b+=a</code> بدون متغیر موقت. اتحاد: <span class="m">ΣF<sub>0..n−1</sub> = F<sub>n+1</sub> − 1</span>. حواست به سرریز باشد (جواب واقعی برای ۱۰۰ جمله خیلی بزرگ است).</p>
+{{code:fib_sum}}
+<span class="tag">۱۴۰۰ سؤال ۲</span><span class="tag">اسلاید ماشین‌های ۲، ۳، ۶</span>
+</div>
+<div class="card">
+<h3><span class="lvl l2">۲</span>ساختن فیبوناچی در آرایه</h3>
+<p class="sm"><span class="m">A[i] = A[i−1] + A[i−2]</span> با یک اشاره‌گر که عقب و جلو می‌رود.</p>
+{{code:fib_fill}}
+<span class="tag">۱۴۰۰ سؤال ۳</span><span class="tag">اسلاید تک‌آدرسه</span>
+</div>
+</div>
+
+<h2>الگوهای سطح ۳: حساب و بیت</h2>
+<div class="grid">
+<div class="card">
+<h3><span class="lvl l3">۳</span>ضرب با جمع‌های متوالی</h3>
+{{code:mul_add}}
+</div>
+<div class="card">
+<h3><span class="lvl l3">۳</span>ضرب با شیفت و جمع</h3>
+<p class="sm">شیفت به چپ = <code>add a,a</code>. شیفت به راست نداریم، پس به‌جای شیفت b، ماسک را دوبرابر می‌کنیم؛ حلقه با سرریز ماسک (بعد از w دور) تمام می‌شود.</p>
+{{code:mul_shift}}
+</div>
+<div class="card">
+<h3><span class="lvl l3">۳</span>تقسیم و باقی‌مانده با تفریق‌های متوالی</h3>
+{{code:divmod}}
+<p class="sm">زوج/فرد: <code>and t,#1</code>؛ باقی‌ماندهٔ ۲<sup>k</sup>: <code>and t,#(2^k−1)</code>.</p>
+</div>
+<div class="card">
+<h3><span class="lvl l3">۳</span>شمارش بیت‌های ۱ (popcount)</h3>
+<p class="sm">ماسک ۱، ۲، ۴، …؛ <code>and</code> بیت را جدا می‌کند و پرچم z جواب «صفر بود؟» را می‌دهد. توازن = popcount and 1.</p>
+{{code:popcount}}
+<span class="tag">۱۴۰۲ سؤال ۳</span>
+</div>
+<div class="card">
+<h3><span class="lvl l3">۳</span>توان ۲ بودن</h3>
+{{code:pow2}}
+</div>
+<div class="card">
+<h3><span class="lvl l3">۳</span>قدر مطلق و بیشینهٔ دو عدد</h3>
+<p class="sm"><span class="m">−x = not(x) + 1</span> (اگر <code>neg</code> نداریم).</p>
+{{code:abs}}
+{{code:max2}}
+</div>
+</div>
+
+<h2>الگوهای سطح ۴: مرتب‌سازی</h2>
+<div class="grid">
+<div class="card">
+<h3><span class="lvl l4">۴</span>Gnome (یک حلقه) با جابه‌جایی XOR</h3>
+<p class="sm">اگر <span class="m">A[i+1] ≥ A[i]</span> جلو برو؛ وگرنه جابه‌جا کن و یکی عقب برگرد (اگر i = 0 نیست). <b>برای عددهای برابر حتماً «≥» را مرتب حساب کن</b>، وگرنه حلقهٔ بی‌پایان داریم.</p>
+{{code:gnome}}
+<span class="tag">اسلاید ماشین ۷</span><span class="tag">۱۳۹۹ سؤال ۲</span><span class="tag">۱۴۰۱ سؤال ۲</span>
+</div>
+<div class="card">
+<h3><span class="lvl l4">۴</span>حبابی (دو حلقه)</h3>
+<p class="sm">بعد از هر گذر، بزرگ‌ترین عنصر سر جایش می‌نشیند ⇒ تعداد مقایسه‌ها هر گذر یکی کم می‌شود.</p>
+{{code:bubble}}
+</div>
+<div class="card w full">
+<h3>تله‌های مرتب‌سازی</h3>
+<ul class="sm">
+<li><b>عددهای تکراری:</b> اگر فقط «&gt; 0» مرتب حساب شود (مثل <code>jpos</code> در ۱۴۰۱)، دو عدد برابر بی‌نهایت جابه‌جا و عقب‌جلو می‌شوند. آرایهٔ <code>dw 100 dup(0)</code> دقیقاً همین حالت است!</li>
+<li><b>مرز i = 0:</b> یا شرط «اگر i &gt; 0 عقب برو» بگذار، یا یک <b>نگهبان</b> (کوچک‌ترین عدد ممکن) قبل از آرایه (اسلاید ماشین ۷: <code>80000000h</code>).</li>
+<li><b>سرریز در مقایسه با تفریق:</b> <span class="m">A[i+1] − A[i]</span> اگر علامت‌ها مخالف و اعداد بزرگ باشند سرریز می‌کند (مثال نگهبان ماشین ۷).</li>
+<li><b>گام اشاره‌گر</b> = طول کلمه بر حسب واحد (۱۴۰۱: ۳، ۹۹ و ۱۴۰۲: ۴، ۹۸: ۸). در ۹۹ <code>inc4/dec4</code> دقیقاً برای همین است.</li>
+<li><b>آدرس آخرین عنصر</b> = <span class="m">A + (n−1)·k</span>: ۱۴۰۲ ⇒ A+396، ۱۴۰۱ ⇒ A+297.</li>
+</ul>
+</div>
+</div>
+
+<h2>الگوهای سطح ۵: کد خودتغییرده و ترفندهای پیشرفته</h2>
+<div class="grid">
+<div class="card">
+<h3><span class="lvl l5">۵</span>پیمایش آرایه با تغییر فیلد آدرس</h3>
+<p class="sm">وقتی آدرس‌دهی غیرمستقیم نداریم: فیلد آدرس دستور را هر دور یک کلمه جلو ببر. موقعیت فیلد را دقیق حساب کن (اینجا addr2 از بیت ۳۰ = واحد ۵ شروع می‌شود). در اجرای دوباره فیلد باید دوباره مقداردهی شود.</p>
+{{code:selfmod_walk}}
+<span class="tag">اسلاید ماشین ۳</span><span class="tag">۱۴۰۰</span>
+</div>
+<div class="card">
+<h3><span class="lvl l5">۵</span>دستور «چشمک‌زن» با XOR</h3>
+<p class="sm">XOR با یک ثابت، بیت‌های خود دستور را عوض می‌کند و دو بار XOR آن را برمی‌گرداند. اینجا داده بین ۱ و ۰ جابه‌جا می‌شود (x = ۵ بعد از ۱۰ دور). در ۱۴۰۱ با ثابت 43Dh کل دستور <code>add a,#-2</code> به <code>jmp next</code> تبدیل می‌شد.</p>
+{{code:toggle}}
+<span class="tag">۱۴۰۱ سؤال ۳</span>
+</div>
+<div class="card d">
+<h3><span class="lvl l5">۵</span>داده = دستور</h3>
+<p class="sm">هیچ تفاوتی بین داده و دستور در حافظه نیست. اگر PC به یک <code>dw</code> برسد (یا برنامه از آن شروع شود)، بیت‌هایش رمزگشایی و اجرا می‌شوند.</p>
+<table class="t mono tiny"><thead><tr><th class="l">Written</th><th class="l">Executed as</th></tr></thead><tbody>
+<tr><td class="l">98: dw -1.0e+109 (F6000000)</td><td class="l">je R0,R0,330h</td></tr>
+<tr><td class="l">98: dw 5000000h,1040000h…</td><td class="l">mov R5,#1 ; mov R4,#8 …</td></tr>
+<tr><td class="l">98: dw -40.5e+112 (FA220000)</td><td class="l">fjnan1 R2,R2,out1</td></tr>
+<tr><td class="l">99: dw 41006h</td><td class="l">add R1,R0 ; swap (R1),…</td></tr>
+<tr><td class="l">1400: dw 200Bh,2005h,…</td><td class="l">add A+8,A ; add A+8,A+4 …</td></tr>
+</tbody></table>
+</div>
+<div class="card d">
+<h3><span class="lvl l5">۵</span>شرط پایان پنهان</h3>
+<ul class="sm">
+<li><b>سرریز ماسک:</b> <code>add m,m</code> بعد از w دور صفر می‌شود ⇒ <code>jnz</code> رد می‌شود (۱۴۰۲).</li>
+<li><b>برخورد اشاره‌گرها:</b> p − q منفی/صفر (۹۹).</li>
+<li><b>رسیدن یک فیلد به مقدار هدف:</b> <code>jne Arr+5,#B-8,Arr</code> (۱۴۰۰).</li>
+<li><b>شمارنده‌ای که دو بار کم می‌شود:</b> چند <code>loop-</code> پشت‌سرهم (۹۸) ⇒ هنگام خروج دستورهای بعدی هم یک بار اجرا می‌شوند.</li>
+</ul>
+</div>
+</div>
+
+<h2>ممیز شناور در برنامه‌ها</h2>
+<div class="grid">
+<div class="card">
+<h3><span class="lvl l3">۳</span>سری تیلور با دقت ε</h3>
+<p class="sm">جملهٔ بعد را از جملهٔ قبل بساز: <span class="m">t<sub>i</sub> = t<sub>i−1</sub> · x / i</span>؛ تا وقتی <span class="m">|t| &gt; ε</span> ادامه بده (دو پرش: <span class="m">t &gt; ε</span> یا <span class="m">t &lt; −ε</span>). ثابت‌های ممیز شناور را مستقیم با بیت‌هایشان بار کن.</p>
+<table class="t mono tiny"><thead><tr><th>Value</th><th>IEEE single</th><th>Value</th><th>IEEE single</th></tr></thead><tbody>
+<tr><td>1.0</td><td>3F800000</td><td>2<sup>−10</sup></td><td>3A800000</td></tr>
+<tr><td>−1.0</td><td>BF800000</td><td>−2<sup>−10</sup></td><td>BA800000</td></tr>
+<tr><td>2.0</td><td>40000000</td><td>0.5</td><td>3F000000</td></tr>
+<tr><td>+∞</td><td>7F800000</td><td>NaN</td><td>7FC00000</td></tr>
+</tbody></table>
+<p class="sm">برای sin و cos: <span class="m">t<sub>k</sub> = −t<sub>k−1</sub>·x²/((2k)(2k+1))</span>. برای x خیلی منفی بهتر است <span class="m">e<sup>x</sup> = 1/e<sup>|x|</sup></span>.</p>
+</div>
+<div class="card">
+<h3><span class="lvl l3">۳</span>دسته‌بندی عدد با میدان نما</h3>
+<table class="t mono tiny"><thead><tr><th>E</th><th>F</th><th class="l">Class</th></tr></thead><tbody>
+<tr><td>0</td><td>0</td><td class="l">±0</td></tr>
+<tr><td>0</td><td>≠0</td><td class="l">denormalized</td></tr>
+<tr><td>1..254</td><td>any</td><td class="l">normalized</td></tr>
+<tr><td>255</td><td>0</td><td class="l">±∞</td></tr>
+<tr><td>255</td><td>≠0</td><td class="l">NaN</td></tr>
+</tbody></table>
+<p class="sm">بدون دستور ویژه: نما = <span class="m">(x &gt;&gt; 23) and FFh</span>؛ با <code>and x,#7F800000h</code> و مقایسه با 0 یا 7F800000h. دستورهای ۹۸: <code>fjnan1/2</code>، <code>fjden1/2</code>، <code>fjinf1/2</code>. <code>ctf</code>/<code>cti</code> تبدیل صحیح ⇄ ممیز شناور، <code>efp</code> بخش کسری.</p>
+<p class="sm"><b>عدد اعشاری با نمای دودویی</b> در امتحان ۹۸: <code>-40.5e+112</code> یعنی <span class="m">−40.5 × 2<sup>112</sup> = −1.010001 × 2<sup>117</sup></span> ⇒ E = 244 ⇒ FA220000h.</p>
+</div>
+</div>
+
+<h2>ایده‌های اسلایدها و جزوه (مرور سریع)</h2>
+<div class="card">
+<table class="tiny"><thead><tr><th>ایده</th><th>ماشین</th><th>نکتهٔ کلیدی</th><th>جای حل در جزوه</th></tr></thead><tbody>
+<tr><td>مجموع ۷ جملهٔ فیبوناچی بدون پرش</td><td>۲</td><td>باز کردن کامل حلقه؛ t1 و t2 به نوبت جملهٔ جدید را می‌گیرند</td><td>مثال ۲-۱۰</td></tr>
+<tr><td>جابه‌جایی بدون متغیر کمکی</td><td>۲</td><td>سه xor</td><td>تمرین ۲-۴</td></tr>
+<tr><td>مجموع ۱۰۰ جملهٔ فیبوناچی متناوب</td><td>۳</td><td>دو جمله در هر دور: + و −؛ ۵۰ دور؛ ثابت one</td><td>برنامهٔ ۱ فصل ۳</td></tr>
+<tr><td>جمع آرایه با غیرمستقیم</td><td>۳</td><td>شمارندهٔ ۲۰۰ با گام ۲ (یک ثابت کمتر)</td><td>برنامهٔ ۲ فصل ۳</td></tr>
+<tr><td>جمع آرایه بدون غیرمستقیم</td><td>۳</td><td><code>add loop+3,two</code> (کد خودتغییرده)</td><td>برنامهٔ ۳ فصل ۳</td></tr>
+<tr><td>جمع دو بردار</td><td>۴</td><td>سه اشاره‌گر ثباتی، گام ۴ (واحد نیبلی)</td><td>ماشین ۴</td></tr>
+<tr><td>جمع آرایه با شاخص‌دار</td><td>۵</td><td><code>mov R3,A(R1)</code>؛ صفر کردن با xor</td><td>ماشین ۵</td></tr>
+<tr><td>جمع R0..R62</td><td>۵</td><td>کد خطی (1F80h+k) یا حلقهٔ خودتغییرده روی فیلد r2</td><td>تکلیف ۱ ماشین ۵</td></tr>
+<tr><td>۲۰ جملهٔ فیبوناچی در آرایه</td><td>تک‌آدرسه</td><td>سه اشاره‌گر p1، p2، p3 و آدرس‌دهی غیرمستقیم</td><td>ماشین تک‌آدرسه</td></tr>
+<tr><td>مجموع فیبوناچی روی پشته</td><td>۶</td><td><code>pop x / sp++</code> = کپی بالای پشته؛ اتحاد F<sub>n+1</sub>−1</td><td>ماشین ۶</td></tr>
+<tr><td>محاسبهٔ عبارت لهستانی</td><td>۶</td><td>عملوند push، عملگر روی دو عنصر بالا</td><td>بخش نمادگذاری لهستانی</td></tr>
+<tr><td>مرتب‌سازی Gnome</td><td>۷</td><td>نگهبان قبل از آرایه؛ پرش نسبی؛ سرریز مقایسه</td><td>فصل ۵</td></tr>
+<tr><td>جمع ۱۰۰ عدد اول</td><td>۷</td><td>غربال اراتستن فقط با جمع (ضرب/تقسیم نداریم)؛ جواب 24133</td><td>تکلیف فصل ۵</td></tr>
+<tr><td>جابه‌جایی برنامه در حافظه</td><td>—</td><td>آدرس‌های بی‌واسطه و اشاره‌گرهای داده؛ راه‌حل ثبات قطعه</td><td>فصل ۵</td></tr>
+</tbody></table>
+</div>
+
+<h2>حل کامل میان‌ترم ۱۴۰۲</h2>
+<div class="card d"><p class="sm"><b>ماشین:</b> <span class="m">2<sup>24</sup></span> واحد ۶ بیتی، کلمه ۲۴ بیت (۴ واحد)، مستقیم/غیرمستقیم/بی‌واسطه، مکمل دو، PSR = z s (فقط دستورهای حسابی/منطقی).</p><table class="t tiny"><thead><tr><th class="l">Format</th><th class="l">Fields (bits)</th><th class="l">Opcodes</th></tr></thead><tbody><tr><td class="l">I (54b = 9u)</td><td class="l">op3 | addr1 24 | x y z | addr2/data 24</td><td class="l">000 mov, 001 and, 010 or, 011 xor, 100 sub, 101 add</td></tr><tr><td class="l">II (30b = 5u)</td><td class="l">op3 | address 24 | x 1 1</td><td class="l">110: x=0 jz, x=1 jnz; 111: x=0 jneg, x=1 jmp</td></tr><tr><td class="l">modes</td><td class="l">x=1: opr1 = M(M<sub>a1</sub>)</td><td class="l">yz: 00 direct, 01 indirect, 10 data, 11 = format II</td></tr></tbody></table></div>
+<div class="grid">
+<div class="card"><h3><span class="qa">۱</span>طول ثبات‌ها</h3>
+<p class="sm">MAR = PC = ۲۴، MBR = ۲۴، IR = ۵۴ (قالب I)، PSR = ۲ بیت.</p>
+<h3><span class="qa">۲</span>جمع متناوب پیشوندی</h3>
+<p class="sm">متغیر s مجموع جاری است؛ حلقه دو عنصر در هر دور (j زوج: +، j فرد: −). با ۱۰۰ عدد تصادفی آزموده شد.</p>
+{{code:q1402}}
+</div>
+<div class="card"><h3><span class="qa">۳</span>تحلیل</h3>
+<p class="sm"><b>آدرس‌ها:</b> mov@0، and@9، here@18 (12h)، sub@23، add@32 (20h)، jnz@41، jz@46؛ c = 100h (c+4 = 104h مقدار ۱)، s = 108h (s+4 = 10Ch).</p>
+<ul class="sm">
+<li><code>here+14</code> = 32 = <code>add c+4,s-4</code> و <code>here-18</code> = 0 = <code>mov</code>.</li>
+<li><code>s-4</code> = 104h = <b>همان c+4</b> ⇒ <code>add c+4,s-4</code> یعنی ماسک = ماسک × ۲.</li>
+<li><code>mov s+4,c+4 / and s+4,c</code> ⇒ بیت k ام c جدا می‌شود؛ اگر صفر بود (z = 1) افزایش رد می‌شود.</li>
+<li><code>sub s,#FFFFFFh</code> = s − (−1) = s + 1.</li>
+<li>ماسک 1، 2، 4، …، 2<sup>23</sup>؛ بعد از ۲۴ دور سرریز و صفر ⇒ z = 1 ⇒ <code>jnz</code> رد و <code>jz OS</code> اجرا می‌شود.</li>
+</ul>
+<p class="sm"><b>جواب:</b> s = <b>تعداد بیت‌های ۱ عدد c</b> (popcount)؛ در پایان c+4 = 0 و s+4 موقت است. آزمون: c = 5BE6A3h ⇒ s = 14.</p>
+</div>
+<div class="card full"><h3><span class="qa">۴</span>کد ماشین</h3>{{q4:e1402}}</div>
+</div>
+
+<h2>حل کامل میان‌ترم ۱۴۰۱</h2>
+<div class="card d"><p class="sm"><b>ماشین:</b> <span class="m">2<sup>21</sup></span> واحد ۷ بیتی، کلمه ۲۱ بیت (۳ واحد)، مستقیم/غیرمستقیم/بی‌واسطه، PSR = z s v. (در جدول سؤال، jover با «v = 0» آمده که احتمالاً منظور v = 1 است.)</p><table class="t tiny"><thead><tr><th class="l">Format</th><th class="l">Fields (bits)</th><th class="l">Opcodes</th></tr></thead><tbody><tr><td class="l">I (49b = 7u)</td><td class="l">op4 | i | addr1 21 | xy | addr2/data 21</td><td class="l">0000 mov, 0001 and, 0010 or, 0011 xor, 0100 cmp, 0101 sub, 0110 add</td></tr><tr><td class="l">II (28b = 4u)</td><td class="l">op4 | i | addr1 21 | 1 1</td><td class="l">0000 clr, 0001 inc, 0010 dec, 0011 not, 0100 neg, 0101 call (M<sub>1FFFFD</sub> ← PC), 0110 jmp, 0111 jz, 1000 jnz, 1001 jneg, 1010 jpos (s∨z=0), 1011 jover</td></tr><tr><td class="l">modes</td><td class="l">i=1: opr1 / target indirect</td><td class="l">xy: 00 direct, 01 indirect, 10 data, 11 = format II</td></tr></tbody></table></div>
+<div class="grid">
+<div class="card"><h3><span class="qa">۱</span>طول ثبات‌ها</h3>
+<p class="sm">MAR = PC = ۲۱، MBR = ۲۱، IR = ۴۹، PSR = ۳ بیت.</p>
+<h3><span class="qa">۲</span>تکمیل برنامه (Gnome با XOR)</h3>
+<p class="sm">جاهای خالی: <code>ptr1</code>، <code>cmp (ptr2),(ptr1)</code>، <code>xor (ptr2),(ptr1)</code>، <code>xor (ptr1),(ptr2)</code>، <code>sub ptr1,#2</code> (همراه dec یعنی ۳ واحد عقب)، <code>cmp ptr1,#A+297</code>، <code>jnz loop1</code>.</p>
+{{code:q1401_template}}
+</div>
+<div class="card w"><h3>دو ایراد قالب داده‌شده (با شبیه‌ساز دیده شد)</h3>
+<ul class="sm">
+<li><code>jpos</code> فقط برای «&gt; 0» می‌پرد ⇒ اگر دو عنصر برابر باشند، برنامه بی‌پایان عقب‌وجلو می‌رود. آرایهٔ <code>dw 100 dup(0)</code> خودش همین حالت است.</li>
+<li>در i = 0 بعد از جابه‌جایی، ptr1 به A−3 می‌رود. آن کلمه، سه واحد آخر دستور <code>jmp (1FFFFDh)</code> است که به عنوان عدد برابر <b>−9</b> خوانده می‌شود؛ پس برنامه فقط برای مقادیر بزرگ‌تر از −9 درست کار می‌کند.</li>
+</ul>
+<p class="sm"><b>نسخهٔ امن</b> (فقط وارونگی واقعی جابه‌جا می‌شود و در i = 0 می‌ماند؛ با عددهای تکراری آزموده شد):</p>
+{{code:q1401_safe}}
+</div>
+<div class="card"><h3><span class="qa">۳</span>تحلیل</h3>
+<p class="sm"><b>آدرس‌ها:</b> org 1: xor@1، loop@8، next@15 (Fh)، dec@22، jnz@26، jmp@30؛ a = 100h، c = 103h، arr = 106h، k = 232h (arr و k بی‌استفاده‌اند).</p>
+<ul class="sm">
+<li><code>c-3</code> = 100h = a ⇒ <code>xor a,a</code> ⇒ a = 0.</li>
+<li><code>loop+1</code> = واحد ۹: کلمهٔ واحدهای ۹..۱۱ = بیت‌های ۷..۲۷ دستور <code>add a,#-2</code> = ۱۹ بیت پایین addr1 + xy = 402h.</li>
+<li><span class="m">402h ⊕ 43Dh = 03Fh</span> ⇒ addr1 = 0Fh (= next) و xy = 11 ⇒ دستور با همان کد عمل 0110 در قالب II یعنی <code>jmp next</code>!</li>
+<li>هر دور یک بار XOR می‌شود ⇒ دورهای ۱، ۳، ۵، ۷، ۹: <code>add a,#-2</code>؛ دورهای زوج: پرش. c از ۱۰ تا ۰.</li>
+</ul>
+<p class="sm"><b>جواب:</b> a = <b>−10</b> (= 1FFFF6h)، c = 0 و دستور در پایان به حالت اول برگشته است (تعداد XORها زوج است). <span class="r">در صورت سؤال قبل از 43Dh علامت # نیامده؛ اگر مستقیم خوانده شود، M[43Dh] نامعلوم است (با صفر، چیزی عوض نمی‌شود و a = −20).</span></p>
+</div>
+<div class="card full"><h3><span class="qa">۴</span>کد ماشین (مطابق متن چاپ‌شده، <code>43Dh</code> مستقیم: xy = 00؛ نسخهٔ بی‌واسطه xy = 10 است)</h3>{{q4:e1401}}</div>
+</div>
+
+<h2>حل کامل میان‌ترم ۱۴۰۰</h2>
+<div class="card d"><p class="sm"><b>ماشین:</b> <span class="m">2<sup>14</sup></span> کلمهٔ ۱۶ بیتی با واحد ۴ بیتی (<span class="m">2<sup>16</sup></span> واحد)، مستقیم/غیرمستقیم/بی‌واسطه، مکمل دو، بدون ثبات و پرچم.</p><table class="t tiny"><thead><tr><th class="l">Format</th><th class="l">Fields (bits)</th><th class="l">Opcodes</th></tr></thead><tbody><tr><td class="l">I (36b = 9u)</td><td class="l">op3 | addr1 16 | d | addr2/data 16</td><td class="l">000 mov, 001 add, 010 sub (d=0: opr2 = (M<sub>a2</sub>), d=1: data)</td></tr><tr><td class="l">II (20b = 5u)</td><td class="l">op3 | addr1 16 | x</td><td class="l">011: x=0 inc, x=1 dec; 100: x=0 jmp (addr1), x=1 call (M<sub>FFFE</sub> ← PC)</td></tr><tr><td class="l">III (52b = 13u)</td><td class="l">op3 | addr1 16 | d | addr2/data 16 | addr3 16</td><td class="l">101 je, 110 jne, 111 jl: if (M<sub>a1</sub>) ? opr2 then PC ← addr3</td></tr></tbody></table></div>
+<div class="grid">
+<div class="card"><h3><span class="qa">۱</span>طول ثبات‌ها</h3>
+<p class="sm">MAR = PC = ۱۶، MBR = ۱۶، IR = ۵۲ (قالب III).</p>
+<h3><span class="qa">۲</span>مجموع ۱۰۰ جملهٔ فیبوناچی</h3>
+<p class="sm">دو جمله در هر دور، ۴۹ دور؛ جواب به پیمانهٔ <span class="m">2<sup>16</sup></span> (سرریز). راه کوتاه‌تر: فقط F<sub>101</sub> را بساز و یکی کم کن.</p>
+{{code:q1400}}
+</div>
+<div class="card"><h3><span class="qa">۳</span>تحلیل</h3>
+<p class="sm">۹ کلمهٔ Arr در واقع <b>۴ دستور</b> است (هر کدام ۹ واحد):</p>
+<table class="t mono tiny"><tbody>
+<tr><td class="l">add A+8, A</td><td class="l">add A+8, A+4</td></tr>
+<tr><td class="l">add Arr+1, #8</td><td class="l">add Arr+5, #4</td></tr>
+</tbody></table>
+<ul class="sm">
+<li><code>mov B-396, A+400</code>: B = A+400 (۱۰۰ کلمه × ۴)، پس A[1] ← M[B] = 1.</li>
+<li>دو دستور اول: A[i+2] += A[i] و A[i+2] += A[i+1] ⇒ <b>A[i+2] = A[i] + A[i+1]</b>.</li>
+<li><code>add Arr+1,#8</code>: کلمهٔ Arr+1 = بیت‌های ۴..۱۹ دستور اول و addr1 یک بیت جابه‌جاست ⇒ +۸ یعنی addr1 + ۴. <code>Arr+5</code> = دقیقاً addr2 دستور اول. <code>Arr+10</code> و <code>Arr+14</code> همین کار را برای دستور دوم می‌کنند.</li>
+<li><code>jne Arr+5,#B-8,Arr</code>: تا وقتی addr2 دستور اول به B−8 = A[98] نرسیده، تکرار ⇒ ۹۸ دور.</li>
+</ul>
+<p class="sm"><b>جواب:</b> A[0..99] را با <b>۱۰۰ جملهٔ اول فیبوناچی</b> پر می‌کند (به پیمانهٔ 2<sup>16</sup>) و با <code>jmp (FFFEh)</code> برمی‌گردد.</p>
+<p class="sm r">نکته: عددهای Arr برای <b>org 0</b> ساخته شده‌اند (A = 51h، Arr = 9). با org 100h چاپ‌شده، مقادیر درست 202Bh، 2015h، 1202h، B201h، 5520h، 2150h، 82h، 21Dh و 4 می‌شد. با شبیه‌ساز: org 0 ⇐ فیبوناچی کامل؛ org 100h ⇐ حلقهٔ بی‌پایان.</p>
+</div>
+<div class="card full"><h3><span class="qa">۴</span>کد ماشین (مطابق متن، org 100h)</h3>{{q4:e1400}}</div>
+</div>
+
+<h2>حل کامل میان‌ترم ۱۳۹۹</h2>
+<div class="card d"><p class="sm"><b>ماشین:</b> <span class="m">2<sup>24</sup></span> واحد ۶ بیتی، کلمه ۲۴ بیت (۴ واحد)، R0..R31، آدرس بازگشت OS در R31، ثباتی و حافظه‌ای (مستقیم و غیرمستقیم) و بی‌واسطه، مکمل دو.</p><table class="t tiny"><thead><tr><th class="l">Format</th><th class="l">Fields (bits)</th><th class="l">Opcodes</th></tr></thead><tbody><tr><td class="l">I (18b = 3u)</td><td class="l">00 op4 | i1 r1(5) | i2 r2(5) / qdata 6</td><td class="l">mov, add, sub, and, or, xor, swap, addq, subq, movq (0000..1001)</td></tr><tr><td class="l">II (12b = 2u)</td><td class="l">010 op4 | r 5</td><td class="l">jmp r (PC ← (r)), inc, dec, clr, not, neg, inc4, dec4</td></tr><tr><td class="l">III (36b = 6u)</td><td class="l">011 op4 | r 5 | addr 24</td><td class="l">mov r,addr / addr,r / r,(addr) / (addr),r, jnz, jz, jneg (&lt;0), jpos (≥0), loop, jmp+, call</td></tr><tr><td class="l">V (30b = 5u)</td><td class="l">1 | r 5 | data 24</td><td class="l">mov r,#data</td></tr></tbody></table></div>
+<div class="grid">
+<div class="card"><h3><span class="qa">۱</span>طول ثبات‌ها</h3>
+<p class="sm">MAR = PC = ۲۴، MBR = ۲۴، IR = ۳۶ (قالب III)، R0..R31 هر کدام ۲۴ بیت.</p>
+<h3><span class="qa">۲</span>مرتب‌سازی صعودی ۱۰۰ کلمه</h3>
+<p class="sm">Gnome با دستور <code>swap</code> و گام <code>inc4/dec4</code>. <code>jpos</code> اینجا ≥ 0 است، پس عددهای برابر مشکلی ندارند. با عددهای تکراری آزموده شد.</p>
+{{code:q1399}}
+</div>
+<div class="card"><h3><span class="qa">۳</span>تحلیل: دستورهایی که واقعاً اجرا می‌شوند</h3>
+<table class="t mono tiny"><thead><tr><th>addr</th><th class="l">executed</th><th class="l">note</th></tr></thead><tbody>
+<tr><td>0</td><td class="l">mov R1,#100</td><td class="l">R1 = 100 units</td></tr>
+<tr><td>5</td><td class="l">mov R0,#array</td><td class="l">R0 = 24h = 36</td></tr>
+<tr><td>10</td><td class="l">add R1,R0</td><td class="l">from dw 41006h</td></tr>
+<tr><td>13</td><td class="l">swap (R1),(R0)</td><td class="l">loop-6 lands here</td></tr>
+<tr><td>16</td><td class="l">addq R0,4</td><td class="l">bits of 'mov R1,#807004h'</td></tr>
+<tr><td>19</td><td class="l">subq R1,4</td><td class="l">loop:</td></tr>
+<tr><td>22</td><td class="l">mov R2,R0</td><td class="l"></td></tr>
+<tr><td>25</td><td class="l">sub R2,R1</td><td class="l"></td></tr>
+<tr><td>28</td><td class="l">jneg R2,13</td><td class="l">while R0 &lt; R1</td></tr>
+<tr><td>34</td><td class="l">jmp R31</td><td class="l">back to OS</td></tr>
+</tbody></table>
+<p class="sm">بیت‌ها: <span class="bits">000001 000001 000000 | 000110 100001 100000 | 000111 000000 000100</span> ⇒ add R1,R0 | swap (R1),(R0) با i1 = i2 = 1 | addq R0,4.</p>
+<p class="sm"><b>جواب:</b> R0 از اول آرایه و R1 = array + 100 واحد (= کلمهٔ ۲۵) به سمت هم حرکت می‌کنند و عنصرها را جابه‌جا می‌کنند ⇒ <b>ترتیب ۲۶ کلمهٔ اول آرایه (A[0..25]) وارونه می‌شود</b>. بقیهٔ آرایه دست‌نخورده می‌ماند. (تله: #100 بر حسب واحد است، نه کلمه.)</p>
+</div>
+<div class="card full"><h3><span class="qa">۴</span>کد ماشین</h3>{{q4:e1399}}</div>
+</div>
+
+<h2>حل کامل میان‌ترم ۱۳۹۸</h2>
+<div class="card d"><p class="sm"><b>ماشین:</b> <span class="m">2<sup>29</sup></span> کلمهٔ ۳۲ بیتی با واحد ۴ بیتی (<span class="m">2<sup>32</sup></span> واحد)، R0..R15 (<b>R0 همیشه صفر</b>)، ثباتی، بی‌واسطه و شاخص‌دار، مکمل دو و IEEE 754 تک‌دقتی.</p><table class="t tiny"><thead><tr><th class="l">Format</th><th class="l">Fields (bits)</th><th class="l">Opcodes</th></tr></thead><tbody><tr><td class="l">I (40b = 10u)</td><td class="l">0000 | r | data 32</td><td class="l">mov r,#data</td></tr><tr><td class="l">II (12b = 3u)</td><td class="l">op4 | r1 | r2</td><td class="l">0001 mov … 0110 xor, 0111 ctf, 1000 cti, 1001 efp, 1010 fadd, 1011 fsub, 1100 fmul, 1101 fdiv, 1110 fsqrt</td></tr><tr><td class="l">III (48b = 12u)</td><td class="l">1111 op4 | r1 | r2 | addr 32</td><td class="l">0000 mov r1,addr(r2), 0001 mov addr(r2),r1, 0010 loop−, 0011 loop+, jl, jh, je, jne, fjl, fjh, fjnan1/2, fjden1/2, fjinf1/2</td></tr></tbody></table></div>
+<div class="grid">
+<div class="card"><h3><span class="qa">۱</span>طول ثبات‌ها</h3>
+<p class="sm">MAR = PC = ۳۲، MBR = ۳۲، IR = ۴۸ (قالب III)، R0..R15 هر کدام ۳۲ بیت.</p>
+<h3><span class="qa">۲</span>e<sup>x</sup> با دقت 2<sup>−10</sup></h3>
+<p class="sm">ترفندها: <code>x(R0)</code> با R0 = 0 یعنی آدرس‌دهی مستقیم؛ ثابت‌ها با بیت‌های IEEE بار می‌شوند؛ شمارندهٔ i خودش ممیز شناور است (یا با <code>ctf</code>). برای x = −6 تا 7 آزموده شد (بیشترین خطا حدود 1.4×10<sup>−4</sup>).</p>
+{{code:q1398}}
+</div>
+<div class="card"><h3><span class="qa">۳</span>تحلیل: اجرا از org 0 یعنی از روی «داده»</h3>
+<table class="t mono tiny"><thead><tr><th>addr</th><th class="l">executed</th><th class="l">from</th></tr></thead><tbody>
+<tr><td>0</td><td class="l">je R0,R0,330h</td><td class="l">float1 + int1</td></tr>
+<tr><td>330</td><td class="l">mov R5,#1</td><td class="l">dw 5000000h…</td></tr>
+<tr><td>33A</td><td class="l">mov R4,#8</td><td class="l"></td></tr>
+<tr><td>344</td><td class="l">mov R1,#320h</td><td class="l"></td></tr>
+<tr><td>34E</td><td class="l">mov R10,#0</td><td class="l"></td></tr>
+<tr><td>358</td><td class="l">mov R11,R0</td><td class="l">R11 = 0</td></tr>
+<tr><td>35B</td><td class="l">mov R2,8(R1)</td><td class="l">loop: array-8</td></tr>
+<tr><td>367</td><td class="l">fjnan1 R2,R2,38Bh</td><td class="l">-40.5e+112, 38BF…</td></tr>
+<tr><td>373</td><td class="l">fjden1 R2,R2,39Ah</td><td class="l">…C22h, 39Ah</td></tr>
+<tr><td>37F</td><td class="l">loop- R1,R4,loop</td><td class="l">R1 -= 8</td></tr>
+<tr><td>38B</td><td class="l">add R10,R5</td><td class="l">out1: NaN</td></tr>
+<tr><td>39A</td><td class="l">add R11,R5</td><td class="l">out2: denormal</td></tr>
+</tbody></table>
+<p class="sm"><b>جواب:</b> آرایه را از A[99] تا A[1] پیمایش می‌کند؛ <b>R10 = تعداد NaNها</b> و <b>R11 = تعداد اعداد غیرنرمال</b>. جزئیات: A[0] بررسی نمی‌شود (حلقه وقتی R1 ≤ 8 تمام می‌شود)، و هنگام خروج دستورهای بعدی هم یک بار اجرا می‌شوند: اگر A[1] عادی باشد R10 و R11 هر کدام +۱، اگر NaN باشد فقط R11 +۱، اگر غیرنرمال باشد هیچ.</p>
+</div>
+<div class="card full"><h3><span class="qa">۴</span>کد ماشین (هگز، هر رقم یک واحد)</h3>{{q4:e1398}}</div>
+</div>

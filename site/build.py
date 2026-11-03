@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parent
 REPO = ROOT.parent
 OUT = ROOT / "_site"
 FONTS = REPO / "jozveh" / "fonts"
-PDFS = {"JOZ": REPO / "CSL_Jozveh_Persian.pdf", "CS": REPO / "CSL_CheatSheet.pdf"}
+PDFS = {"JOZ": REPO / "CSL_Jozveh_Persian.pdf", "CS": REPO / "CSL_CheatSheet.pdf", "PAT": REPO / "CSL_Patterns.pdf"}
 FA = str.maketrans("0123456789.", "۰۱۲۳۴۵۶۷۸۹٫")
 MONTHS = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"]
 
@@ -61,7 +61,7 @@ background:linear-gradient(140deg,#0f2a57 0%,#1f5fbf 62%,#3d86e6 100%);display:f
 .s{font-size:34px;opacity:.92}.bar{width:180px;height:10px;background:#ffd36b;border-radius:6px;margin:28px 0}
 </style></head><body><div class="w"><div class="k">دانشکدهٔ مهندسی کامپیوتر — دانشگاه صنعتی شریف</div>
 <div class="t">ساختار و زبان کامپیوتر</div><div class="bar"></div>
-<div class="s">جزوهٔ کامل ۱۱۲ صفحه‌ای + چیت‌شیت امتحان — جلسه‌های ۱ تا ۵</div></div></body></html>"""
+<div class="s">جزوهٔ کامل + چیت‌شیت + الگوها و حل میان‌ترم‌های ۹۸ تا ۱۴۰۲</div></div></body></html>"""
 
 OG_JS = """const {chromium}=require('playwright');
 (async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1200,height:630}});
@@ -86,6 +86,7 @@ def main():
 
     thumb(PDFS["JOZ"], OUT / "assets" / "jozveh.webp")
     thumb(PDFS["CS"], OUT / "assets" / "cheatsheet.webp")
+    thumb(PDFS["PAT"], OUT / "assets" / "patterns.webp")
 
     og_dir = OUT / "assets"
     (og_dir / "og.html").write_text(OG_HTML, encoding="utf-8")
