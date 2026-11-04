@@ -491,3 +491,38 @@ class M1398(Machine):
 def listing_rows(m, listing):
     """(addr, raw source, bit string) rows for printing."""
     return [(a, raw, bits) for a, label, mnem, ops, raw, bits in listing]
+
+
+# ---------------------------------------------------------------- field layouts (for listings)
+def _w1402(self, mnem, ops, bits):
+    return [3, 24, 3, 24] if len(bits) == 54 else [3, 24, 3]
+
+
+def _w1401(self, mnem, ops, bits):
+    return [4, 1, 21, 2, 21] if len(bits) == 49 else [4, 1, 21, 2]
+
+
+def _w1400(self, mnem, ops, bits):
+    return {36: [3, 16, 1, 16], 20: [3, 16, 1], 52: [3, 16, 1, 16, 16]}[len(bits)]
+
+
+def _w1399(self, mnem, ops, bits):
+    if bits[0] == "1":
+        return [1, 5, 24]
+    if bits[:2] == "00":
+        return [2, 4, 1, 5, 6] if mnem in ("addq", "subq", "movq") else [2, 4, 1, 5, 1, 5]
+    if bits[:3] == "010":
+        return [3, 4, 5]
+    return [3, 4, 5, 24]
+
+
+def _w1398(self, mnem, ops, bits):
+    if bits[:4] == "0000":
+        return [4, 4, 32]
+    if bits[:4] == "1111":
+        return [4, 4, 4, 4, 32]
+    return [4, 4, 4]
+
+
+M1402.widths, M1401.widths, M1400.widths, M1399.widths, M1398.widths = _w1402, _w1401, _w1400, _w1399, _w1398
+M1402.addr_digits, M1401.addr_digits, M1400.addr_digits, M1399.addr_digits, M1398.addr_digits = 6, 6, 4, 6, 8

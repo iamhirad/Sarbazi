@@ -107,7 +107,8 @@ class Machine:
         return n
 
     # --- assembler
-    def assemble(self, src, presym=None):
+    def assemble(self, src, presym=None, externals=()):
+        """Two-pass assembly. Symbols named in `externals` may stay undefined: their fields print as '?'."""
         lines = parse(src)
         sym, lc, layout = dict(presym or {}), 0, []
         for label, mnem, ops, raw in lines:
@@ -126,9 +127,20 @@ class Machine:
                 n = self.size(mnem, ops)
             layout.append((lc, label, mnem, ops, raw, n))
             lc += n
-        ev = Expr(sym)
+        ev0 = Expr(sym)
+        ext = set(externals)
+
+        def ev(e):
+            try:
+                return ev0(e)
+            except KeyError as k:
+                if k.args and k.args[0] in ext:
+                    return None
+                raise
+
         listing, image = [], {}
         for addr, label, mnem, ops, raw, n in layout:
+            self.here = addr
             if mnem == "dw":
                 vals = self.dw_values(ops, ev)
                 bits = ""
@@ -146,6 +158,8 @@ class Machine:
 
     @staticmethod
     def field(v, w):
+        if v is None:
+            return "?" * w
         return format(v & ((1 << w) - 1), f"0{w}b")
 
 

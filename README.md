@@ -6,6 +6,7 @@
 |---|---|
 | `CSL_Jozveh_Persian.pdf` | جزوهٔ کامل فارسی جلسه‌های ۱ تا ۵ (۱۱۲ صفحه) با حل همهٔ تمرین‌ها |
 | `CSL_CheatSheet.pdf` | چیت‌شیت ۹ صفحه‌ای برای امتحان کتاب‌باز |
+| `CSL_Programs_Catalog.pdf` | کاتالوگ ۵۴ برنامهٔ جزوه، میان‌ترم‌ها و الگوها: قالب دستور هر ماشین، کد ماشین، فیلدها و کد اسمبلی (۲۷ صفحه) |
 | `CSL_Patterns.pdf` | ایده‌ها و الگوهای حل مسئله (۲۴ الگو با کد) + حل کامل میان‌ترم‌های ۹۸ تا ۱۴۰۲ (۱۰ صفحه) |
 
 ساخت دوباره (Python 3، pypdf، Playwright/Chromium، pdftotext):
@@ -13,6 +14,7 @@
 ```
 cd jozveh && python3 build.py        # جزوه
 cd cheatsheet && python3 build.py    # چیت‌شیت
+cd catalog && python3 build.py       # کاتالوگ برنامه‌ها (همهٔ برنامه‌ها را اجرا و با جزوه مقایسه می‌کند)
 cd patterns && python3 build.py      # الگوها و حل میان‌ترم‌ها (اول همهٔ کدها را روی شبیه‌ساز اجرا و بررسی می‌کند)
 cd site && python3 build.py          # سایت (خروجی در site/_site، منتشرشده روی شاخهٔ gh-pages)
 ```

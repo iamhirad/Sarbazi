@@ -6,3 +6,5 @@ __pycache__/
 site/_site/
 patterns/_pass1.pdf
 patterns/patterns.html
+catalog/_pass1.pdf
+catalog/catalog.html
