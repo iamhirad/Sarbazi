@@ -12,7 +12,8 @@ REPO = ROOT.parent
 OUT = ROOT / "_site"
 FONTS = REPO / "jozveh" / "fonts"
 PDFS = {"JOZ": REPO / "CSL_Jozveh_Persian.pdf", "CS": REPO / "CSL_CheatSheet.pdf", "PAT": REPO / "CSL_Patterns.pdf",
-        "CAT": REPO / "CSL_Programs_Catalog.pdf"}
+        "CAT": REPO / "CSL_Programs_Catalog.pdf",
+        "MC": REPO / "CSL_MachineCode_CheatSheet.pdf"}
 FA = str.maketrans("0123456789.", "۰۱۲۳۴۵۶۷۸۹٫")
 MONTHS = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"]
 
@@ -89,6 +90,7 @@ def main():
     thumb(PDFS["CS"], OUT / "assets" / "cheatsheet.webp")
     thumb(PDFS["PAT"], OUT / "assets" / "patterns.webp")
     thumb(PDFS["CAT"], OUT / "assets" / "catalog.webp")
+    thumb(PDFS["MC"], OUT / "assets" / "mcode.webp")
 
     og_dir = OUT / "assets"
     (og_dir / "og.html").write_text(OG_HTML, encoding="utf-8")

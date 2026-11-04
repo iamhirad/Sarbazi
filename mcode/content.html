@@ -1,0 +1,377 @@
+<div class="banner">
+  <h1>چیت‌شیت نوشتن کد ماشین — همهٔ نکته‌ها از ساده تا پیشرفته</h1>
+  <div class="sub">ساختار و زبان کامپیوتر — دکتر سربازی‌آزاد — برای سؤال «ترجمه به کد ماشین» و «این برنامه چه می‌کند؟». همهٔ جدول‌های مثال را همان اسمبلر آزموده‌شدهٔ کاتالوگ برنامه‌ها ساخته است.</div>
+  <div class="legend">
+    <span style="background:#dff3e6">سطح ۱ پایه</span><span style="background:#e4edfb">سطح ۲ آدرس و داده</span><span style="background:#fff0d0">سطح ۳ پرش و بیت‌های حالت</span><span style="background:#fbe2e0">سطح ۴ پیشرفته</span><span style="background:#eee5f9">نمونهٔ کامل و وارسی</span>
+  </div>
+</div>
+<!--TOC-->
+
+<h2>الگوریتم کلی: ترجمه در ۱۰ گام</h2>
+<div class="card k">
+<ol class="sm">
+<li><b>مشخصات ماشین</b> را بیرون بکش: طول واحد آدرس‌پذیر <span class="m">u</span>، طول کلمه <span class="m">w</span> و <span class="m">k = w/u</span>، بیت‌های آدرس، تعداد ثبات‌ها، Big/Little Endian، نمایش اعداد (بخش ۲).</li>
+<li><b>طول هر قالب</b> را هم بر حسب بیت و هم بر حسب <b>واحد</b> کنار جدول بنویس (بخش ۳).</li>
+<li><b>گذر ۱:</b> با شمارندهٔ مکان (LC) آدرس هر خط را حساب کن و جدول نمادها را بساز (بخش ۷).</li>
+<li>برای هر دستور از روی نیمونیک <b>و شکل عملوندها</b> (<code>#</code>، <code>( )</code>، <code>Rn</code>، <code>A(Rn)</code>) کد عمل و قالب را انتخاب کن (بخش ۴).</li>
+<li>مقدار هر فیلد را پیدا کن: شمارهٔ ثبات، آدرس از جدول نمادها، داده، بیت‌های حالت، جابه‌جایی (بخش‌های ۸ تا ۱۱).</li>
+<li>هر مقدار را به دودویی <b>با عرض دقیق همان فیلد</b> تبدیل کن: صفر از چپ، و برای منفی مکمل دو در همان عرض (بخش ۶).</li>
+<li>فیلدها را <b>به ترتیب قالب</b> (نه ترتیب عملوندها در اسمبلی!) از چپ به راست کنار هم بگذار (بخش ۵).</li>
+<li>رشتهٔ بیتی را <b>واحدبه‌واحد</b> بنویس: واحد ۴ بیتی یک رقم هگز، ۸ بیتی یک بایت، ۶ بیتی دو رقم اکتال (بخش ۱۲).</li>
+<li><code>dw</code>ها را هم کلمه‌به‌کلمه بنویس (Big Endian، منفی با مکمل دو، <code>?</code> نامعلوم) (بخش ۹).</li>
+<li><b>وارسی:</b> تعداد بیت‌ها، آدرس آخر، و یک بار رمزگشایی معکوس هر دستور (بخش ۱۷).</li>
+</ol>
+</div>
+
+<h2>سطح ۱: خواندن مشخصات ماشین</h2>
+<div class="grid">
+<div class="card">
+<h3><span class="lvl l1">۱</span>چه چیزهایی را از صورت سؤال برداریم</h3>
+<table class="tiny"><thead><tr><th>مورد</th><th>فرمول / نکته</th><th>مثال</th></tr></thead><tbody>
+<tr><td>واحد آدرس‌پذیر u</td><td>هر آدرس به یک واحد اشاره می‌کند</td><td>۴، ۶، ۷، ۸ یا ۱۶ بیت</td></tr>
+<tr><td>طول کلمه w</td><td><span class="m">k = w / u</span> واحد در هر کلمه</td><td>۱۴۰۲: ۲۴/۶ = ۴</td></tr>
+<tr><td>بیت‌های آدرس</td><td><span class="m">log<sub>2</sub>(#واحدها)</span></td><td>2<sup>21</sup> واحد ⇐ ۲۱ بیت</td></tr>
+<tr><td>حافظه بر حسب کلمه</td><td><span class="m">#واحدها = #کلمه‌ها × k</span></td><td>۱۳۹۸: 2<sup>29</sup>×8 = 2<sup>32</sup></td></tr>
+<tr><td>فیلد ثبات</td><td><span class="m">log<sub>2</sub>(#ثبات‌ها)</span></td><td>R0..R63 ⇐ ۶ بیت</td></tr>
+<tr><td>ترتیب بایت</td><td>همهٔ ماشین‌های درس Big Endian</td><td>بیت/واحد پرارزش اول</td></tr>
+<tr><td>هم‌ترازی</td><td>ناهم‌تراز ⇐ کلمه از هر آدرسی شروع می‌شود</td><td>داده بلافاصله بعد از کد</td></tr>
+<tr><td>نمایش اعداد</td><td>مکمل دو؛ ممیز شناور IEEE 754</td><td>‎−1 = همه یک</td></tr>
+<tr><td>ثبات‌های خاص</td><td>R0 = 0، آدرس بازگشت در R31 یا خانهٔ ثابت</td><td>۱۳۹۸، ۱۳۹۹، ۱۴۰۰، ۱۴۰۱</td></tr>
+</tbody></table>
+</div>
+<div class="card">
+<h3><span class="lvl l1">۱</span>توان‌های ۲ پرکاربرد</h3>
+{{gen:pow2}}
+<p class="sm rule"><b class="n">۱</b> طول فیلد آدرس در قالب معمولاً با تعداد بیت آدرس برابر است؛ اگر کوتاه‌تر بود (مثل addr12 در ماشین ۴ با ۲<sup>۱۲</sup> واحد) همان کافی است. اگر آدرس یک برچسب در فیلد جا نشد، برنامه با آن قالب قابل ترجمه نیست.</p>
+<p class="sm rule"><b class="n">۲</b> اگر ماشین چند قالب دارد، <b>کد عمل معمولاً طول دستور را هم تعیین می‌کند</b>؛ پس قبل از هر کاری جدول «کد عمل ⇐ قالب ⇐ طول» را بساز.</p>
+</div>
+</div>
+
+<h2>طول قالب‌ها بر حسب بیت و واحد</h2>
+<div class="grid">
+<div class="card">
+{{gen:fmt_lengths}}
+</div>
+<div class="card k">
+<h3>قاعده‌ها</h3>
+<p class="sm rule"><b class="n">۳</b> <span class="m">طول دستور (واحد) = بیت‌های قالب ÷ u</span>. در طراحی درست همیشه بخش‌پذیر است؛ اگر نبود، دوباره جمع بیت‌ها را حساب کن.</p>
+<p class="sm rule"><b class="n">۴</b> LC بعد از هر دستور به اندازهٔ <b>طول همان قالب</b> جلو می‌رود؛ دستورهای یک برنامه می‌توانند طول‌های متفاوت داشته باشند (مثلاً ۱۴۰۰: ۵، ۹ یا ۱۳ واحد).</p>
+<p class="sm rule"><b class="n">۵</b> <span class="m">IR = بلندترین قالب</span>، <span class="m">MBR = w</span>، <span class="m">MAR = PC = بیت‌های آدرس</span>؛ برای سؤال ۱ هم همین جدول کافی است.</p>
+<p class="sm rule"><b class="n">۶</b> <code>dw</code> همیشه <span class="m">k</span> واحد برای هر مقدار می‌گیرد (۱۴۰۲: ۴، ۱۴۰۱: ۳، ۱۳۹۸: ۸، ماشین ۷: ۴).</p>
+</div>
+</div>
+
+<h2>سطح ۱: انتخاب کد عمل و قالب از روی شکل عملوندها</h2>
+<div class="grid">
+<div class="card k">
+<h3>شکل عملوند ⇐ حالت آدرس‌دهی</h3>
+<table class="tiny"><tbody>
+<tr><td class="mw"><code>#x</code></td><td>بی‌واسطه: خودِ مقدار x (اگر x برچسب است، <b>آدرس</b> آن)</td></tr>
+<tr><td class="mw"><code>x</code></td><td>مستقیم: محتوای خانهٔ x</td></tr>
+<tr><td class="mw"><code>(x)</code></td><td>غیرمستقیم حافظه‌ای: خانه‌ای که آدرسش در x است</td></tr>
+<tr><td class="mw"><code>Rn</code></td><td>ثباتی مستقیم</td></tr>
+<tr><td class="mw"><code>(Rn)</code></td><td>ثباتی غیرمستقیم: <span class="m">M<sub>(Rn)</sub></span></td></tr>
+<tr><td class="mw"><code>A(Rn)</code></td><td>شاخص‌دار: <span class="m">M<sub>A+(Rn)</sub></span>؛ آدرس A در فیلد addr و n در فیلد ثبات</td></tr>
+</tbody></table>
+<p class="sm rule"><b class="n">۷</b> <b>یک نیمونیک، چند کد عمل:</b> در ماشین ۳ <code>mov</code> سه کد دارد (00، 01، 02) و <code>add a,(b)</code> کد 05 است؛ در ماشین ۴ <code>mov</code> هشت کد دارد؛ در ماشین تک‌آدرسه <code>load #</code> = 0، <code>load</code> = 2، <code>load ( )</code> = 9.</p>
+<p class="sm rule"><b class="n">۸</b> <b>بیت حالت به‌جای کد جدا:</b> در ۱۴۰۰/۱۴۰۱/۱۴۰۲ کد عمل ثابت است و بیت‌های <code>d</code>، <code>i</code>، <code>x y z</code> حالت را می‌گویند.</p>
+<p class="sm rule"><b class="n">۹</b> <b>کد عمل گسترش‌پذیر:</b> M5: <span class="bits">1111</span> + ۶ بیت؛ ۱۳۹۸: <span class="bits">1111</span> + ۴ بیت؛ ۱۳۹۹: پیشوند <span class="bits">00 / 010 / 011 / 1</span> قالب را تعیین می‌کند.</p>
+<p class="sm rule"><b class="n">۱۰</b> <b>دو دستور با یک کد:</b> با یک بیت جدا می‌شوند: ۱۴۰۰ <code>inc/dec</code> و <code>jmp/call</code> با x؛ ۱۴۰۲ <code>jz/jnz</code> و <code>jneg/jmp</code> با x؛ ۱۴۰۱ قالب I و II با <span class="bits">xy = 11</span>.</p>
+</div>
+<div class="card">
+<h3>ماشین ۵: سه قالب در یک برنامه</h3>
+{{mini:fmt_m5}}
+</div>
+<div class="card full">
+<h3>ماشین ۱۳۹۸: پیشوند 0000 / op / 1111 (هر رقم هگز یک واحد)</h3>
+{{mini:fmt_1398}}
+</div>
+<div class="card full">
+<h3>ماشین ۱۴۰۲: همهٔ حالت‌ها و هر چهار پرش (واحد ۶ بیتی ⇐ کد به اکتال)</h3>
+{{mini:modes_1402}}
+</div>
+<div class="card full">
+<h3>ماشین ۱۴۰۱: بیت i، بیت‌های xy و قالب II با xy = 11 (واحد ۷ بیتی)</h3>
+{{mini:modes_1401}}
+</div>
+<div class="card full">
+<h3>ماشین ۱۴۰۰: بیت d، بیت x و قالب سه‌آدرسه (هر رقم هگز یک واحد)</h3>
+{{mini:modes_1400}}
+</div>
+<div class="card full">
+<h3>ماشین ۱۳۹۹: چهار قالب با پیشوند (واحد ۶ بیتی)</h3>
+{{mini:fmt_1399}}
+</div>
+</div>
+
+<h2>سطح ۱: ترتیب فیلدها با ترتیب عملوندها فرق دارد</h2>
+<div class="grid">
+<div class="card w full">
+<p class="sm rule"><b class="n">۱۱</b> <b>مهم‌ترین تلهٔ ترجمه:</b> فیلدها را همیشه به ترتیب <b>شکل قالب</b> پر کن، نه به ترتیب نوشته‌شدن عملوندها. در <code>mov A,R3</code> ماشین ۴، ثبات R3 دوم نوشته شده ولی فیلد r قبل از فیلد addr است: <code class="good">6 3 01D</code> و نه <code class="bad">6 01D 3</code>. هر جا قالب «op | r | addr» است، ثبات همیشه قبل از آدرس می‌آید.</p>
+</div>
+<div class="card">
+<h3>ماشین ۴: هشت شکل mov</h3>
+{{mini:order_m4}}
+</div>
+<div class="card">
+<h3>ماشین ۵: r1 همیشه ثبات داده است</h3>
+{{mini:order_m5}}
+<p class="sm"><code>mov A(R1),R3</code> و <code>mov R3,A(R1)</code> فقط در کد عمل (6 و 7) فرق دارند؛ r1 = R3 و r2 = R1 (شاخص) در هر دو.</p>
+</div>
+<div class="card full">
+<h3>ماشین ۱۳۹۹: جهت انتقال در کد عمل است، نه در ترتیب فیلدها</h3>
+{{mini:order_1399}}
+</div>
+</div>
+
+<h2>سطح ۲: عددها داخل فیلدها</h2>
+<div class="grid">
+<div class="card k">
+<p class="sm rule"><b class="n">۱۲</b> <b>عرض دقیق:</b> هر مقدار را با تعداد بیت همان فیلد و صفرهای پیشرو بنویس: آدرس 1Dh در فیلد ۲۴ بیتی = <span class="bits">000000000000000000011101</span> = 00001Dh.</p>
+<p class="sm rule"><b class="n">۱۳</b> <b>شمارهٔ ثبات به دودویی:</b> R10 در فیلد ۴ بیتی = <span class="bits">1010</span> (هگز A)، در فیلد ۶ بیتی = <span class="bits">001010</span>. R63 = <span class="bits">111111</span>.</p>
+<p class="sm rule"><b class="n">۱۴</b> <b>منفی‌ها:</b> مکمل دو <b>در عرض همان فیلد</b>: <code>#-1</code> در ۱۶ بیت FFFFh، در ۲۱ بیت 1FFFFFh، در ۲۴ بیت FFFFFFh. <code>#-2</code> در ۲۱ بیت = 1FFFFEh (نه FEh).</p>
+<p class="sm rule"><b class="n">۱۵</b> <b>علامت‌گذاری عددها:</b> <code>…h</code> هگز است و بقیه دهدهی: <code>#100</code> = 64h، <code>#100h</code> = 256. عدد هگزی که با حرف شروع می‌شود معمولاً با 0 نوشته می‌شود (<code>0ABCDh</code>).</p>
+<p class="sm rule"><b class="n">۱۶</b> <b>بزرگ‌تر از فیلد:</b> اگر مقدار در عرض فیلد جا نشود (مثلاً <code>addq</code> با داده بیش از ۶ بیت در ۱۳۹۹) آن قالب قابل استفاده نیست؛ از قالب دیگر (مثلاً <code>mov r,#data</code> ۲۴ بیتی) استفاده کن.</p>
+<p class="sm rule"><b class="n">۱۷</b> <b>تفریق با منفی:</b> <code>sub x,#FFFFFFh</code> یعنی x − (−1) = x + 1 (ترفند ۱۴۰۲)؛ <code>add R5,#-1</code> همان <code>sub R5,#1</code> است ولی کد متفاوت دارد:</p>
+{{mini:neg_imm}}
+{{mini:neg_1a}}
+</div>
+<div class="card">
+<h3>هگز ↔ دودویی و اکتال</h3>
+{{gen:hexbin}}
+<h3>مکمل دو در عرض‌های مختلف (هگز)</h3>
+{{gen:twos}}
+<p class="sm">روش سریع: <span class="m">2<sup>n</sup> − |x|</span>؛ یا همهٔ بیت‌ها را معکوس کن و ۱ اضافه کن؛ یا از راست تا اولین ۱ را نگه دار و بقیه را معکوس کن.</p>
+</div>
+</div>
+
+<h2>سطح ۲: شمارندهٔ مکان (LC) و جدول نمادها</h2>
+<div class="grid">
+<div class="card k">
+<p class="sm rule"><b class="n">۱۸</b> <code>org X</code> ⇐ LC = X (کد ماشین ندارد). اگر <code>org</code> نیامده باشد LC = 0.</p>
+<p class="sm rule"><b class="n">۱۹</b> برچسب هر خط = LC <b>قبل</b> از آن خط. برچسب روی <code>dw</code> = آدرس اولین کلمه.</p>
+<p class="sm rule"><b class="n">۲۰</b> بعد از هر خط: <span class="m">LC += طول قالب</span> (دستور) یا <span class="m">LC += n × k</span> (dw با n مقدار؛ <code>N dup(v)</code> یعنی N مقدار).</p>
+<p class="sm rule"><b class="n">۲۱</b> <b>دو گذر:</b> چون برچسب‌ها ممکن است بعداً تعریف شوند (ارجاع رو به جلو)، اول همهٔ آدرس‌ها را حساب کن و بعد کد بساز.</p>
+<p class="sm rule"><b class="n">۲۲</b> <code>end</code> و توضیح‌ها (بعد از <code>;</code>) کد ندارند. خط فقط‌برچسب (بدون دستور) هم طول صفر دارد.</p>
+<p class="sm rule"><b class="n">۲۳</b> نمادی که در برنامه تعریف نشده (مثل <code>OS</code> یا <code>OS_Control_Point</code>) را با <span class="bits">????</span> بنویس و بگو «آدرس آن را سیستم‌عامل/پیونددهنده تعیین می‌کند».</p>
+</div>
+<div class="card">
+<h3>نمونه: جمع آرایه در ماشین ۳ (هر دستور ۵ بایت، هر کلمه ۲ بایت)</h3>
+<table class="t mono tiny"><thead><tr><th>LC</th><th class="l">line</th><th>size</th><th class="l">symbol</th></tr></thead><tbody>
+<tr><td>100</td><td class="l">loop: add sum,(arrptr)</td><td>5</td><td class="l">loop = 100h</td></tr>
+<tr><td>105</td><td class="l">add arrptr,two</td><td>5</td><td></td></tr>
+<tr><td>10A</td><td class="l">sub count,two</td><td>5</td><td></td></tr>
+<tr><td>10F</td><td class="l">jnz count,loop</td><td>5</td><td></td></tr>
+<tr><td>114</td><td class="l">arrptr: dw array</td><td>2</td><td class="l">arrptr = 114h</td></tr>
+<tr><td>116</td><td class="l">sum: dw 0</td><td>2</td><td class="l">sum = 116h</td></tr>
+<tr><td>118</td><td class="l">count: dw 200</td><td>2</td><td class="l">count = 118h</td></tr>
+<tr><td>11A</td><td class="l">two: dw 2</td><td>2</td><td class="l">two = 11Ah</td></tr>
+<tr><td>11C</td><td class="l">array: dw 100 dup(?)</td><td>200</td><td class="l">array = 11Ch</td></tr>
+</tbody></table>
+{{mini:lc_m3}}
+</div>
+</div>
+
+<h2>سطح ۲: عبارت‌های آدرس، # و پرانتز</h2>
+<div class="grid">
+<div class="card k">
+<p class="sm rule"><b class="n">۲۴</b> <b>همهٔ عبارت‌ها بر حسب واحد:</b> <code>label+k</code> یعنی k واحد بعد از برچسب، نه k کلمه. ۱۴۰۰: <code>A+400</code> = ۱۰۰ کلمه × ۴ واحد؛ ماشین ۷: <code>array+396</code> = ۹۹ کلمه × ۴؛ ۱۴۰۱: <code>c-3</code> = یک کلمه قبل؛ ۱۳۹۹: <code>loop-6</code> = ۶ واحد قبل (ممکن است وسط یک دستور باشد!).</p>
+<p class="sm rule"><b class="n">۲۵</b> <b><code>#A</code> با <code>A</code> فرق دارد:</b> <code>mov R0,#A</code> آدرس A را در فیلد داده می‌گذارد (اشاره‌گر می‌سازد)؛ <code>mov R0,A</code> آدرس A را در فیلد آدرس می‌گذارد و در اجرا محتوای A خوانده می‌شود. کد عمل یا بیت حالت هم فرق می‌کند (ماشین ۴: D در برابر 5).</p>
+<p class="sm rule"><b class="n">۲۶</b> <b><code>#عدد</code> در دستورهای آرایه:</b> گام اشاره‌گر = k (نه ۱): <code>add p,#4</code> در ۱۴۰۲، <code>add ptr,#3</code> در ۱۴۰۱، <code>inc4</code> در ۱۳۹۹.</p>
+<p class="sm rule"><b class="n">۲۷</b> <b>شاخص‌دار با ثبات صفر</b> = مستقیم: <code>x(R0)</code> در ۱۳۹۸ (R0 همیشه صفر) و <code>0(R63)</code> در M5 = «آدرس داخل R63».</p>
+<p class="sm rule"><b class="n">۲۸</b> مقدار ثابت <b>بزرگ‌تر از یک کلمه</b> یا منفی در عبارت، باید در عرض فیلد مقصد خلاصه شود (پیمانهٔ <span class="m">2<sup>n</sup></span>).</p>
+</div>
+<div class="card d">
+<h3>نتیجهٔ چند عبارت (واقعی از امتحان‌ها)</h3>
+<table class="t mono tiny"><thead><tr><th class="l">expression</th><th class="l">machine</th><th class="l">value</th></tr></thead><tbody>
+<tr><td class="l">B-396 (B = 2E1h)</td><td class="l">1400</td><td class="l">2E1h − 18Ch = 155h</td></tr>
+<tr><td class="l">A+400 (A = 151h)</td><td class="l">1400</td><td class="l">151h + 190h = 2E1h = B</td></tr>
+<tr><td class="l">#B-8</td><td class="l">1400</td><td class="l">data = 2D9h (A[98])</td></tr>
+<tr><td class="l">here+14 (here = 12h)</td><td class="l">1402</td><td class="l">20h</td></tr>
+<tr><td class="l">s-4 (s = 108h)</td><td class="l">1402</td><td class="l">104h = c+4</td></tr>
+<tr><td class="l">c-3 (c = 103h)</td><td class="l">1401</td><td class="l">100h = a</td></tr>
+<tr><td class="l">loop-6 (loop = 13h)</td><td class="l">1399</td><td class="l">0Dh (mid-instruction)</td></tr>
+<tr><td class="l">array-8(R1)</td><td class="l">1398</td><td class="l">addr = 10h − 8 = 8</td></tr>
+<tr><td class="l">#array+396</td><td class="l">1399</td><td class="l">data = array + 18Ch</td></tr>
+</tbody></table>
+</div>
+</div>
+
+<h2>سطح ۲: داده‌ها (dw)</h2>
+<div class="grid">
+<div class="card k">
+<p class="sm rule"><b class="n">۲۹</b> هر مقدار = یک کلمه = k واحد؛ <b>Big Endian</b>: واحد پرارزش در آدرس کوچک‌تر.</p>
+<p class="sm rule"><b class="n">۳۰</b> منفی با مکمل دو در عرض کلمه: <code>dw -1</code> = FFFFFFFFh (۳۲ بیت)، FFFFh (۱۶ بیت).</p>
+<p class="sm rule"><b class="n">۳۱</b> <code>dw label</code> و <code>dw label+8</code> = <b>آدرس</b> (اشاره‌گر)؛ در جابه‌جایی برنامه باید اصلاح شود.</p>
+<p class="sm rule"><b class="n">۳۲</b> <code>dw 3,4,5</code> سه کلمهٔ پشت‌سرهم؛ <code>dw 2 dup(?)</code> دو کلمهٔ نامعلوم (<span class="bits">????</span>)؛ <code>dw 100 dup(0)</code> صد کلمهٔ صفر.</p>
+<p class="sm rule"><b class="n">۳۳</b> <b>ثابت ممیز شناور:</b> بیت‌های IEEE را بنویس (1.0 = 3F800000h، 2<sup>−10</sup> = 3A800000h). در امتحان ۹۸ <code>-1.0e+109</code> یعنی <span class="m">−1.0 × 2<sup>109</sup></span> ⇐ E = 109+127 = 236 ⇐ F6000000h.</p>
+<p class="sm rule"><b class="n">۳۴</b> واحدهای کوچک‌تر از کلمه: در ماشین‌های ۴ بیتی هر کلمهٔ ۱۶ بیتی ۴ رقم هگز است (<code>dw 7</code> ⇐ 0007)؛ در ۶ بیتی هر کلمه ۴ جفت اکتال (<code>dw 77</code> ⇐ 00 00 01 15).</p>
+</div>
+<div class="card">
+<h3>ماشین ۷ (کلمهٔ ۳۲ بیتی، بایتی)</h3>
+{{mini:dw_m7}}
+<h3>ماشین ۱۳۹۸ (ثابت‌های ممیز شناور)</h3>
+{{mini:dw_1398}}
+</div>
+</div>
+
+<h2>سطح ۳: پرش‌ها (مطلق، نسبی، غیرمستقیم)</h2>
+<div class="grid">
+<div class="card k">
+<p class="sm rule"><b class="n">۳۵</b> <b>پرش مطلق:</b> فیلد آدرس = آدرس برچسب مقصد (بر حسب واحد)، نه شمارهٔ دستور.</p>
+<p class="sm rule"><b class="n">۳۶</b> <b>پرش نسبی:</b> <span class="m">d = مقصد − (آدرس دستور پرش + طول آن)</span>؛ چون هنگام اجرا PC به دستور بعد اشاره می‌کند. منفی ⇐ مکمل دو در عرض فیلد (۸ بیت: <span class="m">100h − |d|</span>).</p>
+<p class="sm rule"><b class="n">۳۷</b> <b>بازه:</b> با ۸ بیت <span class="m">−128 ≤ d ≤ 127</span>. اگر بیرون بود از پرش مطلق (<code>jmpl</code> در ماشین ۷) استفاده کن.</p>
+<p class="sm rule"><b class="n">۳۸</b> <b>پرش غیرمستقیم / ثباتی:</b> <code>jmp (FFFEh)</code> (۱۴۰۰) و <code>jmp (1FFFFDh)</code> (۱۴۰۱) آدرس خانه‌ای را می‌گیرند که آدرس مقصد در آن است (بیت x یا i = 1)؛ <code>jmp R31</code> (۱۳۹۹) شمارهٔ ثبات را.</p>
+<p class="sm rule"><b class="n">۳۹</b> <b>call</b> آدرس دستور <b>بعد</b> (PC افزایش‌یافته) را ذخیره می‌کند: در ثبات (<code>call r,addr</code> ۱۳۹۹، <code>call r1,addr(r2)</code> M5) یا خانهٔ ثابت (FFFEh در ۱۴۰۰، 1FFFFDh در ۱۴۰۱).</p>
+<p class="sm rule"><b class="n">۴۰</b> <b>پرش‌های شرطی دوعملوندی</b> (ماشین ۳: <code>jnz count,loop</code>) فیلد اول = متغیر شرط و فیلد دوم = مقصد؛ سه‌عملوندی (۱۴۰۰: <code>jne a,#d,L</code>، M5: <code>jne R1,R2,L</code>) آدرس مقصد در آخرین فیلد است.</p>
+<p class="sm rule"><b class="n">۴۱</b> در ماشین پشته‌ای (۶) پرش فیلد ندارد: مقصد قبلاً با <code>push #label</code> روی پشته گذاشته می‌شود (<code>push #loop</code> ⇐ 00 00000000).</p>
+</div>
+<div class="card">
+<h3>ماشین ۷: نسبی به جلو، نسبی به عقب و مطلق</h3>
+{{mini:rel_m7}}
+<table class="t mono tiny"><thead><tr><th class="l">jump</th><th>at</th><th>next PC</th><th>target</th><th>d</th><th>code</th></tr></thead><tbody>
+<tr><td class="l">jpos F</td><td>105</td><td>107</td><td>10E</td><td>+7</td><td>83 07</td></tr>
+<tr><td class="l">jmp L</td><td>10C</td><td>10E</td><td>100</td><td>−14 = F2</td><td>84 F2</td></tr>
+<tr><td class="l">jpos continue (sort)</td><td>128</td><td>12A</td><td>15E</td><td>+34h</td><td>83 34</td></tr>
+<tr><td class="l">jmp loop (sort)</td><td>15C</td><td>15E</td><td>100</td><td>−5Eh = A2</td><td>84 A2</td></tr>
+<tr><td class="l">jnz loop (sort)</td><td>168</td><td>16A</td><td>100</td><td>−6Ah = 96</td><td>80 96</td></tr>
+<tr><td class="l">loop → next (primes)</td><td>18A</td><td>18C</td><td>100</td><td>−140 ✗</td><td>jmpl</td></tr>
+</tbody></table>
+</div>
+</div>
+
+<h2>سطح ۳: بیت‌های حالت، بیت‌های ثابت و فیلدهای بلااستفاده</h2>
+<div class="grid">
+<div class="card k">
+<p class="sm rule"><b class="n">۴۲</b> <b>بیت‌های حالت را از تعریف جدول بخوان</b> و همان ترتیب را رعایت کن: ۱۴۰۲ «x y z»، ۱۴۰۱ «i … xy»، ۱۴۰۰ «d» (بعد از addr1)، ۱۳۹۹ «i1 r1 i2 r2».</p>
+<p class="sm rule"><b class="n">۴۳</b> <b>بیت‌های ثابت قالب</b> را دقیقاً بنویس: ۱۴۰۲ قالب II <span class="bits">x11</span>، ۱۴۰۱ قالب II <span class="bits">11</span>، ماشین ۵ قالب III <span class="bits">1111</span>، ۱۳۹۸ قالب III <span class="bits">1111</span>، ۱۳۹۹ پیشوندها.</p>
+<p class="sm rule"><b class="n">۴۴</b> <b>فیلد بلااستفاده = صفر</b> (مثلاً عملوندهای <code>nop</code> در ماشین ۱) مگر صورت سؤال چیز دیگری بگوید.</p>
+<p class="sm rule"><b class="n">۴۵</b> <b>عملوند تک‌آدرسه‌ها:</b> در ماشین تک‌آدرسه و ۷ عملوند دوم همیشه ACC است و در کد نمی‌آید؛ در ماشین ۶ جز push/pop هیچ فیلدی نیست (یک بایت).</p>
+<p class="sm rule"><b class="n">۴۶</b> <b>دستورهای یک‌عملوندی در قالب دوعملوندی</b> (۱۴۰۱ <code>inc/dec/clr/not/neg</code>): فقط i و addr1 پر می‌شوند و xy = 11.</p>
+</div>
+<div class="card d">
+<h3>جای بیت‌های حالت در هر ماشین امتحانی</h3>
+<table class="t mono tiny"><thead><tr><th class="l">machine</th><th class="l">layout</th><th class="l">meaning</th></tr></thead><tbody>
+<tr><td class="l">1402 I</td><td class="l">op3 a1 | x y z | a2</td><td class="l">x: opr1 ind; yz 00 dir 01 ind 10 imm</td></tr>
+<tr><td class="l">1402 II</td><td class="l">op3 addr | x 1 1</td><td class="l">x picks jz/jnz, jneg/jmp</td></tr>
+<tr><td class="l">1401 I</td><td class="l">op4 i a1 | xy | a2</td><td class="l">i: opr1 ind; xy as 1402, 11 → II</td></tr>
+<tr><td class="l">1401 II</td><td class="l">op4 i a1 | 1 1</td><td class="l">i: target / opr1 indirect</td></tr>
+<tr><td class="l">1400 I/III</td><td class="l">op3 a1 d a2 (a3)</td><td class="l">d=1: a2 field is data</td></tr>
+<tr><td class="l">1400 II</td><td class="l">op3 a1 x</td><td class="l">inc/dec, jmp(ind)/call</td></tr>
+<tr><td class="l">1399 I</td><td class="l">00 op4 i1 r1 i2 r2</td><td class="l">i=1: M[(r)]; q-forms: 6-bit data</td></tr>
+<tr><td class="l">1398</td><td class="l">— (no mode bits)</td><td class="l">mode = format / R0 trick</td></tr>
+</tbody></table>
+</div>
+</div>
+
+<h2>سطح ۳: نوشتن جواب (هگز، اکتال یا دودویی؟)</h2>
+<div class="grid">
+<div class="card k">
+<p class="sm rule"><b class="n">۴۷</b> <b>همیشه از دودوییِ فیلدبه‌فیلد شروع کن</b> و بعد آن را بر حسب واحد گروه کن. این هم قالب را نشان می‌دهد و هم اشتباه ترتیب را می‌گیرد.</p>
+<p class="sm rule"><b class="n">۴۸</b> <b>نمایش بر حسب واحد:</b> واحد ۴ بیتی ⇐ یک رقم هگز برای هر واحد؛ ۸ بیتی ⇐ یک بایت هگز؛ ۶ بیتی ⇐ دو رقم <b>اکتال</b>؛ ۷ بیتی ⇐ دودویی (یا دو رقم هگز برای هر واحد)؛ ۱۶ بیتی ⇐ چهار رقم هگز.</p>
+<p class="sm rule"><b class="n">۴۹</b> <b>هگز کردن کل دستور وقتی بیت‌ها مضرب ۴ نیست اشتباه است</b>: دستور ۱۸ بیتی ۱۳۹۹ را نمی‌شود چهار رقم هگز نوشت؛ سه واحد اکتال بنویس (<code>mov R1,R2</code> ⇐ 00 01 02).</p>
+<p class="sm rule"><b class="n">۵۰</b> <b>گروه‌بندی از چپ (MSB)</b> چون Big Endian است؛ اولین واحد در آدرس شروع دستور قرار می‌گیرد.</p>
+<p class="sm rule"><b class="n">۵۱</b> <b>شکل جدول جواب:</b> آدرس | کد ماشین (فیلدها) | کد بر حسب واحد | برچسب و دستور اسمبلی. جدول نمادها و فرض‌ها (آدرس OS، مقدار <code>?</code>) را زیر جدول بنویس.</p>
+</div>
+<div class="card">
+<h3>یک دستور، سه نمایش (۱۴۰۲ <code>add c+4, s-4</code>)</h3>
+{{gen:view_1402}}
+<h3>واحد ۴ بیتی (۱۴۰۰ <code>jmp (FFFEh)</code>)</h3>
+{{gen:view_1400}}
+<p class="sm">در ۱۴۰۰ مرز فیلدها با مرز واحدها یکی نیست (op سه بیتی)، پس رقم‌های هگز با مقدار فیلدها فرق دارند: آدرس FFFE به‌صورت «FFFC» دیده می‌شود. برای همین اول فیلدها را دودویی بنویس.</p>
+</div>
+</div>
+
+<h2>سطح ۴: آدرس یک فیلد داخل دستور (کد خودتغییرده)</h2>
+<div class="grid">
+<div class="card k">
+<p class="sm rule"><b class="n">۵۲</b> کلمه‌ای که از واحد k دستور X شروع می‌شود (<code>X+k</code>) بیت‌های <span class="m">[k·u, k·u + w)</span> دستور را می‌پوشاند.</p>
+<p class="sm rule"><b class="n">۵۳</b> اگر فیلد کامل داخل این کلمه باشد و e بیت پایین‌تر از فیلد در کلمه باقی بماند، برای افزودن d به فیلد باید <span class="m">d·2<sup>e</sup></span> به کلمه اضافه کنی (اگر e = 0 همان d).</p>
+<p class="sm rule"><b class="n">۵۴</b> اگر فیلد از اول کلمه بیرون بزند (پوشش جزئی)، فقط بیت‌های پایین فیلد عوض می‌شوند؛ تا وقتی نقلی به بیت‌های بیرون نرسد درست است (۱۴۰۰: <code>add Arr+10,#8</code> ⇐ addr1 + 4).</p>
+<p class="sm rule"><b class="n">۵۵</b> XOR با یک ثابت روی کلمهٔ دستور، بیت‌های همان محدوده را برمی‌گرداند (۱۴۰۱: <span class="m">402h ⊕ 43Dh = 03Fh</span> ⇐ <code>add a,#-2</code> به <code>jmp next</code> تبدیل می‌شود).</p>
+<p class="sm rule"><b class="n">۵۶</b> در ترجمه، <code>loop+3</code> فقط یک عبارت آدرس است (مقدار = loop + 3) و مثل هر آدرس دیگری در فیلد قرار می‌گیرد.</p>
+{{mini:self_m3}}
+{{mini:self_1402}}
+</div>
+<div class="card">
+<h3>جدول آماده: هر فیلد آدرس/داده در کدام کلمه است (X = آدرس شروع دستور)</h3>
+{{gen:offsets}}
+<p class="sm">همهٔ سطرهای این جدول با محاسبهٔ بیتی بررسی شده‌اند (افزودن <span class="m">2<sup>e</sup></span> به کلمه دقیقاً یک واحد به فیلد اضافه می‌کند).</p>
+</div>
+</div>
+
+<h2>سطح ۴: رمزگشایی معکوس (کد ماشین ← اسمبلی)</h2>
+<div class="grid">
+<div class="card k">
+<h3>گام‌ها (برای سؤال ۳ و برای وارسی سؤال ۴)</h3>
+<ol class="sm">
+<li>از آدرس PC، بیت‌ها را واحدبه‌واحد به دودویی بنویس.</li>
+<li>از روی <b>بیت‌های اول</b> قالب را تشخیص بده (پیشوند، کد عمل یا بیت‌های ثابت مثل xy = 11).</li>
+<li>به اندازهٔ طول همان قالب بیت بردار و فیلدها را جدا کن.</li>
+<li>کد عمل + بیت‌های حالت ⇐ نیمونیک و شکل عملوندها؛ آدرس‌ها را با جدول نمادها به برچسب برگردان.</li>
+<li>PC را به اندازهٔ طول قالب جلو ببر و تکرار کن. <b>مرز dwها مهم نیست</b>: دستور ممکن است از وسط یک کلمه شروع شود یا دو کلمه را بپوشاند.</li>
+</ol>
+<p class="sm"><b>تشخیص قالب:</b> ۱۳۹۹: <span class="bits">1…</span> V، <span class="bits">00</span> I، <span class="bits">010</span> II، <span class="bits">011</span> III. ۱۳۹۸: نیبل اول 0 ⇐ I، F ⇐ III، بقیه II. ۱۴۰۰: 000–010 ⇐ I، 011–100 ⇐ II، 101–111 ⇐ III. ۱۴۰۱/۱۴۰۲: بیت‌های حالت عملوند دوم <span class="bits">11</span> ⇐ II. M5: 0000–0101 ⇐ I، 1111 ⇐ III، بقیه II.</p>
+</div>
+<div class="card">
+<h3>نمونه: <code>dw 41006h</code> در ۱۳۹۹</h3>
+{{mini:exec_1399}}
+<table class="t mono tiny"><thead><tr><th>bits</th><th class="l">decode</th></tr></thead><tbody>
+<tr><td>000001 000001 000000</td><td class="l">00 | 0001 | 0 00001 | 0 00000 ⇒ add R1,R0</td></tr>
+<tr><td>000110 + next 2 units</td><td class="l">00 | 0110 | … ⇒ swap (instruction continues into next word)</td></tr>
+</tbody></table>
+<p class="sm">به همین روش در ۱۳۹۸ دو کلمهٔ اول برنامه (<span class="bits">F6000000</span> و <span class="bits">03300000</span>) با هم یک دستور ۱۲ واحدی <code>je R0,R0,330h</code> می‌سازند.</p>
+</div>
+</div>
+
+<h2>نمونهٔ کامل ۱: ماشین ۵ (فیلدهای ۴ و ۶ بیتی، واحد بایتی)</h2>
+<div class="card x">
+<p class="sm"><b>LC:</b> 100 xor (I، ۲) ⇐ 102 mov (I، ۲) ⇐ 104 mov #200 (III، ۴) ⇐ 108 loop (II، ۴) ⇐ 10C add (I) ⇐ 10E add #2 (III) ⇐ 112 jne (II) ⇐ 116 mov sum,R0,R0 (II) ⇐ 11A call (II) ⇐ 11E sum ⇐ 120 A.
+<b>نمونهٔ کدگذاری:</b> <code>mov R3,A(R1)</code> ⇐ <span class="bits">0110 | 000011 | 000001</span> = <span class="bits">0110 0000 1100 0001</span> = 60C1h و بعد آدرس A = 0120h.</p>
+{{full:worked_m5}}
+</div>
+
+<h2>نمونهٔ کامل ۲: میان‌ترم ۱۴۰۲ سؤال ۴ (واحد ۶ بیتی)</h2>
+<div class="card x">
+<p class="sm"><b>LC:</b> mov@0 ⇐ and@9 ⇐ here@18 (12h) ⇐ sub@23 ⇐ add@32 (20h) ⇐ jnz@41 ⇐ jz@46 ⇐ org 100h: c = 100h (دو کلمه)، s = 108h.
+<b>عبارت‌ها:</b> <code>here+14</code> = 20h، <code>here-18</code> = 0، <code>s-4</code> = 104h، <code>c+4</code> = 104h، <code>s+4</code> = 10Ch.
+<b>نمونه:</b> <code>sub s,#FFFFFFh</code> ⇐ <span class="bits">100 | 000000000000000100001000 | 010 | 111111111111111111111111</span>.</p>
+{{full:worked_1402}}
+</div>
+
+<h2>وارسی نهایی و خطاهای رایج</h2>
+<div class="grid">
+<div class="card x">
+<h3>چک‌لیست قبل از تحویل</h3>
+<ul class="sm">
+<li>☐ تعداد بیت هر دستور = طول قالب (و مضرب u).</li>
+<li>☐ آدرس هر خط = آدرس قبلی + طول خط قبلی؛ آدرس برچسب‌ها با جدول نمادها یکی است.</li>
+<li>☐ کد عمل با <b>شکل عملوند</b> (<code>#</code>، <code>( )</code>، ثبات) می‌خواند.</li>
+<li>☐ ترتیب فیلدها مثل شکل قالب است.</li>
+<li>☐ عددهای منفی در عرض فیلد/کلمه مکمل دو شده‌اند.</li>
+<li>☐ پرش‌های نسبی از دستور بعد حساب شده‌اند و در بازه‌اند.</li>
+<li>☐ بیت‌های ثابت (x11، 11، 1111، پیشوندها) نوشته شده‌اند.</li>
+<li>☐ dwها: هر مقدار k واحد، Big Endian، <code>?</code> و نمادهای بیرونی مشخص.</li>
+<li>☐ یک دستور تصادفی را معکوس رمزگشایی کن؛ باید همان سطر اسمبلی برگردد.</li>
+</ul>
+</div>
+<div class="card w">
+<h3>خطاهای رایج</h3>
+<table class="tiny err"><thead><tr><th>خطا</th><th>غلط</th><th>درست</th></tr></thead><tbody>
+<tr><td>شمردن کلمه به‌جای واحد</td><td class="mw bad">A+100</td><td class="mw good">A+400 (k = 4)</td></tr>
+<tr><td>ترتیب فیلد = ترتیب عملوند</td><td class="mw bad">mov A,R3 ⇒ 6 01D 3</td><td class="mw good">6 3 01D</td></tr>
+<tr><td>منفی بدون گسترش علامت</td><td class="mw bad">#-2 ⇒ 0000FE</td><td class="mw good">1FFFFE (21b)</td></tr>
+<tr><td>نسبی از خود پرش</td><td class="mw bad">d = 10E − 105</td><td class="mw good">d = 10E − 107</td></tr>
+<tr><td>فراموش کردن #</td><td class="mw bad">mov R0,A ⇒ 5…</td><td class="mw good">mov R0,#A ⇒ D…</td></tr>
+<tr><td>هگز کل دستور غیرمضرب ۴</td><td class="mw bad">18b ⇒ 0102h</td><td class="mw good">00 01 02 (oct)</td></tr>
+<tr><td>صفرهای پیشرو</td><td class="mw bad">addr = 1Dh (5b)</td><td class="mw good">00001Dh (24b)</td></tr>
+<tr><td>شمارهٔ ثبات دهدهی</td><td class="mw bad">R10 ⇒ 0001 0000</td><td class="mw good">1010</td></tr>
+<tr><td>طول ثابت برای همهٔ دستورها</td><td class="mw bad">LC += 9</td><td class="mw good">I 9 / II 5 / III 13</td></tr>
+<tr><td>dw چندمقداری یک کلمه</td><td class="mw bad">dw 3,4,5 ⇒ 4u</td><td class="mw good">12u (3 × 4)</td></tr>
+<tr><td>جا انداختن بیت ثابت</td><td class="mw bad">inc a ⇒ op i a1</td><td class="mw good">op i a1 11</td></tr>
+<tr><td>شمارهٔ دستور به‌جای آدرس</td><td class="mw bad">jnz loop ⇒ 4</td><td class="mw good">آدرس loop</td></tr>
+<tr><td>Little Endian نوشتن</td><td class="mw bad">0102h ⇒ 02 01</td><td class="mw good">01 02</td></tr>
+<tr><td>آدرس OS حدسی</td><td class="mw bad">0000</td><td class="mw good">???? + توضیح</td></tr>
+</tbody></table>
+</div>
+</div>
