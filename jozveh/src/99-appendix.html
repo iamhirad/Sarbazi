@@ -11,6 +11,7 @@
 <tr><td>تک‌آدرسه</td><td>انباره‌ای</td><td class="mt">2<sup>16</sup> × 4 bit</td><td>16 (۴ واحد)</td><td class="mt">4|16 (5 units)</td><td>ضمنی، مستقیم، غیرمستقیم، بی‌واسطه</td><td class="mt">MAR 16, MBR 16, ACC 16, IR 20, PC 16</td></tr>
 <tr><td>۶</td><td>صفرآدرسه (پشته‌ای)</td><td class="mt">2<sup>32</sup> × 8 bit</td><td>32</td><td class="mt">I: 8|32 ، II: 8</td><td>ضمنی، مستقیم، بی‌واسطه</td><td class="mt">IR 40, SP</td></tr>
 <tr><td>۷</td><td>تک‌آدرسه</td><td class="mt">2<sup>32</sup> × 8 bit</td><td>32 (مکمل دو)</td><td class="mt">I: 8|32 ، II: 8|8</td><td>مستقیم، غیرمستقیم، بی‌واسطه، نسبی</td><td class="mt">MAR 32, MBR 32, ACC 32, IR 40, PC 32</td></tr>
+<tr><td>IBM 360</td><td>RR / RX / RS / SI / SS، ۱۶ ثبات</td><td class="mt">2<sup>24</sup> × 8 bit</td><td>32 (BE، هم‌تراز)</td><td class="mt">RR 2B ، RX/RS/SI 4B ، SS 6B</td><td>ثباتی، پایه-جابه‌جایی، شاخص‌دار، بی‌واسطه (SI)</td><td class="mt">GPR 16×32, FPR 4×64, PSW 64, PC 24</td></tr>
 </tbody></table>
 
 <h2>فهرست برنامه‌های حل‌شده در جزوه</h2>
@@ -24,6 +25,8 @@
 <tr><td>تک‌آدرسه</td><td>تولید ۲۰ جملهٔ فیبوناچی؛ تکلیف ۲: ترجمه</td><td>کد ماشین کامل، آزموده</td></tr>
 <tr><td>۶</td><td>مجموع فیبوناچی (اسلاید) و برنامهٔ بهتر</td><td>کد ماشین کامل، آزموده</td></tr>
 <tr><td>۷</td><td>مرتب‌سازی Gnome؛ تکلیف: جمع ۱۰۰ عدد اول (غربال)</td><td>کد ماشین کامل، آزموده</td></tr>
+<tr><td>IBM 360 (فصل ۶)</td><td>STOCK (اسلاید)، تعریف متغیرها با DS/DC (دو برنامه)</td><td>فهرست کامل اسمبلر، آزموده</td></tr>
+<tr><td>IBM 360 (فصل ۸)</td><td>جمع، بیشینه، شمارش منفی‌ها و زوج‌ها، میانگین، تقسیم منفی، جمع ۱..N، فاکتوریل، توان ۲، فیبوناچی، جابه‌جایی XOR، جمع ۶۴ بیتی، مرتب‌سازی Gnome، if-else، زیربرنامه، جست‌وجوی خطی، وارونه‌سازی، شمارش بیت‌ها</td><td>فهرست کامل اسمبلر، آزموده</td></tr>
 </tbody></table>
 
 <h1 class="chapter" data-label="پیوست ب">واژه‌نامهٔ انگلیسی – فارسی</h1>
@@ -58,5 +61,13 @@
 <tr><td class="l">Instruction Register (IR)</td><td>ثبات دستور</td><td class="l">Symbol table</td><td>جدول نمادها</td></tr>
 <tr><td class="l">Interrupt service routine</td><td>روال خدمت وقفه</td><td class="l">Two's / One's complement</td><td>مکمل دو / مکمل یک</td></tr>
 <tr><td class="l">Label</td><td>برچسب</td><td class="l">Word / Access width</td><td>کلمه / پهنای دسترسی</td></tr>
+<tr><td class="l">Base register</td><td>ثبات پایه</td><td class="l">Condition Code (CC)</td><td>کد شرط</td></tr>
+<tr><td class="l">Base-displacement addressing</td><td>آدرس‌دهی پایه-جابه‌جایی</td><td class="l">Effective address (EA)</td><td>نشانی مؤثر</td></tr>
+<tr><td class="l">Branch and link (BALR)</td><td>پرش و پیوند</td><td class="l">Even-odd register pair</td><td>جفت ثبات زوج-فرد</td></tr>
+<tr><td class="l">Branch mask</td><td>ماسک پرش</td><td class="l">EBCDIC</td><td>کد کاراکتری EBCDIC</td></tr>
+<tr><td class="l">Extended mnemonic</td><td>نیمونیک گسترش‌یافته</td><td class="l">Fullword / Halfword / Doubleword</td><td>کلمه / نیم‌کلمه / کلمهٔ مضاعف</td></tr>
+<tr><td class="l">Index register</td><td>ثبات شاخص (اندیس)</td><td class="l">Program Status Word (PSW)</td><td>کلمهٔ وضعیت برنامه</td></tr>
+<tr><td class="l">Logical (unsigned) arithmetic</td><td>حساب منطقی (بدون علامت)</td><td class="l">Sign extension</td><td>گسترش علامت</td></tr>
+<tr><td class="l">Specification exception</td><td>استثنای مشخصات (خطای هم‌ترازی/ثبات)</td><td class="l">Subroutine / Return address</td><td>زیربرنامه / نشانی بازگشت</td></tr>
 </tbody></table>
-<p class="center muted small" style="margin-top:8mm">— پایان جزوهٔ جلسه‌های ۱ تا ۵ —</p>
+<p class="center muted small" style="margin-top:8mm">— پایان جزوهٔ جلسه‌های ۱ تا ۸ —</p>

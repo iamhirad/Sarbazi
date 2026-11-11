@@ -335,7 +335,7 @@ LOOP     L     6,A(4)    A[i]
 <h3>برنامهٔ ۸-۱: جمع عناصر آرایه</h3>
 <p><b>ایده:</b> R3 جمع، R4 فاصلهٔ بایتی عنصر جاری و R5 شمارندهٔ BCT. در هر دور <code>A 3,ARR(4)</code> عنصر جاری را اضافه می‌کند و <code>LA 4,4(4)</code> به کلمهٔ بعد می‌رود.</p>
 {{asm360:sumarr}}
-<div class="box ex long"><span class="t">ردگیری اجرای برنامهٔ ۸-۱ (شبیه‌ساز)</span>
+<div class="box ex"><span class="t">ردگیری اجرای برنامهٔ ۸-۱ (شبیه‌ساز)</span>
 <table class="ltrt small"><thead><tr><th>PC</th><th>instr</th><th>R3 (sum)</th><th>R4 (offset)</th><th>R5 (count)</th><th class="fa">PC بعدی</th></tr></thead><tbody>
 <tr><td>0006</td><td>LA 5,10</td><td>0</td><td>0</td><td>10</td><td>000A</td></tr>
 <tr><td>000A</td><td>A 3,ARR(4)</td><td>5</td><td>0</td><td>10</td><td>000E</td></tr>
@@ -457,21 +457,21 @@ N = 10 ⇐ ۱۰ بار؛ N = 1 ⇐ ۱ بار (BCT ⇐ 0 ⇐ خروج)؛ N = 0 �
 برنامه‌ای بنویسید که اندیس (شمارهٔ عنصر، از 0) اولین خانهٔ ARR برابر KEY را در POS بنویسد و اگر نبود ‎−1.
 <div class="sol"><span class="t">حل</span>
 R4 فاصلهٔ بایتی و R6 شمارهٔ عنصر است (دو اندیس با گام‌های ۴ و ۱). به محض برابری (BE) به FOUND می‌پریم؛ اگر حلقه کامل تمام شد، R6 را ‎−1 می‌کنیم. چون ‎−1 را نمی‌توان با LA ساخت، از ثابت MINUS1 استفاده شده است.
-{{asm360:search}}
-نتیجه: KEY = 1 ⇐ POS = 7؛ آزموده با KEY = 5 ⇐ 0، KEY = 6 ⇐ 9، KEY = ‎−8 ⇐ 6 و KEY = 99 ⇐ ‎−1.
 </div></div>
+{{asm360:search}}
+<p class="small">نتیجه: KEY = 1 ⇐ POS = 7؛ آزموده با KEY = 5 ⇐ 0، KEY = 6 ⇐ 9، KEY = ‎−8 ⇐ 6 و KEY = 99 ⇐ ‎−1.</p>
 <div class="box hw long"><span class="t">تمرین ۸-۷: وارونه کردن آرایه در جا</span>
 <div class="sol"><span class="t">حل</span>
 دو اندیس: R4 از ابتدا (0) و R5 از انتها (36). تا وقتی <span class="m">i &lt; j</span> (الگوی while با BNL)، دو عنصر را با دو ثبات کمکی جابه‌جا کن، i را ۴ تا جلو و j را ۴ تا عقب ببر. چون LA نمی‌تواند کم کند، از <code>S 5,FOUR</code> استفاده شده (<code>SR 5,10</code> با R10 = 4 هم درست است).
-{{asm360:reverse}}
-نتیجه: ARR = 6، 4، 1، ‎−8، 3، 0، 10، 7، ‎−2، 5.
 </div></div>
+{{asm360:reverse}}
+<p class="small">نتیجه: ARR = 6، 4، 1، ‎−8، 3، 0، 10، 7، ‎−2، 5.</p>
 <div class="box hw long"><span class="t">تمرین ۸-۸: شمارش بیت‌های ۱ (ترفند x AND (x−1))</span>
 <div class="sol"><span class="t">حل</span>
 <b>شهود:</b> در <span class="m">x − 1</span>، پایین‌ترین بیت ۱ صفر می‌شود و همهٔ صفرهای زیر آن ۱ می‌شوند؛ پس <span class="m">x ∧ (x − 1)</span> دقیقاً پایین‌ترین ۱ را پاک می‌کند. مثلاً <span class="bits">10110100 ∧ 10110011 = 10110000</span>. هر دور حلقه یک بیت ۱ پاک می‌شود، پس تعداد دورها = تعداد بیت‌های ۱. <code>OR 4,4</code> مقدار را عوض نمی‌کند ولی CC را تنظیم می‌کند (برای حالت x = 0)، و <code>BCTR 5,0</code> ارزان‌ترین «منهای یک» است.
-{{asm360:popcnt}}
-نتیجه: <span class="m">x = 0000B6F1h</span> ⇐ COUNT = 10؛ آزموده با 0، 1، ‎−1 (=32)، 80000000h (=1) و 12345678h (=13).
 </div></div>
+{{asm360:popcnt}}
+<p class="small">نتیجه: <span class="m">x = 0000B6F1h</span> ⇐ COUNT = 10؛ آزموده با 0، 1، ‎−1 (=32)، 80000000h (=1) و 12345678h (=13).</p>
 
 <div class="summary"><span class="t">خلاصهٔ فصل ۸</span>
 <ul>

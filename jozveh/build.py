@@ -103,6 +103,8 @@ def asm360(m):
         cm = wrap_ltr(html.escape(cm)) if re.search(r"[\u0600-\u06FF]", cm) else html.escape(cm)
         lab = html.escape(r.get("label") or "")
         mn, ops = html.escape(r.get("mn") or ""), html.escape(r.get("ops") or "")
+        if len(ops) > 14:
+            ops = ops.replace(",", ",<wbr>")
         if r["kind"] in ("dir", "equ"):
             loc = "%06X" % r["loc"] if r["mn"] in ("START", "END", "EQU") else ""
             if r["mn"] == "END":
@@ -113,8 +115,8 @@ def asm360(m):
         obj = r.get("obj", b"")
         if r["kind"] in ("dc", "ds"):
             code = obj.hex().upper()
-            if len(code) > 16:
-                code = code[:16] + "…"
+            if len(code) > 8:
+                code = code[:8] + "…"
             fd = ""
         else:
             code = " ".join(obj.hex().upper()[i:i + 4] for i in range(0, len(obj) * 2, 4))

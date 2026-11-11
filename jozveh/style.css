@@ -178,3 +178,7 @@ table.a360 td.ad,table.a360 td.mc,table.a360 td.lb,table.a360 td.op,table.a360 t
 .fmt > div.op360{background:#efe8c8;color:#5b4a00}
 .bitrow{direction:ltr;font-family:"JBMono";letter-spacing:.06em}
 .kv{display:inline-block;border:1px solid var(--line);border-radius:3px;padding:0 1.5mm;margin:.3mm;background:#fff}
+table.a360{font-size:.82em}
+table.a360 td,table.a360 th{padding:.5mm 1.3mm}
+table.a360 td.ar{white-space:normal;max-width:34mm}
+table.a360 td.cm{width:30%}
