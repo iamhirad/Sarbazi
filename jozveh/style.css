@@ -164,3 +164,17 @@ table.wrapt td{padding:1mm 1.6mm}
 .twocol > .box{flex:1 1 0;max-width:none!important;margin:2mm 0}
 
 body{orphans:1;widows:1}
+
+/* intuition box + IBM 360 listings */
+.ins{background:#e9f7f5;border-color:#0f8a7a} .ins > .t{color:#0b6e61}
+.ins > .t::before{content:"💡 "}
+.step{background:#fbfbfd;border:1px solid var(--line);border-right:4px solid #6b7a90}
+.step > .t{color:#3d4657}
+table.a360 td.fd{font-family:"JBMono";font-size:.92em}
+.f360{display:inline-block;margin-left:1.2mm;color:#1f5fbf}
+.f360 small{display:block;font-size:.62em;color:#6b7a90;line-height:1;font-family:"Vazirmatn"}
+table.a360 td.mc{white-space:nowrap}
+table.a360 td.ad,table.a360 td.mc,table.a360 td.lb,table.a360 td.op,table.a360 td.ar{direction:ltr;text-align:left}
+.fmt > div.op360{background:#efe8c8;color:#5b4a00}
+.bitrow{direction:ltr;font-family:"JBMono";letter-spacing:.06em}
+.kv{display:inline-block;border:1px solid var(--line);border-radius:3px;padding:0 1.5mm;margin:.3mm;background:#fff}

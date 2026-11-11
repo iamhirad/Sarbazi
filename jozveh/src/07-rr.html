@@ -1,0 +1,396 @@
+<h1 class="chapter">دستورهای RR (ثبات-ثبات) و کد شرط</h1>
+<div class="chapter-intro">
+در این فصل (جلسهٔ هفتم) <b>همهٔ دستورهای قالب RR</b> را یکی‌یکی یاد می‌گیریم: انتقال (LR، LCR، LNR، LPR)، جمع و تفریق علامت‌دار (AR، SR)، ضرب و تقسیم با <b>جفت ثبات</b> (MR، DR)، جمع و تفریق منطقی (ALR، SLR)، عملیات بیتی (NR، OR، XR)، مقایسه (CR، CLR) و حلقهٔ شمارشی (BCTR). قبل از آن، مهم‌ترین مفهوم این فصل یعنی <b>کد شرط (CC)</b> را کامل توضیح می‌دهیم. برای هر دستور: کد عمل، معنا، اثر روی CC، مثال‌های اسلاید با حل گام‌به‌گام و نکته‌های ظریف. همهٔ مثال‌ها با شبیه‌ساز 360 اجرا و بررسی شده‌اند.
+</div>
+
+<h2>مرور قالب RR و روش کدگذاری</h2>
+<div class="fmt"><div class="op360">OPCODE<small>8 bits</small></div><div>r1<small>4 bits</small></div><div>r2<small>4 bits</small></div></div>
+<div class="fmt-cap">قالب RR: ۲ بایت = ۴ رقم هگز</div>
+<ul>
+<li>دستور ۲ بایت است: <b>دو رقم هگز کد عمل</b>، <b>یک رقم r1</b> و <b>یک رقم r2</b>. چون ۱۶ ثبات داریم، هر شمارهٔ ثبات دقیقاً یک رقم هگز است (R10 = A، R15 = F).</li>
+<li>نیمونیک همهٔ این دستورها به <b>R</b> ختم می‌شود.</li>
+<li>عملوندها را می‌توان با هر شکل عددی نوشت: <code>LR B'101',X'D'</code> همان <code>LR 5,13</code> است و اگر <code>REG5 EQU 5</code> تعریف شده باشد، <code>LCR REG5,1</code> همان <code>LCR 5,1</code>.</li>
+<li>هنگام اجرا: CPU دو بایت را واکشی می‌کند، <span class="m">PC ← PC + 2</span> و سپس عمل را روی ثبات‌ها انجام می‌دهد. هیچ دسترسی‌ای به حافظه برای داده لازم نیست؛ برای همین RRها سریع‌ترین دستورها هستند.</li>
+</ul>
+<div class="box ex"><span class="t">مثال ۷-۱: LR (Load Register) — کد عمل 18</span>
+عمل: <span class="m">r1 ← (r2)</span>؛ یعنی محتوای r2 در r1 کپی می‌شود و r2 تغییر نمی‌کند. <b>LR کد شرط را تغییر نمی‌دهد.</b>
+<ul>
+<li><code>LR 3,5</code> ⇐ <span class="m">R3 ← (R5)</span> ⇐ کد <b>1835</b>.</li>
+<li><code>LR B'101',X'D'</code> ⇐ <span class="m">B'101' = 5</span> و <span class="m">X'D' = 13</span> ⇐ <span class="m">R5 ← (R13)</span> ⇐ کد <b>185D</b>.</li>
+</ul>
+</div>
+
+<h2>کد شرط (Condition Code — CC)</h2>
+<div class="box def"><span class="t">تعریف</span>
+<b>کد شرط</b> دو بیت از PSW (بیت‌های <b>۳۴ و ۳۵</b>) است که <b>همهٔ دستورهای حسابی و منطقی</b> پس از اجرا آن را بر اساس نتیجه به‌روز می‌کنند. دستورهای پرش شرطی (فصل ۸) از روی آن تصمیم می‌گیرند. دو بیت چهار حالت دارد:
+<table class="ltrt" style="margin-top:2mm"><thead><tr><th>CC</th><th class="fa">دستورهای حسابی و بیتی</th><th class="fa">دستورهای مقایسه</th><th class="fa">جمع/تفریق منطقی (بدون علامت)</th></tr></thead>
+<tbody>
+<tr><td>00</td><td class="fa">نتیجه = 0</td><td class="fa">دو عملوند برابرند</td><td class="fa">نتیجه = 0 و بدون نقلی</td></tr>
+<tr><td>01</td><td class="fa">نتیجه &lt; 0</td><td class="fa">اولی کوچک‌تر است</td><td class="fa">—</td></tr>
+<tr><td>10</td><td class="fa">نتیجه &gt; 0</td><td class="fa">اولی بزرگ‌تر است</td><td class="fa">نتیجه ≠ 0 و بدون نقلی</td></tr>
+<tr><td>11</td><td class="fa">سرریز (overflow)</td><td class="fa">—</td><td class="fa">نقلی (یا قرض) رخ داده</td></tr>
+</tbody></table>
+</div>
+<h3>کدام دستورها CC را تغییر می‌دهند؟</h3>
+<table class="full">
+<thead><tr><th>CC را تغییر می‌دهند</th><th>CC را تغییر نمی‌دهند</th></tr></thead>
+<tbody><tr>
+<td>حسابی علامت‌دار: LCR، LNR، LPR، AR، SR، MR، DR (و A، S، M، D)<br>منطقی: ALR، SLR (و AL، SL)<br>بیتی: NR، OR، XR (و N، O، X)<br>مقایسه: CR، CLR (و C، CL)</td>
+<td>انتقال: LR، L، ST<br>محاسبهٔ نشانی: LA<br>پرش و شمارش: BCTR، BCT، BC، BCR، BALR</td>
+</tr></tbody></table>
+<div class="box ins"><span class="t">شهود: CC یک «حافظهٔ دوبیتی» از شکل آخرین نتیجه است</span>
+فرض کنید می‌خواهید بگویید «اگر R5 منفی شد، به فلان جا برو». بدون CC، دستور پرش باید خودش R5 را بخواند و با صفر مقایسه کند؛ یعنی دستور پرش باید شمارهٔ ثبات را هم داشته باشد. با CC، دستور حسابی هنگام محاسبه «شکل» نتیجه (صفر/منفی/مثبت/سرریز) را در دو بیت یادداشت می‌کند و پرش فقط به همان دو بیت نگاه می‌کند. این همان ایدهٔ پرچم‌های <b>z، s، v</b> در ماشین‌های میان‌ترم ۱۴۰۱ و ۱۴۰۲ است؛ با این تفاوت که 360 چهار حالت را در دو بیت فشرده کرده است.
+<p style="margin-bottom:0"><b>نتیجهٔ مهم:</b> چون LR، L و LA کد شرط را تغییر نمی‌دهند، می‌توانیم بین یک مقایسه و پرش مربوطه چند دستور انتقال بگذاریم و CC دست‌نخورده بماند.</p>
+</div>
+<h3>سرریز چیست و کی رخ می‌دهد؟</h3>
+<p>عددهای علامت‌دار ۳۲ بیتی در مکمل دو از <span class="m">−2<sup>31</sup> = −2,147,483,648</span> تا <span class="m">2<sup>31</sup> − 1 = 2,147,483,647</span> هستند. اگر نتیجهٔ واقعی یک عمل از این بازه بیرون بزند، ۳۲ بیت نتیجه عدد غلطی را نشان می‌دهد و CC = 11 می‌شود. همان‌طور که در فصل ۴ دیدیم، در جمع، سرریز یعنی <b>دو عدد هم‌علامت، نتیجه‌ای با علامت مخالف</b> بدهند.</p>
+<div class="box warn"><span class="t">نکتهٔ تکمیلی: قرارداد درس در برابر سخت‌افزار واقعی</span>
+جدول بالا قرارداد <b>اسلایدهای درس</b> است و همهٔ مثال‌های اسلاید با آن سازگارند. در سخت‌افزار واقعی 360 چند جزئیات فرق دارد (مثلاً ضرب و تقسیم CC را تغییر نمی‌دهند و CC دستورهای منطقی معنای «صفر/ناصفر و نقلی» دارد). <b>در این درس و امتحان، ملاک قرارداد اسلایدهاست.</b>
+</div>
+
+<h2>دستورهای بارگذاری ثبات: LCR، LNR، LPR</h2>
+<p>این سه دستور مثل LR محتوای r2 را در r1 می‌گذارند، اما با یک «تغییر» و <b>CC را هم به‌روز می‌کنند</b>:</p>
+<table>
+<thead><tr><th>دستور</th><th>کد</th><th>عمل</th><th>معنا</th></tr></thead>
+<tbody>
+<tr><td class="l">LR</td><td class="c">18</td><td class="mt">r1 ← (r2)</td><td>کپی (بدون CC)</td></tr>
+<tr><td class="l">LCR</td><td class="c">13</td><td class="mt">r1 ← −(r2)</td><td>قرینه (Complement)</td></tr>
+<tr><td class="l">LNR</td><td class="c">11</td><td class="mt">r1 ← −|(r2)|</td><td>منفی‌شده (Negative)</td></tr>
+<tr><td class="l">LPR</td><td class="c">10</td><td class="mt">r1 ← |(r2)|</td><td>قدر مطلق (Positive)</td></tr>
+</tbody></table>
+<div class="box ex"><span class="t">مثال ۷-۲: LCR (Load Complement Register) — کد 13</span>
+<ul>
+<li><code>LCR 2,2</code> با <span class="m">(R2) = −33</span>: <span class="m">R2 ← −(−33) = 33</span>؛ نتیجه مثبت ⇐ <b>CC = 10</b>؛ کد <b>1322</b>.</li>
+<li><code>REG5 EQU 5</code> و <code>LCR REG5,1</code> با <span class="m">(R1) = 0</span>: <span class="m">R5 ← −0 = 0</span> ⇐ <b>CC = 00</b>؛ کد <b>1351</b>.</li>
+</ul>
+<b>قرینه در مکمل دو</b> یعنی همهٔ بیت‌ها را معکوس کن و یکی اضافه کن (فصل ۴): <span class="m">−33 = FFFFFFDFh</span> ⇐ معکوس: 00000020h ⇐ +1: 00000021h = 33.
+</div>
+<div class="box ex"><span class="t">مثال ۷-۳: LNR (Load Negative Register) — کد 11</span>
+<ul>
+<li><code>LNR 2,4</code> با <span class="m">(R4) = −123</span>: عدد از قبل منفی است ⇐ <span class="m">R2 ← −123</span> ⇐ <b>CC = 01</b>؛ کد <b>1124</b>.</li>
+<li><code>LNR 5,5</code> با <span class="m">(R5) = 13</span>: <span class="m">R5 ← −13</span> ⇐ <b>CC = 01</b>؛ کد <b>1155</b>.</li>
+</ul>
+نتیجهٔ LNR همیشه صفر یا منفی است، پس CC فقط 00 یا 01 می‌شود.
+</div>
+<div class="box ex"><span class="t">مثال ۷-۴: LPR (Load Positive Register) — کد 10</span>
+<ul>
+<li><code>LPR B'010',7</code> با <span class="m">(R7) = −123</span>: <span class="m">R2 ← |−123| = 123</span> ⇐ <b>CC = 10</b>؛ کد <b>1027</b>.</li>
+<li><code>LPR 5,B'101'</code> با <span class="m">(R5) = 13</span>: <span class="m">R5 ← 13</span> ⇐ <b>CC = 10</b>؛ کد <b>1055</b>.</li>
+</ul>
+</div>
+<div class="box warn"><span class="t">حالت مرزی: کوچک‌ترین عدد منفی</span>
+در ۳۲ بیت، <span class="m">−2<sup>31</sup> = 80000000h</span> قرینهٔ مثبت ندارد (بزرگ‌ترین مثبت <span class="m">2<sup>31</sup>−1</span> است). پس:
+<ul>
+<li><code>LCR</code> و <code>LPR</code> روی 80000000h ⇐ نتیجه همان 80000000h و <b>CC = 11 (سرریز)</b>.</li>
+<li><code>LNR</code> هرگز سرریز نمی‌کند، چون هر عدد مثبت یک قرینهٔ منفی دارد.</li>
+</ul>
+</div>
+<div class="box ins"><span class="t">شهود: چهار «کپی» با چهار عینک</span>
+LR مثل کپی ساده است. LCR کپی را «در آینه» نگاه می‌کند (علامت عوض می‌شود). LPR فقط «فاصله تا صفر» را نگه می‌دارد و LNR همان فاصله را منفی می‌کند. چون سه تای آخر علامت را عوض می‌کنند، CC را هم تنظیم می‌کنند تا بتوانیم بلافاصله تصمیم بگیریم.
+</div>
+
+<h2>جمع و تفریق علامت‌دار: AR و SR</h2>
+<div class="box ex"><span class="t">مثال ۷-۵: AR (Add Register) — کد 1A — <span class="m">r1 ← (r1) + (r2)</span></span>
+<ul>
+<li><code>AR 2,7</code> با <span class="m">(R2) = −123، (R7) = 5</span>: <span class="m">−123 + 5 = −118</span> ⇐ <b>CC = 01</b>؛ کد <b>1A27</b>.</li>
+<li><code>AR 5,6</code> با <span class="m">(R5) = −13، (R6) = 20</span>: <span class="m">7</span> ⇐ <b>CC = 10</b>؛ کد <b>1A56</b>.</li>
+</ul>
+</div>
+<div class="box ex"><span class="t">مثال ۷-۶: SR (Subtract Register) — کد 1B — <span class="m">r1 ← (r1) − (r2)</span></span>
+<ul>
+<li><code>SR 8,8</code> با <span class="m">(R8) = −50000</span>: هر عددی منهای خودش صفر است ⇐ <span class="m">R8 ← 0</span>، <b>CC = 00</b>؛ کد <b>1B88</b>.</li>
+<li><code>SR 5,6</code> با <span class="m">(R5) = −13، (R6) = −22</span>: <span class="m">−13 − (−22) = 9</span> ⇐ <b>CC = 10</b>؛ کد <b>1B56</b>.</li>
+</ul>
+<b>ترفند:</b> <code>SR r,r</code> رایج‌ترین راه <b>صفر کردن یک ثبات</b> است (۲ بایت، بدون دسترسی به حافظه).
+</div>
+<div class="box ex"><span class="t">مثال ۷-۷: سرریز</span>
+<span class="m">(R1) = 7FFFFFFFh</span> (بزرگ‌ترین عدد مثبت). <code>AR 1,1</code> چه می‌کند؟
+<div class="sol"><span class="t">حل</span>
+حاصل واقعی <span class="m">2 × (2<sup>31</sup> − 1) = 2<sup>32</sup> − 2</span> است که در ۳۲ بیت علامت‌دار جا نمی‌شود. بیت‌های نتیجه FFFFFFFEh (یعنی ‎−2) می‌شوند: دو عدد مثبت، نتیجهٔ منفی ⇐ <b>CC = 11</b>. به همین ترتیب با <span class="m">(R7) = 80000000h</span> و <span class="m">(R8) = 1</span>، <code>SR 7,8</code> نتیجهٔ 7FFFFFFFh و <b>CC = 11</b> می‌دهد (منفی منهای مثبت، نتیجهٔ مثبت).
+</div></div>
+
+<h2>ضرب: MR و جفت ثبات زوج-فرد</h2>
+<h3>چرا جفت ثبات؟</h3>
+<p>حاصل‌ضرب دو عدد ۳۲ بیتی ممکن است تا <b>۶۴ بیت</b> لازم داشته باشد؛ مثلاً <span class="m">(2<sup>31</sup>−1)<sup>2</sup> ≈ 2<sup>62</sup></span>. پس نتیجه در یک ثبات جا نمی‌شود و 360 از <b>دو ثبات پشت‌سرهم</b> استفاده می‌کند: یک ثبات <b>زوج</b> (نیمهٔ بالایی، بیت‌های ۶۳ تا ۳۲) و ثبات <b>فرد</b> بعدی (نیمهٔ پایینی، بیت‌های ۳۱ تا ۰).</p>
+<div class="box def"><span class="t">MR r1,r2 (Multiply Register) — کد 1C</span>
+<ul>
+<li><b>r1 باید زوج باشد</b> (R0، R2، …، R14)؛ وگرنه خطای specification رخ می‌دهد.</li>
+<li><b>مضروب</b> از ثبات <b>فرد r1+1</b> خوانده می‌شود (محتوای قبلی r1 اهمیتی ندارد و پاک می‌شود).</li>
+<li><b>مضروب‌فیه</b> محتوای r2 است.</li>
+<li>حاصل ۶۴ بیتی در جفت <span class="m">r1 : r1+1</span> قرار می‌گیرد: <span class="m">r1:r1+1 ← (r1+1) × (r2)</span> و CC طبق علامت حاصل.</li>
+</ul>
+</div>
+<div class="box ex long"><span class="t">مثال ۷-۸: <code>MR 8,4</code> با <span class="m">(R8) = −5، (R9) = 5، (R4) = −7</span></span>
+<div class="sol"><span class="t">حل گام‌به‌گام</span>
+<ol>
+<li>r1 = 8 زوج است ⇐ جفت R8:R9. مضروب = (R9) = 5 (مقدار R8 یعنی ‎−5 نادیده گرفته می‌شود).</li>
+<li><span class="m">5 × (−7) = −35</span>.</li>
+<li>‎−35 در ۶۴ بیت مکمل دو: <span class="m">FFFFFFFF FFFFFFDDh</span>.</li>
+<li>نیمهٔ بالا در R8: FFFFFFFFh = ‎−1؛ نیمهٔ پایین در R9: FFFFFFDDh = ‎−35. حاصل منفی ⇐ <b>CC = 01</b>.</li>
+</ol>
+کد ماشین: <b>1C84</b>.
+</div></div>
+<div class="box ex"><span class="t">مثال ۷-۹: <code>MR 4,5</code> با <span class="m">(R4) = −10، (R5) = −2</span></span>
+جفت R4:R5؛ مضروب (R5) = ‎−2 و مضروب‌فیه هم (R5) = ‎−2 (r2 همان ثبات فرد است!) ⇐ <span class="m">(−2) × (−2) = 4</span> ⇐ R4 = 0 و R5 = 4، <b>CC = 10</b>؛ کد <b>1C45</b>. (پس <code>MR 4,5</code> مربع R5 را حساب می‌کند.)
+</div>
+<div class="box ex"><span class="t">مثال ۷-۱۰: حاصل‌ضربی که واقعاً ۶۴ بیت لازم دارد</span>
+<span class="m">(R5) = 100000</span>. <code>MR 4,5</code>:
+<div class="sol"><span class="t">حل</span>
+<span class="m">100000<sup>2</sup> = 10<sup>10</sup> = 2540BE400h</span> که ۳۴ بیت است. پس <span class="m">R4 = 00000002h</span> و <span class="m">R5 = 540BE400h</span>؛ CC = 10. اگر فقط R5 را نگاه کنیم عدد غلطی می‌بینیم؛ بخش «۲» در ثبات زوج است.
+</div></div>
+<div class="box ins"><span class="t">شهود: نیمهٔ بالایی معمولاً فقط «گسترش علامت» است</span>
+اگر حاصل‌ضرب در ۳۲ بیت جا شود (که در بیشتر برنامه‌ها همین‌طور است)، جواب کامل در ثبات <b>فرد</b> است و ثبات زوج فقط تکرار بیت علامت است: همه‌اش 0 (برای مثبت) یا همه‌اش 1 یعنی ‎−1 (برای منفی). در مثال ۷-۸ دقیقاً همین را دیدیم: R8 = ‎−1 و R9 = ‎−35.
+</div>
+
+<h2>تقسیم: DR</h2>
+<div class="box def"><span class="t">DR r1,r2 (Divide Register) — کد 1D</span>
+<ul>
+<li><b>r1 باید زوج باشد.</b> <b>مقسوم</b> یک عدد ۶۴ بیتی در جفت <span class="m">r1 : r1+1</span> است.</li>
+<li><b>مقسوم‌علیه</b> محتوای r2 (۳۲ بیتی) است.</li>
+<li><b>خارج‌قسمت</b> در ثبات <b>فرد r1+1</b> و <b>باقی‌مانده</b> در ثبات <b>زوج r1</b> قرار می‌گیرد؛ CC طبق علامت خارج‌قسمت.</li>
+</ul>
+</div>
+<p><b>قاعدهٔ علامت:</b> خارج‌قسمت به سمت صفر بریده می‌شود و <b>علامت باقی‌مانده همیشه برابر علامت مقسوم است</b>. همیشه باید رابطهٔ زیر برقرار باشد:</p>
+<p class="center"><span class="m">مقسوم = خارج‌قسمت × مقسوم‌علیه + باقی‌مانده</span></p>
+<div class="box ex"><span class="t">مثال ۷-۱۱: <code>DR 8,4</code> با <span class="m">(R8):(R9) = 503، (R4) = 5</span></span>
+<span class="m">503 ÷ 5 = 100</span> با باقی‌ماندهٔ 3 (بررسی: <span class="m">100 × 5 + 3 = 503</span>) ⇐ <span class="m">R9 ← 100</span>، <span class="m">R8 ← 3</span>، <b>CC = 10</b>؛ کد <b>1D84</b>.
+</div>
+<div class="box ex"><span class="t">مثال ۷-۱۲: <code>DR 4,6</code> با <span class="m">(R4):(R5) = −11، (R6) = 3</span></span>
+<div class="sol"><span class="t">حل گام‌به‌گام</span>
+<ol>
+<li>‎−11 در ۶۴ بیت: R4 = FFFFFFFFh و R5 = FFFFFFF5h.</li>
+<li><span class="m">11 ÷ 3 = 3</span> با باقی‌ماندهٔ 2. علامت‌ها مختلف‌اند ⇐ خارج‌قسمت ‎−3. باقی‌مانده علامت مقسوم (منفی) را می‌گیرد ⇐ ‎−2.</li>
+<li>بررسی: <span class="m">(−3) × 3 + (−2) = −11</span> ✓.</li>
+<li><span class="m">R5 ← −3</span>، <span class="m">R4 ← −2</span>، خارج‌قسمت منفی ⇐ <b>CC = 01</b>؛ کد <b>1D46</b>.</li>
+</ol>
+</div></div>
+<h3>آماده کردن مقسوم: گسترش علامت</h3>
+<p>معمولاً مقسوم یک عدد ۳۲ بیتی است (مثلاً در R3). برای DR باید آن را به ۶۴ بیت در جفت R2:R3 تبدیل کنیم؛ یعنی R2 باید <b>گسترش علامت</b> R3 باشد: اگر R3 ≥ 0 آنگاه R2 = 0، و اگر R3 &lt; 0 آنگاه R2 = ‎−1 (FFFFFFFFh). یک راه بدون هیچ پرش: <b>ضرب در ۱</b>!</p>
+<pre class="code">         LA    4,1          R4 = 1
+         MR    2,4          R2:R3 = R3 × 1  → R2 = sign extension of R3
+         DR    2,6          R3 = quotient, R2 = remainder</pre>
+<div class="box ex"><span class="t">مثال ۷-۱۳</span>
+<span class="m">(R3) = −47</span>، <span class="m">(R6) = 5</span> و R2 مقدار تصادفی 12345678h دارد. سه دستور بالا را اجرا کنید.
+<div class="sol"><span class="t">حل</span>
+بعد از <code>MR 2,4</code>: <span class="m">R2:R3 = −47</span> ⇐ R2 = ‎−1 و R3 = ‎−47 (مقدار تصادفی R2 پاک شد). بعد از <code>DR 2,6</code>: <span class="m">−47 ÷ 5</span> ⇐ R3 = ‎−9، R2 = ‎−2 (بررسی: <span class="m">−9 × 5 − 2 = −47</span>)؛ CC = 01. اگر MR را فراموش کرده بودیم، مقسوم <span class="m">12345678 FFFFFFD1h</span> می‌شد که یک عدد بسیار بزرگ و غلط است.
+</div></div>
+<div class="box warn"><span class="t">خطاهای تقسیم</span>
+<ul>
+<li>r1 فرد (مثلاً <code>DR 3,5</code> با کد 1D35) ⇐ <b>specification exception</b>.</li>
+<li>تقسیم بر صفر، یا خارج‌قسمتی که در ۳۲ بیت جا نشود ⇐ <b>fixed-point divide exception</b>؛ برنامه متوقف می‌شود و ثبات‌ها تغییر نمی‌کنند.</li>
+</ul>
+</div>
+<div class="box ins"><span class="t">شهود: تقسیم، برعکسِ ضرب</span>
+ضرب «دو عدد ۳۲ بیتی ⇐ یک عدد ۶۴ بیتی» است و تقسیم «یک عدد ۶۴ بیتی ⇐ دو عدد ۳۲ بیتی (خارج‌قسمت و باقی‌مانده)». برای همین هر دو از همان جفت زوج-فرد استفاده می‌کنند و می‌توان نتیجهٔ یک ضرب را مستقیم تقسیم کرد. برای به خاطر سپردن جای جواب‌ها: «<b>خارج‌قسمتِ مهم‌تر در فرد</b>، همان جایی که حاصل‌ضرب کوچک قرار می‌گرفت».
+</div>
+
+<h2>جمع و تفریق منطقی (بدون علامت): ALR و SLR</h2>
+<p>در دستورهای «منطقی»، ۳۲ بیت به‌عنوان یک عدد <b>بدون علامت</b> (۰ تا <span class="m">2<sup>32</sup> − 1</span>) دیده می‌شوند. خودِ جمع بیت‌به‌بیت دقیقاً همان AR است؛ فقط <b>تفسیر نتیجه و CC</b> فرق می‌کند: به‌جای سرریز علامت‌دار، به <b>نقلی خروجی</b> از بیت ۳۱ (در جمع) یا <b>قرض</b> (در تفریق) نگاه می‌کنیم.</p>
+<div class="box ex"><span class="t">مثال ۷-۱۴: ALR (Add Logical Register) — کد 1E</span>
+<ul>
+<li><code>ALR 2,7</code> با <span class="m">(R2) = FFFFFFFEh، (R7) = 5</span>: <span class="m">FFFFFFFEh + 5 = 1 00000003h</span>؛ نتیجهٔ ۳۲ بیتی ۳ و یک <b>نقلی</b> بیرون رفت ⇐ <b>CC = 11</b>؛ کد <b>1E27</b>.</li>
+<li><code>ALR 5,6</code> با 13 و 20: نتیجه 33، بدون نقلی و ناصفر ⇐ <b>CC = 10</b>؛ کد <b>1E56</b>.</li>
+</ul>
+</div>
+<div class="box ex"><span class="t">مثال ۷-۱۵: SLR (Subtract Logical Register) — کد 1F</span>
+<ul>
+<li><code>SLR 8,8</code> با <span class="m">(R8) = FFF78955h</span>: نتیجه 0، بدون قرض ⇐ <b>CC = 00</b>؛ کد <b>1F88</b>.</li>
+<li><code>SLR 5,6</code> با 20 و 32: چون <span class="m">20 &lt; 32</span> (بدون علامت)، باید از بیت ۳۲ «قرض» گرفت ⇐ <span class="m">2<sup>32</sup> + 20 − 32 = FFFFFFF4h</span> و <b>CC = 11</b>؛ کد <b>1F56</b>.</li>
+</ul>
+</div>
+<div class="box ex"><span class="t">مثال ۷-۱۶: AR و ALR روی یک جفت عدد</span>
+<span class="m">(R5) = 7FFFFFFFh، (R6) = 1</span>: <code>AR 5,6</code> ⇐ 80000000h و CC = 11 (سرریز علامت‌دار). ولی <code>ALR 5,6</code> ⇐ همان 80000000h و CC = <b>10</b>؛ چون بدون علامت <span class="m">2<sup>31</sup> − 1 + 1 = 2<sup>31</sup></span> کاملاً درست است و هیچ نقلی بیرون نرفته است.
+</div>
+<div class="box ins"><span class="t">شهود: یک جمع‌کننده، دو خط‌کش</span>
+دایرهٔ پیمانه‌ای فصل ۴ را به یاد بیاورید: همان الگوی بیتی را می‌توان روی خط‌کش «علامت‌دار» یا «بدون علامت» خواند. جمع‌کننده فرقی نمی‌گذارد؛ فقط جایی که «از مرز رد شدیم» فرق دارد: در علامت‌دار مرز بین 7FFFFFFF و 80000000 است (سرریز) و در بدون علامت بین FFFFFFFF و 00000000 (نقلی). کاربرد: نشانی‌ها و شمارنده‌هایی که منفی نمی‌شوند، و <b>حساب چندکلمه‌ای</b> (مثلاً جمع اعداد ۶۴ بیتی: نیمه‌های پایین را با ALR جمع کن و اگر CC = 11 بود یک واحد به جمع نیمه‌های بالا اضافه کن؛ برنامهٔ کامل در فصل ۸).
+</div>
+
+<h2>دستورهای منطقی بیتی: NR، OR، XR</h2>
+<p>این سه دستور روی هر <b>بیت</b> جداگانه کار می‌کنند (بیت iام نتیجه فقط به بیت iام دو عملوند بستگی دارد) و CC را طبق علامت نتیجه تنظیم می‌کنند (00 صفر، 01 منفی، 10 مثبت).</p>
+<table class="ltrt">
+<thead><tr><th>a</th><th>b</th><th>AND (NR)</th><th>OR (OR)</th><th>XOR (XR)</th></tr></thead>
+<tbody><tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr><td>0</td><td>1</td><td>0</td><td>1</td><td>1</td></tr>
+<tr><td>1</td><td>0</td><td>0</td><td>1</td><td>1</td></tr><tr><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td></tr></tbody></table>
+<div class="box ex long"><span class="t">مثال ۷-۱۷: NR (And Register) — کد 14</span>
+<ul>
+<li><code>NR 4,9</code> با <span class="m">(R4) = FFFFFFFEh، (R9) = 1</span>: <span class="bits">11…110 ∧ 00…001 = 00…000</span> ⇐ <span class="m">R4 ← 0</span>، <b>CC = 00</b>؛ کد <b>1449</b>.</li>
+<li><code>NR 5,6</code> با 20 و 36: <span class="bits">010100 ∧ 100100 = 000100</span> ⇐ <span class="m">R5 ← 4</span>، <b>CC = 10</b>؛ کد <b>1456</b>.</li>
+</ul>
+</div>
+<div class="box ex"><span class="t">مثال ۷-۱۸: OR (Or Register) — کد 16</span>
+<ul>
+<li><code>OR 4,6</code> با <span class="m">FFFFFFFEh</span> و 1: <span class="bits">11…110 ∨ 00…001 = 11…111</span> ⇐ <span class="m">R4 ← −1</span>، <b>CC = 01</b>؛ کد <b>1646</b>.</li>
+<li><code>OR 5,6</code> با 20 و 36: <span class="bits">010100 ∨ 100100 = 110100</span> ⇐ <span class="m">R5 ← 52</span>، <b>CC = 10</b>؛ کد <b>1656</b>. (در اسلاید به‌جای ∨ اشتباهاً علامت ∧ چاپ شده است.)</li>
+</ul>
+</div>
+<div class="box ex"><span class="t">مثال ۷-۱۹: XR (Exclusive-Or Register) — کد 17</span>
+<ul>
+<li><code>XR 4,6</code> با <span class="m">FFFFFFFEh</span> و 11: <span class="bits">11…11110 ⊕ 00…01011 = 11…10101</span> = ‎−11 ⇐ <b>CC = 01</b>؛ کد <b>1746</b>.</li>
+<li><code>XR 5,6</code> با ‎−1 و ‎−10: <span class="bits">11…11111 ⊕ 11…10110 = 00…01001</span> = 9 ⇐ <b>CC = 10</b>؛ کد <b>1756</b>.</li>
+</ul>
+</div>
+<div class="box ins"><span class="t">شهود: صافی، رنگ و کلید</span>
+<b>AND</b> مثل یک صافی است: بیت‌هایی که در «ماسک» ۱ هستند عبور می‌کنند و بقیه صفر می‌شوند (برای جدا کردن یا آزمودن بیت‌ها). <b>OR</b> مثل رنگ زدن است: هر جا ماسک ۱ است، نتیجه حتماً ۱ می‌شود (برای روشن کردن بیت‌ها). <b>XOR</b> مثل کلید برق است: هر جا ماسک ۱ است، بیت برعکس می‌شود (برای معکوس کردن). نتیجهٔ جالب: <span class="m">x ⊕ x = 0</span> پس <code>XR r,r</code> هم ثبات را صفر می‌کند، و با سه XR می‌توان دو ثبات را <b>بدون ثبات کمکی</b> جابه‌جا کرد (تمرین ۷-۴).
+</div>
+
+<h2>مقایسه: CR و CLR</h2>
+<div class="box def"><span class="t">CR (کد 19) و CLR (کد 15)</span>
+هر دو «در ذهن» <span class="m">(r1) − (r2)</span> را حساب می‌کنند ولی <b>نتیجه را جایی ذخیره نمی‌کنند</b>؛ فقط CC را تنظیم می‌کنند:
+<b>00</b> اگر <span class="m">(r1) = (r2)</span>، <b>01</b> اگر <span class="m">(r1) &lt; (r2)</span>، <b>10</b> اگر <span class="m">(r1) &gt; (r2)</span>. CR عددها را <b>علامت‌دار</b> مقایسه می‌کند و CLR <b>بدون علامت</b> (دودویی خالص). مقایسه هیچ‌وقت CC = 11 نمی‌دهد.
+</div>
+<div class="box ex"><span class="t">مثال ۷-۲۰: مثال‌های اسلاید</span>
+<ul>
+<li><code>CR 8,8</code> با ‎−50780: برابر ⇐ <b>CC = 00</b>؛ کد <b>1988</b>.</li>
+<li><code>CR 5,6</code> با ‎−13 و ‎−22: <span class="m">−13 &gt; −22</span> ⇐ <b>CC = 10</b>؛ کد <b>1956</b>.</li>
+<li><code>CLR 8,8</code> با FFF78901h: برابر ⇐ <b>CC = 00</b>؛ کد <b>1588</b>.</li>
+<li><code>CLR 5,6</code> با ‎−1 و 31: بدون علامت <span class="m">FFFFFFFFh = 4,294,967,295 &gt; 31</span> ⇐ <b>CC = 10</b>؛ کد <b>1556</b>.</li>
+</ul>
+</div>
+<div class="box ins"><span class="t">شهود: یک الگوی بیتی، دو ترتیب</span>
+با <span class="m">(R1) = −1</span> و <span class="m">(R2) = 1</span>: <code>CR 1,2</code> می‌گوید «R1 کوچک‌تر است» (CC = 01) ولی <code>CLR 1,2</code> می‌گوید «R1 بزرگ‌تر است» (CC = 10)، چون همان بیت‌های FFFFFFFF روی خط‌کش بدون علامت بزرگ‌ترین عدد است. انتخاب بین CR و CLR یعنی انتخاب خط‌کش: برای مقدارهای علامت‌دار CR، برای نشانی‌ها و مقدارهای همیشه نامنفی CLR.
+</div>
+
+<h2>BCTR: کم کردن و پرش (Branch on Count Register)</h2>
+<div class="box def"><span class="t">BCTR r1,r2 — کد 06</span>
+<ol>
+<li><span class="m">r1 ← (r1) − 1</span> (کد شرط تغییر نمی‌کند).</li>
+<li>اگر <span class="m">(r1) ≠ 0</span>: <span class="m">PC ← (r2)</span>؛ یعنی به نشانی‌ای که در r2 است می‌پرد.</li>
+<li>اگر <b>r2 = 0</b> باشد هرگز پرش نمی‌کند و فقط r1 یکی کم می‌شود.</li>
+</ol>
+</div>
+<div class="box ex"><span class="t">مثال ۷-۲۱</span>
+<ul>
+<li><code>BCTR 8,7</code> با <span class="m">(R8) = 2، (R7) = 011FFFF0h</span>: R8 ← 1؛ چون ≠ 0، <span class="m">PC ← (R7)</span>. فقط ۲۴ بیت پایین به‌عنوان نشانی استفاده می‌شود ⇐ PC = 1FFFF0h. کد <b>0687</b>.</li>
+<li><code>BCTR 5,0</code> با <span class="m">(R5) = 23</span>: R5 ← 22 و هیچ پرشی رخ نمی‌دهد (چون r2 = 0؛ مهم نیست R0 چه دارد). کد <b>0650</b>. به گفتهٔ اسلاید این <b>ارزان‌ترین راه کم کردن یک واحد از یک ثبات</b> است (۲ بایت، بدون دسترسی به حافظه، بدون تغییر CC).</li>
+</ul>
+</div>
+<div class="box ins"><span class="t">شهود: «یکی کم کن و اگر هنوز کار داریم برگرد»</span>
+بیشتر حلقه‌ها این شکل‌اند: یک شمارنده با N شروع می‌شود، بدنه اجرا می‌شود، شمارنده یکی کم می‌شود و اگر صفر نشده دوباره. BCTR (و نسخهٔ RX آن یعنی BCT در فصل ۸) دو کار «کم کردن» و «پرش شرطی» را در یک دستور انجام می‌دهد. همان دستور <code>loop</code> در 8086 و ماشین ۱۳۹۹.
+</div>
+
+<h2>زیبایی طراحی کدهای عمل</h2>
+<p>اسلاید تأکید می‌کند که کدهای عمل «با دقت و نه تصادفی» انتخاب شده‌اند؛ برای ساده کردن سخت‌افزار و زیبایی طراحی. به جدول زیر نگاه کنید:</p>
+<table class="ltrt">
+<thead><tr><th class="fa">عمل</th><th>RR</th><th>RX</th><th>SI</th><th>SS</th></tr></thead>
+<tbody>
+<tr><td class="fa">AND</td><td>NR 14</td><td>N 54</td><td>NI 94</td><td>NC D4</td></tr>
+<tr><td class="fa">مقایسهٔ منطقی</td><td>CLR 15</td><td>CL 55</td><td>CLI 95</td><td>CLC D5</td></tr>
+<tr><td class="fa">OR</td><td>OR 16</td><td>O 56</td><td>OI 96</td><td>OC D6</td></tr>
+<tr><td class="fa">XOR</td><td>XR 17</td><td>X 57</td><td>XI 97</td><td>XC D7</td></tr>
+<tr><td class="fa">بارگذاری / انتقال</td><td>LR 18</td><td>L 58</td><td>MVI 92</td><td>MVC D2</td></tr>
+<tr><td class="fa">مقایسه</td><td>CR 19</td><td>C 59</td><td>—</td><td>—</td></tr>
+<tr><td class="fa">جمع / تفریق</td><td>AR 1A / SR 1B</td><td>A 5A / S 5B</td><td>—</td><td>—</td></tr>
+<tr><td class="fa">ضرب / تقسیم</td><td>MR 1C / DR 1D</td><td>M 5C / D 5D</td><td>—</td><td>—</td></tr>
+<tr><td class="fa">جمع/تفریق منطقی</td><td>ALR 1E / SLR 1F</td><td>AL 5E / SL 5F</td><td>—</td><td>—</td></tr>
+<tr><td class="fa">شمارش و پرش</td><td>BCTR 06</td><td>BCT 46</td><td>—</td><td>—</td></tr>
+<tr><td class="fa">پرش شرطی</td><td>BCR 07</td><td>BC 47</td><td>—</td><td>—</td></tr>
+</tbody></table>
+<ul>
+<li><b>رقم دوم (چهار بیت پایین) نوع عمل را می‌گوید:</b> 4 = AND، 5 = مقایسهٔ منطقی، 6 = OR، 7 = XOR؛ در هر چهار قالب! (همان «۴، ۶، ۷» دست‌نویس اسلاید کنار NR، OR و XR.)</li>
+<li><b>رقم اول (چهار بیت بالا) قالب و منبع عملوند دوم را می‌گوید:</b> 0 یا 1 ⇐ RR (ثبات)؛ 4 یا 5 ⇐ RX (حافظهٔ کلمه‌ای)؛ 9 ⇐ SI (بایت بی‌واسطه)؛ D ⇐ SS (رشتهٔ بایت).</li>
+<li>در نتیجه <b>کد RX هر دستور = کد RR آن + 40h</b>: AR 1A ⇐ A 5A، CR 19 ⇐ C 59، BCTR 06 ⇐ BCT 46.</li>
+</ul>
+<div class="box ins"><span class="t">شهود: چرا این نظم سخت‌افزار را ساده می‌کند؟</span>
+واحد کنترل می‌تواند کد عمل را به دو نیمه بشکند: نیمهٔ بالا به بخش «آوردن عملوند» می‌گوید عملوند دوم را از کجا بیاورد (ثبات، حافظه، خود دستور) و نیمهٔ پایین مستقیم به ALU می‌گوید چه عملی انجام دهد. به‌جای یک جدول بزرگ برای ۲۵۶ کد، دو مدار کوچک و مستقل کافی است. برای ما هم حفظ کردن آسان می‌شود: اگر کد RR را بدانیم، کد RX را هم می‌دانیم.
+</div>
+
+<h2>جدول خلاصهٔ دستورهای RR</h2>
+<table class="full small">
+<thead><tr><th>نیمونیک</th><th>کد</th><th>عمل</th><th>CC</th><th>مثال</th><th>کد مثال</th></tr></thead>
+<tbody>
+<tr><td class="l">LR</td><td class="c">18</td><td class="mt">r1 ← (r2)</td><td>—</td><td class="l">LR 3,5</td><td class="l">1835</td></tr>
+<tr><td class="l">LCR</td><td class="c">13</td><td class="mt">r1 ← −(r2)</td><td>حسابی</td><td class="l">LCR 2,2</td><td class="l">1322</td></tr>
+<tr><td class="l">LNR</td><td class="c">11</td><td class="mt">r1 ← −|(r2)|</td><td>حسابی</td><td class="l">LNR 2,4</td><td class="l">1124</td></tr>
+<tr><td class="l">LPR</td><td class="c">10</td><td class="mt">r1 ← |(r2)|</td><td>حسابی</td><td class="l">LPR 2,7</td><td class="l">1027</td></tr>
+<tr><td class="l">AR</td><td class="c">1A</td><td class="mt">r1 ← (r1)+(r2)</td><td>حسابی</td><td class="l">AR 2,7</td><td class="l">1A27</td></tr>
+<tr><td class="l">SR</td><td class="c">1B</td><td class="mt">r1 ← (r1)−(r2)</td><td>حسابی</td><td class="l">SR 8,8</td><td class="l">1B88</td></tr>
+<tr><td class="l">MR</td><td class="c">1C</td><td class="mt">r1:r1+1 ← (r1+1)×(r2)</td><td>حسابی</td><td class="l">MR 8,4</td><td class="l">1C84</td></tr>
+<tr><td class="l">DR</td><td class="c">1D</td><td class="mt">r1+1 ← q ; r1 ← rem</td><td>حسابی</td><td class="l">DR 8,4</td><td class="l">1D84</td></tr>
+<tr><td class="l">ALR</td><td class="c">1E</td><td class="mt">r1 ← (r1)+(r2) unsigned</td><td>منطقی</td><td class="l">ALR 2,7</td><td class="l">1E27</td></tr>
+<tr><td class="l">SLR</td><td class="c">1F</td><td class="mt">r1 ← (r1)−(r2) unsigned</td><td>منطقی</td><td class="l">SLR 5,6</td><td class="l">1F56</td></tr>
+<tr><td class="l">NR</td><td class="c">14</td><td class="mt">r1 ← (r1) ∧ (r2)</td><td>علامت نتیجه</td><td class="l">NR 4,9</td><td class="l">1449</td></tr>
+<tr><td class="l">OR</td><td class="c">16</td><td class="mt">r1 ← (r1) ∨ (r2)</td><td>علامت نتیجه</td><td class="l">OR 4,6</td><td class="l">1646</td></tr>
+<tr><td class="l">XR</td><td class="c">17</td><td class="mt">r1 ← (r1) ⊕ (r2)</td><td>علامت نتیجه</td><td class="l">XR 4,6</td><td class="l">1746</td></tr>
+<tr><td class="l">CR</td><td class="c">19</td><td class="mt">(r1) ? (r2) signed</td><td>مقایسه</td><td class="l">CR 5,6</td><td class="l">1956</td></tr>
+<tr><td class="l">CLR</td><td class="c">15</td><td class="mt">(r1) ? (r2) unsigned</td><td>مقایسه</td><td class="l">CLR 5,6</td><td class="l">1556</td></tr>
+<tr><td class="l">BCTR</td><td class="c">06</td><td class="mt">r1−−; if ≠0 PC ← (r2)</td><td>—</td><td class="l">BCTR 8,7</td><td class="l">0687</td></tr>
+<tr><td class="l">BCR</td><td class="c">07</td><td class="mt">if mask: PC ← (r2)</td><td>—</td><td class="l">BCR 8,7</td><td class="l">0787</td></tr>
+<tr><td class="l">BALR</td><td class="c">05</td><td class="mt">r1 ← next ; if r2≠0 PC ← (r2)</td><td>—</td><td class="l">BALR 11,0</td><td class="l">05B0</td></tr>
+</tbody></table>
+
+<h2>تمرین‌های حل‌شدهٔ فصل ۷</h2>
+<div class="box hw long"><span class="t">تمرین ۷-۱: ردگیری یک دنباله</span>
+در ابتدا <span class="m">(R2) = 7، (R3) = −3، (R4) = 10</span> و بقیه صفرند. پس از هر دستور، ثبات‌ها و CC را بنویسید.
+<div class="sol"><span class="t">حل (با شبیه‌ساز بررسی شده)</span>
+<table class="ltrt small"><thead><tr><th class="l">instruction</th><th>code</th><th>R2</th><th>R3</th><th>R5</th><th>R6</th><th>R7</th><th>CC</th><th class="fa">توضیح</th></tr></thead><tbody>
+<tr><td class="l">LR 5,2</td><td>1852</td><td>7</td><td>−3</td><td>7</td><td>0</td><td>0</td><td>—</td><td class="fa">کپی؛ CC بدون تغییر</td></tr>
+<tr><td class="l">AR 5,3</td><td>1A53</td><td>7</td><td>−3</td><td>4</td><td>0</td><td>0</td><td>10</td><td class="fa">7 + (−3)</td></tr>
+<tr><td class="l">SR 5,4</td><td>1B54</td><td>7</td><td>−3</td><td>−6</td><td>0</td><td>0</td><td>01</td><td class="fa">4 − 10</td></tr>
+<tr><td class="l">LPR 6,5</td><td>1065</td><td>7</td><td>−3</td><td>−6</td><td>6</td><td>0</td><td>10</td><td class="fa">|−6|</td></tr>
+<tr><td class="l">LCR 7,6</td><td>1376</td><td>7</td><td>−3</td><td>−6</td><td>6</td><td>−6</td><td>01</td><td class="fa">−6</td></tr>
+<tr><td class="l">XR 7,5</td><td>1775</td><td>7</td><td>−3</td><td>−6</td><td>6</td><td>0</td><td>00</td><td class="fa">x ⊕ x = 0</td></tr>
+<tr><td class="l">MR 2,4</td><td>1C24</td><td>−1</td><td>−30</td><td>−6</td><td>6</td><td>0</td><td>01</td><td class="fa">R3 × R4 = −30</td></tr>
+<tr><td class="l">DR 2,6</td><td>1D26</td><td>0</td><td>−5</td><td>−6</td><td>6</td><td>0</td><td>01</td><td class="fa">−30 / 6 = −5 r 0</td></tr>
+</tbody></table>
+</div></div>
+<div class="box hw long"><span class="t">تمرین ۷-۲: حالت‌های سرریز</span>
+<span class="m">(R1) = 7FFFFFFFh، (R3) = 80000000h، (R5) = 7FFFFFFFh، (R6) = 1، (R7) = 80000000h، (R8) = 1</span>. نتیجه و CC هر دستور چیست؟ <code>AR 1,1</code> · <code>LCR 2,3</code> · <code>LPR 4,3</code> · <code>ALR 5,6</code> · <code>SR 7,8</code>
+<div class="sol"><span class="t">حل</span>
+<table class="ltrt small"><thead><tr><th class="l">instr</th><th>result</th><th>CC</th><th class="fa">دلیل</th></tr></thead><tbody>
+<tr><td class="l">AR 1,1</td><td>FFFFFFFE</td><td>11</td><td class="fa">مثبت + مثبت = منفی</td></tr>
+<tr><td class="l">LCR 2,3</td><td>80000000</td><td>11</td><td class="fa">قرینهٔ −2<sup>31</sup> وجود ندارد</td></tr>
+<tr><td class="l">LPR 4,3</td><td>80000000</td><td>11</td><td class="fa">همان دلیل</td></tr>
+<tr><td class="l">ALR 5,6</td><td>80000000</td><td>10</td><td class="fa">بدون علامت درست است و نقلی ندارد</td></tr>
+<tr><td class="l">SR 7,8</td><td>7FFFFFFF</td><td>11</td><td class="fa">منفی − مثبت = مثبت</td></tr>
+</tbody></table>
+</div></div>
+<div class="box hw"><span class="t">تمرین ۷-۳: رمزگشایی</span>
+<code>1A3F</code> · <code>1C67</code> · <code>1D35</code> · <code>07FE</code> · <code>0600</code>
+<div class="sol"><span class="t">حل</span>
+<ol>
+<li><code>1A3F</code> = <code>AR 3,15</code>.</li>
+<li><code>1C67</code> = <code>MR 6,7</code>: <span class="m">R6:R7 ← (R7) × (R7)</span> (مربع R7).</li>
+<li><code>1D35</code> = <code>DR 3,5</code>: <b>نامعتبر</b>؛ r1 فرد است ⇐ specification exception.</li>
+<li><code>07FE</code> = <code>BCR 15,14</code> یعنی <code>BR 14</code>: پرش بی‌شرط به نشانی داخل R14 (فصل ۸).</li>
+<li><code>0600</code> = <code>BCTR 0,0</code>: R0 یکی کم می‌شود؛ پرشی نیست.</li>
+</ol>
+</div></div>
+<div class="box hw long"><span class="t">تمرین ۷-۴: جابه‌جایی دو ثبات با سه XR</span>
+<span class="m">(R1) = 0Fh = 00001111<sub>2</sub>، (R2) = 35h = 00110101<sub>2</sub></span>. دستورهای <code>XR 1,2</code>، <code>XR 2,1</code>، <code>XR 1,2</code> را اجرا کنید.
+<div class="sol"><span class="t">حل</span>
+<table class="ltrt small"><thead><tr><th class="l">after</th><th>R1 (bin)</th><th>R1</th><th>R2 (bin)</th><th>R2</th></tr></thead><tbody>
+<tr><td class="l">start</td><td>00001111</td><td>0F</td><td>00110101</td><td>35</td></tr>
+<tr><td class="l">XR 1,2</td><td>00111010</td><td>3A</td><td>00110101</td><td>35</td></tr>
+<tr><td class="l">XR 2,1</td><td>00111010</td><td>3A</td><td>00001111</td><td>0F</td></tr>
+<tr><td class="l">XR 1,2</td><td>00110101</td><td>35</td><td>00001111</td><td>0F</td></tr>
+</tbody></table>
+دلیل: بعد از قدم اول <span class="m">R1 = a ⊕ b</span>؛ قدم دوم <span class="m">R2 = b ⊕ (a ⊕ b) = a</span>؛ قدم سوم <span class="m">R1 = (a ⊕ b) ⊕ a = b</span>. کدها: 1712، 1721، 1712.
+</div></div>
+<div class="box hw"><span class="t">تمرین ۷-۵: ضرب و تقسیم</span>
+(الف) <span class="m">(R5) = 100000</span>؛ بعد از <code>MR 4,5</code> محتوای R4 و R5؟ (ب) <span class="m">(R4):(R5) = −7، (R6) = 2</span>؛ بعد از <code>DR 4,6</code>؟ (ج) چرا <code>DR 2,6</code> با <span class="m">(R6) = 0</span> اجرا نمی‌شود؟
+<div class="sol"><span class="t">حل</span>
+(الف) <span class="m">10<sup>10</sup> = 2 540BE400h</span> ⇐ R4 = 00000002h، R5 = 540BE400h، CC = 10. (ب) <span class="m">−7 ÷ 2</span> ⇐ R5 = ‎−3، R4 = ‎−1 (بررسی: <span class="m">−3 × 2 − 1 = −7</span>)، CC = 01. (ج) تقسیم بر صفر ⇐ fixed-point divide exception.
+</div></div>
+<div class="box hw"><span class="t">تمرین ۷-۶: ترفندهای یک‌دستوری با RR</span>
+برای هر کار یک دستور RR بنویسید.
+<div class="sol"><span class="t">حل</span>
+<table class="small"><tbody>
+<tr><td>صفر کردن R7</td><td class="mt">SR 7,7 &nbsp;یا&nbsp; XR 7,7</td></tr>
+<tr><td>کپی R2 در R9 (بدون تغییر CC)</td><td class="mt">LR 9,2</td></tr>
+<tr><td>قرینه / قدر مطلق / منفی R4</td><td class="mt">LCR 4,4 / LPR 4,4 / LNR 4,4</td></tr>
+<tr><td>دو برابر کردن R3</td><td class="mt">AR 3,3</td></tr>
+<tr><td>یکی کم کردن R5 (بدون تغییر CC)</td><td class="mt">BCTR 5,0</td></tr>
+<tr><td>تنظیم CC بر اساس علامت R6 بدون تغییر مقدارش</td><td class="mt">OR 6,6 &nbsp;یا&nbsp; NR 6,6 &nbsp;(x ∨ x = x)</td></tr>
+<tr><td>مربع R7 در جفت R6:R7</td><td class="mt">MR 6,7</td></tr>
+</tbody></table>
+</div></div>
+
+<div class="summary"><span class="t">خلاصهٔ فصل ۷</span>
+<ul>
+<li>قالب RR: ۲ بایت = کد عمل + r1 + r2؛ نیمونیک‌ها به R ختم می‌شوند.</li>
+<li>CC (بیت‌های ۳۴–۳۵ PSW): 00 صفر/برابر، 01 منفی/کوچک‌تر، 10 مثبت/بزرگ‌تر، 11 سرریز (یا نقلی در دستورهای منطقی). LR، L، ST، LA و پرش‌ها CC را تغییر نمی‌دهند.</li>
+<li>LR (کپی)، LCR (قرینه)، LNR (−|x|)، LPR (|x|)؛ ‎−2<sup>31</sup> در LCR/LPR سرریز می‌دهد.</li>
+<li>MR و DR با جفت زوج-فرد: ضرب ⇐ حاصل ۶۴ بیتی در r1:r1+1 (مضروب از r1+1)؛ تقسیم ⇐ خارج‌قسمت در فرد، باقی‌مانده (با علامت مقسوم) در زوج؛ مقسوم را با MR در ۱ گسترش علامت بده.</li>
+<li>ALR/SLR بدون علامت با CC «نقلی = 11»؛ NR/OR/XR بیتی؛ CR علامت‌دار و CLR بدون علامت؛ BCTR = کم کن و اگر ≠ 0 بپر (r2 = 0 یعنی فقط کم کن).</li>
+<li>رقم پایین کد عمل نوع عمل و رقم بالا قالب را می‌گوید؛ کد RX = کد RR + 40h.</li>
+</ul></div>

@@ -674,3 +674,162 @@ def ascii_table():
     return ('<table class="ltrt small" style="font-family:JBMono;font-size:.8em"><thead><tr><th>LSBs \\ MSBs</th>'
             + head + "</tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
             '<div class="tcap">جدول کد ASCII هفت‌بیتی: ستون = ۳ بیت پرارزش، سطر = ۴ بیت کم‌ارزش. مثلاً \'A\' = 100 0001 = 65 = 41h</div>')
+
+
+# ------------------------------------------------------------------ IBM 360 (chapters 6-8)
+def regs360():
+    s = S(560, 300, "شکل: ثبات‌های IBM 360 — ۱۶ ثبات همه‌منظورهٔ ۳۲ بیتی (جفت زوج-فرد)، ۴ ثبات ممیز شناور ۶۴ بیتی و PSW")
+    s.rect(10, 20, 90, 260, "#cfe8b8", "#5a8f3a")
+    s.text(55, 135, "MAIN", 13, weight=700, color="#2f5d1c")
+    s.text(55, 155, "MEMORY", 13, weight=700, color="#2f5d1c")
+    s.text(55, 180, "2²⁴ bytes", 11, color="#2f5d1c")
+    s.fat(102, 150, 135, 150)
+    s.rect(138, 10, 412, 280, "#f7fbff", BLUE)
+    s.text(344, 26, "CPU", 14, weight=700)
+    s.text(250, 48, "General Purpose Registers (32 bits each)", 10.5, weight=700)
+    for i in range(8):
+        y = 58 + i * 17
+        s.text(165, y + 8, f"R{2*i}", 9.5, anchor="end", family="JBMono")
+        s.rect(170, y, 80, 15, "#e9eef6", BLUE, rx=0, sw=0.8)
+        s.rect(250, y, 80, 15, "#e9eef6", BLUE, rx=0, sw=0.8)
+        s.text(335, y + 8, f"R{2*i+1}", 9.5, anchor="start", family="JBMono")
+    s.text(250, 207, "even–odd pair = 64 bits (for MR, DR, M, D)", 9.5, color="#5b6475")
+    s.text(470, 48, "Floating-Point Registers (64 bits)", 10.5, weight=700)
+    for i in range(4):
+        y = 58 + i * 20
+        s.text(405, y + 9, f"FP{2*i}", 9.5, anchor="end", family="JBMono")
+        s.rect(410, y, 120, 17, "#eaf6e1", "#5a8f3a", rx=0, sw=0.8)
+    s.text(470, 230, "", 9)
+    s.text(250, 235, "Program Status Word (PSW) — 64 bits", 10.5, weight=700)
+    s.rect(170, 245, 330, 18, "#efe8c8", "#9a8a40", rx=0)
+    s.text(335, 254, "… CC (bits 34–35) … PC = instruction address (bits 40–63)", 9.5)
+    s.raw('<polygon points="420,150 520,150 500,190 440,190" fill="#2b2f3a"/>')
+    s.text(470, 172, "ALU", 13, color="#fff", weight=700)
+    return s.svg()
+
+
+def psw360():
+    s = S(560, 120, "شکل: کلمهٔ وضعیت برنامه (PSW) در 360 — کد شرط در بیت‌های ۳۴ و ۳۵ و نشانی دستور بعد (PC) در بیت‌های ۴۰ تا ۶۳")
+    parts = [(0, 8, "system mask", "#eef4fd"), (8, 12, "key", "#eef4fd"), (12, 16, "AMWP", "#eef4fd"),
+             (16, 32, "interruption code", "#eef4fd"), (32, 34, "ILC", "#fff0d0"), (34, 36, "CC", "#ffd36b"),
+             (36, 40, "prog mask", "#fff0d0"), (40, 64, "instruction address (PC, 24 bits)", "#dff3e6")]
+    x0, W = 20, 520
+    for a, b, lab, col in parts:
+        x = x0 + W * a / 64
+        w = W * (b - a) / 64
+        s.rect(x, 30, w, 32, col, BLUE, rx=0, sw=1)
+        if w > 40:
+            s.text(x + w / 2, 46, lab, 9, weight=700 if lab in ("CC",) else 400)
+        else:
+            s.text(x + w / 2, 20, lab, 8.5, weight=700 if lab == "CC" else 400, color=RED if lab == "CC" else "#1d2433")
+        s.text(x, 74, str(a), 8.5, color="#5b6475", family="JBMono")
+    s.text(x0 + W, 74, "63", 8.5, color="#5b6475", family="JBMono")
+    s.text(x0 + W * 35 / 64, 95, "CC: 00 = 0 · 01 < 0 · 10 > 0 · 11 overflow", 10, color=RED, weight=700)
+    return s.svg()
+
+
+def basedisp360(index=False):
+    cap = ("شکل: نشانی مؤثر در RX = D2 + (B2) + (X2) با جمع‌کنندهٔ ۲۴ بیتی" if index else
+           "شکل: آدرس‌دهی پایه-جابه‌جایی — نشانی = (ثبات پایه) + جابه‌جایی ۱۲ بیتی")
+    s = S(460, 250, cap)
+    cols = [("Base register", "(R0–R15)", "32 bits", "#1f3fbf", 80)]
+    if index:
+        cols.append(("Index register", "(X2)", "32 bits", "#6b3fa0", 230))
+        cols.append(("Displacement", "(D2)", "12 bits", "#17a34a", 370))
+    else:
+        cols.append(("Displacement", "", "12 bits", "#17a34a", 330))
+    for name, sub, bits, col, x in cols:
+        s.text(x, 18, name, 11, weight=700, color=col)
+        if sub:
+            s.text(x, 33, sub, 10, color=col)
+        s.raw(f'<polygon points="{x-30},45 {x+30},45 {x+30},95 {x+45},95 {x},130 {x-45},95 {x-30},95" fill="{col}"/>')
+        s.text(x, 80, bits, 9.5, color="#fff", weight=700, rot=-90)
+    s.rect(40, 132, 380 if index else 340, 48, "#0f2a57", "#0f2a57", rx=0)
+    s.text(230 if index else 210, 156, "24-bit Adder (R0 → contributes 0)", 12.5, color="#fff", weight=700)
+    xm = 230 if index else 210
+    s.raw(f'<polygon points="{xm-26},182 {xm+26},182 {xm+26},205 {xm+40},205 {xm},240 {xm-40},205 {xm-26},205" fill="#2a8bd8"/>')
+    s.text(xm + 50, 222, "24-bit storage address", 10.5, anchor="start", weight=700)
+    return s.svg()
+
+
+def align360():
+    s = S(560, 230, "شکل: هم‌ترازی در 360 — نیم‌کلمه در نشانی زوج، کلمه در مضرب ۴ و کلمهٔ مضاعف در مضرب ۸ (هر سطر ۸ بایت)")
+    x0, y0, cw, rh = 110, 30, 50, 26
+    for c in range(8):
+        s.text(x0 + c * cw + cw / 2, y0 - 10, f"+{c}", 9.5, color="#5b6475", family="JBMono")
+    rows = [("210000h", [("doubleword (8)", 0, 8, "#dff3e6")]),
+            ("210008h", [("word", 0, 4, "#e4edfb"), ("word", 4, 8, "#e4edfb")]),
+            ("210010h", [("half", 0, 2, "#fff0d0"), ("half", 2, 4, "#fff0d0"), ("half", 4, 6, "#fff0d0"), ("half", 6, 8, "#fff0d0")]),
+            ("210018h", [("byte", k, k + 1, "#f3eefa") for k in range(8)]),
+            ("210020h", [("word ✗ (at 210022h)", 2, 6, "#fbe2e0")])]
+    for r, (addr, cells) in enumerate(rows):
+        y = y0 + r * (rh + 8)
+        s.text(x0 - 10, y + rh / 2, addr, 10, anchor="end", family="JBMono")
+        s.rect(x0, y, 8 * cw, rh, "#fff", "#c9d3e3", rx=0, sw=0.8)
+        for lab, a, b, col in cells:
+            s.rect(x0 + a * cw + 1, y + 1, (b - a) * cw - 2, rh - 2, col, BLUE, rx=2, sw=1)
+            s.text(x0 + (a + b) * cw / 2, y + rh / 2, lab, 9.5)
+    s.text(x0 + 4 * cw, y0 + 5 * (rh + 8) + 8, "unaligned word → two memory rows → specification exception in 360", 9.5, color=RED)
+    return s.svg()
+
+
+def bcmux360(rr=False):
+    cap = ("شکل: سخت‌افزار BCR — بیت‌های ماسک M1 ورودی‌های MUX‌اند و CC انتخاب‌کننده؛ خروجی، اجازهٔ بارشدن PC با (R2) است" if rr else
+           "شکل: سخت‌افزار BC — CC یکی از چهار بیت ماسک را انتخاب می‌کند؛ اگر ۱ باشد PC با نشانی مؤثر بار می‌شود")
+    s = S(520, 260, cap)
+    s.rect(80, 10, 420, 26, "#eaf6e1", "#7fb36a", rx=0)
+    s.text(60, 23, "IR", 11, weight=700)
+    s.rect(90, 13, 80, 20, "#efe8c8", "#9a8a40", rx=0)
+    s.text(130, 23, "07 (BCR)" if rr else "47 (BC)", 10)
+    s.rect(170, 13, 40, 20, "#ffd36b", "#9a8a40", rx=0)
+    s.text(190, 23, "M1", 10, weight=700)
+    if rr:
+        s.rect(210, 13, 40, 20, "#9fd28a", "#5a8f3a", rx=0)
+        s.text(230, 23, "R2", 10)
+    else:
+        s.rect(210, 13, 160, 20, "#dfe8f6", BLUE, rx=0)
+        s.text(290, 23, "X2  B2  D2", 10)
+    for k in range(4):
+        xb = 176 + k * 9
+        s.line([(xb, 33), (150 + k * 22, 110)], color="#333", sw=0.8)
+    s.raw('<polygon points="135,112 240,112 225,160 150,160" fill="#2b2f3a"/>')
+    s.text(188, 142, "MUX", 13, color="#fff", weight=700)
+    for k in range(4):
+        s.text(152 + k * 22, 121, str(k), 9, color="#ffd36b", weight=700)
+    s.rect(20, 60, 30, 190, "#eaf6e1", "#7fb36a", rx=0)
+    s.text(35, 240, "PSW", 9, weight=700)
+    s.text(35, 120, "CC", 10, weight=700)
+    s.line([(50, 128), (140, 128)], color="#333", sw=1)
+    s.line([(50, 136), (140, 136)], color="#333", sw=1)
+    s.line([(188, 160), (188, 210)], color="#333", sw=1.2)
+    s.text(196, 190, "Load Enable", 9, anchor="start")
+    s.rect(180, 212, 300, 24, "#eaf6e1", "#7fb36a", rx=0)
+    s.text(470, 224, "PC", 11, weight=700, anchor="end")
+    s.raw('<ellipse cx="400" cy="100" rx="58" ry="26" fill="#9aa3b5"/>')
+    s.text(400, 101, "(R2)" if rr else "address calc", 10.5, color="#fff", weight=700)
+    s.line([(300 if not rr else 240, 36), (385, 76)], color="#1f5fbf", sw=3)
+    s.line([(400, 126), (400, 210)], color="#1f5fbf", sw=4)
+    return s.svg()
+
+
+def formats360():
+    rows = [("RR", "2 bytes", [("op 00xxxxxx", 8, "#efe8c8"), ("r1", 4, "#ffd36b"), ("r2", 4, "#f6c6ef")]),
+            ("RX", "4 bytes", [("op 01xxxxxx", 8, "#efe8c8"), ("r1", 4, "#ffd36b"), ("X2", 4, "#a6dd8b"), ("B2", 4, "#7ec8f0"), ("D2", 12, "#b48ae0")]),
+            ("RS", "4 bytes", [("op 10xxxxxx", 8, "#efe8c8"), ("r1", 4, "#ffd36b"), ("r3", 4, "#d8c7b4"), ("B2", 4, "#7ec8f0"), ("D2", 12, "#b48ae0")]),
+            ("SI", "4 bytes", [("op 10xxxxxx", 8, "#efe8c8"), ("I2", 8, "#a6dd8b"), ("B1", 4, "#c9a77e"), ("D1", 12, "#6b8cf0")]),
+            ("SS1", "6 bytes", [("op 11xxxxxx", 8, "#efe8c8"), ("L − 1", 8, "#cdd3e0"), ("B1", 4, "#c9a77e"), ("D1", 12, "#6b8cf0"), ("B2", 4, "#7ec8f0"), ("D2", 12, "#b48ae0")]),
+            ("SS2", "6 bytes", [("op 11xxxxxx", 8, "#efe8c8"), ("L1−1", 4, "#cdd3e0"), ("L2−1", 4, "#9cc4e8"), ("B1", 4, "#c9a77e"), ("D1", 12, "#6b8cf0"), ("B2", 4, "#7ec8f0"), ("D2", 12, "#b48ae0")])]
+    s = S(560, 300, "شکل: شش قالب دستور 360؛ دو بیت اول کد عمل طول دستور را مشخص می‌کند (00 ⇒ ۲، 01 و 10 ⇒ ۴، 11 ⇒ ۶ بایت)")
+    unit = 9.2
+    for i, (name, ln, fields) in enumerate(rows):
+        y = 12 + i * 47
+        s.text(8, y + 14, name, 12, anchor="start", weight=700, color="#0f2a57")
+        s.text(8, y + 30, ln, 9, anchor="start", color="#5b6475")
+        x = 70
+        for lab, bits, col in fields:
+            w = bits * unit
+            s.rect(x, y + 4, w, 22, col, "#555", rx=0, sw=0.8)
+            s.text(x + w / 2, y + 15, lab, 9 if w > 40 else 8.5)
+            s.text(x + w / 2, y + 34, f"{bits} bits", 8, color="#5b6475")
+            x += w
+    return s.svg()

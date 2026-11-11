@@ -1,0 +1,485 @@
+<h1 class="chapter">دستورهای RX (حافظه)، پرش‌ها و برنامه‌نویسی 360</h1>
+<div class="chapter-intro">
+در این فصل (جلسهٔ هشتم) دستورهایی را یاد می‌گیریم که عملوند دومشان یک <b>کلمه در حافظه</b> است (قالب RX): بارگذاری و ذخیره (L، ST)، حساب و منطق با حافظه (A، S، M، D، AL، SL، C، CL، N، O، X)، محاسبهٔ نشانی (LA)، حلقهٔ شمارشی (BCT) و مهم‌تر از همه <b>پرش شرطی با ماسک</b> (BC و BCR). بعد یاد می‌گیریم ساختارهای if، while و for و <b>زیربرنامه</b> را به اسمبلی 360 ترجمه کنیم و در پایان ۱۸ برنامهٔ کامل را خط‌به‌خط حل می‌کنیم. همهٔ کدها با اسمبلر و شبیه‌ساز 360 اجرا و بررسی شده‌اند.
+</div>
+
+<h2>چرا دستورهای RX؟</h2>
+<p>در فصل ۷ همهٔ عملوندها در ثبات بودند. اما ۱۶ ثبات برای نگه داشتن داده‌های یک برنامهٔ واقعی (آرایه‌ها، جدول‌ها، متغیرها) بسیار کم است؛ داده‌ها در <b>حافظه</b> هستند. دستورهای RX یک عملوند را از ثبات (r1) و عملوند دیگر را از <b>یک کلمهٔ حافظه</b> می‌گیرند. یادآوری قالب از فصل ۶:</p>
+<div class="fmt"><div class="op360">OPCODE<small>8 bits</small></div><div>r1<small>4</small></div><div>X2<small>4</small></div><div>B2<small>4</small></div><div>D2<small>12 bits</small></div></div>
+<div class="fmt-cap">قالب RX: ۴ بایت = ۸ رقم هگز</div>
+<div class="box def"><span class="t">نشانی مؤثر (Effective Address) در RX</span>
+<p class="center" style="margin:1mm 0"><span class="m">EA = D2 + (B2) + (X2)</span>&nbsp;&nbsp;(فقط ۲۴ بیت پایین جمع نگه داشته می‌شود)</p>
+<ul style="margin-bottom:0">
+<li><b>D2</b> (جابه‌جایی): عددی ۱۲ بیتی و بدون علامت (0 تا 4095) که در خود دستور نوشته شده است.</li>
+<li><b>B2</b> (ثبات پایه): شمارهٔ ثباتی که «نقطهٔ شروع» در آن است.</li>
+<li><b>X2</b> (ثبات اندیس): شمارهٔ ثباتی که یک فاصلهٔ اضافی (معمولاً اندیس آرایه بر حسب بایت) در آن است.</li>
+<li><b>قاعدهٔ R0:</b> اگر B2 یا X2 برابر 0 باشد، به‌جای محتوای R0 عدد <b>صفر</b> در جمع شرکت می‌کند. یعنی «0 در جای پایه یا اندیس» = «پایه یا اندیس نداریم».</li>
+</ul></div>
+{{fig:basedisp360(True)}}
+<div class="box ins"><span class="t">شهود: سه تکهٔ نشانی، سه سؤال</span>
+نشانی <code>ARR[i]</code> را در نظر بگیرید. سه سؤال داریم: (۱) «برنامهٔ من الآن کجای حافظه بارگذاری شده؟» ⇐ جوابش در <b>ثبات پایه</b> است (با BALR و USING پر می‌شود). (۲) «آرایه از ابتدای برنامه چقدر فاصله دارد؟» ⇐ این را اسمبلر هنگام ترجمه می‌داند، پس در <b>جابه‌جایی</b> نوشته می‌شود. (۳) «الان عنصر چندم را می‌خواهم؟» ⇐ این هنگام اجرا عوض می‌شود، پس در <b>ثبات اندیس</b> است. یک دستور RX هر سه را با هم جمع می‌کند؛ پس پیمایش آرایه فقط با عوض کردن یک ثبات انجام می‌شود.
+</div>
+
+<h2>شش شکل نوشتن عملوند دوم</h2>
+<p>در زبان اسمبلی، عملوند دوم یک دستور RX را به شش شکل می‌توان نوشت. <b>S2</b> یعنی یک نشانی نمادین (مثل نام متغیر) که اسمبلر خودش آن را به «پایه + جابه‌جایی» تبدیل می‌کند (با کمک USING) و <b>D2</b> یعنی یک عدد صریح.</p>
+<table class="ltrt">
+<thead><tr><th>شکل</th><th>X2</th><th>B2</th><th>D2</th><th>مثال (ARR = (R12)+123h)</th><th>کد</th></tr></thead>
+<tbody>
+<tr><td>S2(X2)</td><td>X2</td><td class="fa">از USING</td><td class="fa">از USING</td><td>L 2,ARR(4)</td><td>5824C123</td></tr>
+<tr><td>S2</td><td>0</td><td class="fa">از USING</td><td class="fa">از USING</td><td>L 2,ARR</td><td>5820C123</td></tr>
+<tr><td>D2(X2,B2)</td><td>X2</td><td>B2</td><td>D2</td><td>L 2,20(4,3)</td><td>58243014</td></tr>
+<tr><td>D2(X2)</td><td>X2</td><td>0</td><td>D2</td><td>L 2,0(5)</td><td>58250000</td></tr>
+<tr><td>D2(,B2)</td><td>0</td><td>B2</td><td>D2</td><td>L 2,10(,5)</td><td>5820500A</td></tr>
+<tr><td>D2</td><td>0</td><td>0</td><td>D2</td><td>LA 5,8</td><td>41500008</td></tr>
+</tbody></table>
+<div class="box warn"><span class="t">دام پرانتز</span>
+در RX اگر داخل پرانتز <b>فقط یک عدد</b> باشد، آن عدد <b>اندیس</b> است نه پایه: در <code>L 2,0(5)</code> ثبات R5 در خانهٔ X2 قرار می‌گیرد (کد 58<b>25</b>0000) و B2 = 0. برای اینکه فقط پایه بدهیم باید ویرگول بگذاریم: <code>L 2,10(,5)</code> ⇐ X2 = 0 و B2 = 5. البته چون هر دو با هم جمع می‌شوند، <b>نشانی مؤثر یکی است</b>؛ فقط کد ماشین فرق می‌کند (و در امتحان کد ماشین خواسته می‌شود!). یادآوری فصل ۶: در RS و SI داخل پرانتز «پایه» است و در SS «طول و پایه».
+</div>
+<div class="box step"><span class="t">روش گام‌به‌گام کدگذاری یک دستور RX</span>
+<ol style="margin-bottom:0">
+<li><b>کد عمل</b> را از جدول بنویس (دو رقم هگز).</li>
+<li><b>r1</b> را یک رقم هگز بنویس (برای BC به‌جای r1 ماسک M1 می‌آید).</li>
+<li>شکل عملوند دوم را از جدول بالا تشخیص بده.</li>
+<li>اگر نمادین (S2) است: نشانی نماد منهای محتوای ثبات پایه (طبق USING) = D2، و B2 = شمارهٔ ثبات پایه. اگر صریح است، D2، X2 و B2 را مستقیم بخوان.</li>
+<li>X2 و B2 را هر کدام یک رقم و D2 را <b>سه رقم</b> هگز بنویس (با صفرهای جلو: 8 ⇐ 008).</li>
+<li>بررسی کن: ۸ رقم هگز؟ D2 ≤ FFFh؟</li>
+</ol></div>
+<div class="box warn"><span class="t">هم‌ترازی در RX</span>
+همهٔ دستورهای RX این فصل (به‌جز LA و پرش‌ها که فقط نشانی می‌سازند) یک <b>کلمه</b> را می‌خوانند یا می‌نویسند؛ پس <b>نشانی مؤثر</b> باید مضرب ۴ باشد، وگرنه specification exception رخ می‌دهد. در مثال‌های اسلاید جابه‌جایی‌هایی مثل 123h دیده می‌شود؛ این فقط وقتی درست است که جمع آن با محتوای پایه و اندیس مضرب ۴ شود. برای همین متغیرها را با DC/DS از نوع F تعریف می‌کنیم تا اسمبلر خودش آن‌ها را هم‌تراز کند (فصل ۶).
+</div>
+
+<h2>بارگذاری و ذخیره: L و ST</h2>
+<table>
+<thead><tr><th>دستور</th><th>کد</th><th>عمل</th><th>CC</th></tr></thead>
+<tbody>
+<tr><td class="l">L r1,S2</td><td class="c">58</td><td class="mt">r1 ← M[EA]</td><td>تغییر نمی‌کند</td></tr>
+<tr><td class="l">ST r1,S2</td><td class="c">50</td><td class="mt">M[EA] ← (r1)</td><td>تغییر نمی‌کند</td></tr>
+</tbody></table>
+<div class="box ex"><span class="t">مثال ۸-۱: L (Load) — کد 58 — ARR = (R12) + 123h</span>
+<ul>
+<li><code>L 2,ARR(4)</code> ⇐ <span class="m">R2 ← M[(R12) + (R4) + 123h]</span> ⇐ <b>5824C123</b>.</li>
+<li><code>L 2,ARR</code> ⇐ بدون اندیس، X2 = 0 ⇐ <b>5820C123</b>.</li>
+<li><code>L 2,20(4,3)</code> ⇐ <span class="m">R2 ← M[(R3) + (R4) + 20]</span>؛ 20 دهدهی = 014h ⇐ <b>58243014</b>.</li>
+<li><code>L 2,0(5)</code> ⇐ <span class="m">R2 ← M[(R5)]</span>؛ R5 اندیس است ⇐ <b>58250000</b>.</li>
+<li><code>L 2,10(,5)</code> ⇐ <span class="m">R2 ← M[(R5) + 10]</span>؛ R5 پایه است، 10 = 00Ah ⇐ <b>5820500A</b>.</li>
+</ul></div>
+<div class="box ex"><span class="t">مثال ۸-۲: ST (Store) — کد 50 — ARR = (R12) + 100h</span>
+<ul>
+<li><code>ST 2,ARR(4)</code> ⇐ <span class="m">M[(R12)+(R4)+100h] ← (R2)</span> ⇐ <b>5024C100</b>؛ و <code>ST 2,ARR</code> ⇐ <b>5020C100</b>.</li>
+<li><code>ST 2,20(4,3)</code> ⇐ <b>50243014</b>؛ <code>ST 6,0(5)</code> ⇐ <b>50650000</b>؛ <code>ST 3,10(,5)</code> ⇐ <b>5030500A</b>.</li>
+</ul></div>
+<div class="box warn"><span class="t">جهت داده در ST</span>
+در همهٔ دستورهای RX ثبات اول نوشته می‌شود و حافظه دوم. در L داده از راست به چپ می‌رود (حافظه ⇐ ثبات) ولی در <b>ST از چپ به راست</b> (ثبات ⇐ حافظه). ST تنها دستور این فصل است که حافظه را تغییر می‌دهد؛ بقیه فقط از حافظه می‌خوانند.
+</div>
+<div class="box ins"><span class="t">شهود: L و ST مثل برداشتن و گذاشتن کتاب روی میز</span>
+ثبات‌ها مثل میز کار هستند (کوچک ولی سریع) و حافظه مثل قفسهٔ کتابخانه (بزرگ ولی دور). ALU فقط روی میز کار می‌کند؛ پس الگوی همهٔ برنامه‌ها این است: <b>L</b> (از قفسه بیاور) ⇐ حساب کن ⇐ <b>ST</b> (برگردان). دستورهای A، S، C و … با حافظه فقط یک میان‌بُرند: عملوند دوم را مستقیم از قفسه می‌خوانند، ولی نتیجه باز هم روی میز (در r1) می‌ماند.
+</div>
+
+<h2>حساب با حافظه: A، S، M، D</h2>
+<p>این‌ها دقیقاً همان AR، SR، MR و DR فصل ۷ هستند، با این فرق که عملوند دوم <span class="m">M[EA]</span> است (کد = کد RR + 40h). قاعده‌های CC، جفت زوج-فرد، علامت باقی‌مانده و سرریز همه همان است.</p>
+<div class="box ex"><span class="t">مثال ۸-۳: A (Add) — کد 5A</span>
+<ul>
+<li><code>A 7,ABS(6)</code> با ABS = (R11)+234h، <span class="m">M = −123</span> و <span class="m">(R7) = 200</span> ⇐ <span class="m">R7 ← 77</span>، <b>CC = 10</b> ⇐ <b>5A76B234</b>.</li>
+<li><code>A 4,5(6,7)</code> با <span class="m">M[(R6)+(R7)+5] = 333</span> و <span class="m">(R4) = −400</span> ⇐ <span class="m">R4 ← −67</span>، <b>CC = 01</b> ⇐ <b>5A467005</b>.</li>
+<li><code>A 6,0(10)</code> با <span class="m">M[(R10)] = 25</span> و <span class="m">(R6) = −25</span> ⇐ <span class="m">R6 ← 0</span>، <b>CC = 00</b> ⇐ <b>5A6A0000</b>.</li>
+</ul></div>
+<div class="box ex"><span class="t">مثال ۸-۴: S (Subtract) — کد 5B</span>
+<ul>
+<li><code>S 3,AAA(6)</code> با AAA = (R10)+200 (= C8h)، <span class="m">M = −1</span>، <span class="m">(R3) = 7FFFFFFFh</span>: <span class="m">7FFFFFFFh − (−1) = 2<sup>31</sup></span> که در ۳۲ بیت علامت‌دار جا نمی‌شود ⇐ <span class="m">R3 ← 80000000h</span>، <b>CC = 11</b> ⇐ <b>5B36A0C8</b>.</li>
+<li><code>S 2,33(7)</code> با <span class="m">M = 20</span>، <span class="m">(R2) = −10</span> ⇐ <span class="m">R2 ← −30</span>، <b>CC = 01</b> ⇐ <b>5B270021</b> (33 = 021h).</li>
+<li><code>S 0,0(1)</code> با <span class="m">M[(R1)] = 0</span>، <span class="m">(R0) = 5</span> ⇐ <span class="m">R0 ← 5</span>، <b>CC = 10</b> ⇐ <b>5B010000</b>. (R0 به‌عنوان <b>ثبات داده</b> کاملاً مجاز است؛ فقط در جای پایه و اندیس معنی «صفر» دارد.)</li>
+</ul></div>
+<div class="box ex long"><span class="t">مثال ۸-۵: M (Multiply) — کد 5C — r1 زوج</span>
+<span class="m">r1 : r1+1 ← (r1+1) × M[EA]</span>
+<ul>
+<li><code>M 2,Hamid(6)</code> با Hamid = (R12)+27Fh، <span class="m">M = −1</span>، <span class="m">(R3) = 7FFFFFFFh</span>: <span class="m">7FFFFFFFh × (−1) = −7FFFFFFFh</span> ⇐ ۶۴ بیتی <span class="m">FFFFFFFF 80000001h</span> ⇐ <span class="m">R2 ← −1</span>، <span class="m">R3 ← 80000001h</span>، <b>CC = 01</b> ⇐ <b>5C26C27F</b>.</li>
+<li><code>M 2,33(7)</code> با <span class="m">M = 20</span>، <span class="m">(R3) = −10</span> و <span class="m">(R2) = 45F2h</span> (زباله): <span class="m">−200</span> ⇐ <span class="m">R2 ← FFFFFFFFh</span>، <span class="m">R3 ← −200</span>، <b>CC = 01</b> ⇐ <b>5C270021</b>. مقدار قبلی R2 اهمیتی نداشت.</li>
+<li><code>M 0,0(10)</code> با <span class="m">M[(R10)] = 21</span>، <span class="m">(R1) = 2</span> ⇐ <span class="m">R0:R1 ← 42</span> یعنی R0 = 0 و R1 = 42، <b>CC = 10</b> ⇐ <b>5C0A0000</b>.</li>
+</ul></div>
+<div class="box ex long"><span class="t">مثال ۸-۶: D (Divide) — کد 5D — r1 زوج</span>
+<span class="m">r1+1 ← (r1:r1+1) ÷ M[EA]</span> و <span class="m">r1 ← باقی‌مانده</span>
+<ul>
+<li><code>D 2,Hokm(2)</code> با Hokm = (R12)+15، <span class="m">(R2) = 0</span>، <span class="m">(R3) = 173</span> و <span class="m">M[(R2)+(R12)+15] = −17</span>:
+<ol>
+<li>اول نشانی ساخته می‌شود؛ R2 در این لحظه 0 است، پس EA = (R12) + 15.</li>
+<li>مقسوم ۶۴ بیتی R2:R3 = 173 و مقسوم‌علیه ‎−17.</li>
+<li><span class="m">173 = (−10) × (−17) + 3</span> ⇐ <span class="m">R3 ← −10</span>، <span class="m">R2 ← 3</span>؛ خارج‌قسمت منفی ⇐ <b>CC = 01</b>؛ کد <b>5D22C00F</b>.</li>
+</ol>
+اینکه R2 هم اندیس است و هم نیمهٔ بالای مقسوم، مشکلی ندارد: <b>نشانی همیشه قبل از اجرای عمل</b> و با مقدار قدیمی ثبات‌ها حساب می‌شود.</li>
+<li><code>D 2,33(7)</code> با <span class="m">M = 10</span> و <span class="m">R2:R3 = −20</span> (R2 = ‎−1) ⇐ <span class="m">R3 ← −2</span>، <span class="m">R2 ← 0</span>، <b>CC = 01</b> ⇐ <b>5D270021</b>.</li>
+<li><code>D 0,0(10)</code> با <span class="m">M = 21</span> و <span class="m">R0:R1 = 2</span> ⇐ <span class="m">2 = 0 × 21 + 2</span> ⇐ <span class="m">R1 ← 0</span>، <span class="m">R0 ← 2</span>، خارج‌قسمت صفر ⇐ <b>CC = 00</b> ⇐ <b>5D0A0000</b>.</li>
+</ul></div>
+
+<h2>حساب منطقی با حافظه: AL و SL</h2>
+<div class="box ex"><span class="t">مثال ۸-۷: AL (Add Logical) — کد 5E</span>
+<ul>
+<li><code>AL 8,SOS+2(7)</code> با SOS = (R12)+200h: نماد به‌اضافهٔ عدد هم مجاز است ⇐ D2 = 202h. <span class="m">M = 123</span>، <span class="m">(R8) = 200</span> ⇐ <span class="m">R8 ← 323</span>، <b>CC = 10</b> ⇐ <b>5E87C202</b>.</li>
+<li><code>AL 4,X'555'(6,7)</code> با <span class="m">M = 333</span>، <span class="m">(R4) = 1400</span> ⇐ <span class="m">1733</span>، <b>CC = 10</b> ⇐ <b>5E467555</b>.</li>
+<li><code>AL 2,0(1)</code> با <span class="m">M = 25</span>، <span class="m">(R2) = −25 = FFFFFFE7h</span>: <span class="m">FFFFFFE7h + 19h = 1 00000000h</span> ⇐ <span class="m">R2 ← 0</span> با <b>نقلی</b> ⇐ <b>CC = 11</b> ⇐ <b>5E210000</b>. (با A همین جمع CC = 00 می‌داد.)</li>
+</ul></div>
+<div class="box ex"><span class="t">مثال ۸-۸: SL (Subtract Logical) — کد 5F</span>
+<ul>
+<li><code>SL 8,SIX-16(7)</code> با SIX = (R12)+200h ⇐ D2 = 200h − 10h = 1F0h. <span class="m">M = 123</span>، <span class="m">(R8) = 200</span> ⇐ <span class="m">77</span>، <b>CC = 10</b> ⇐ <b>5F87C1F0</b>.</li>
+<li><code>SL 4,B'111'(6,7)</code> با <span class="m">M = 333</span>، <span class="m">(R4) = 1400</span> ⇐ <span class="m">1067</span>، <b>CC = 10</b> ⇐ <b>5F467007</b>.</li>
+<li><code>SL 2,0(1)</code> با <span class="m">M = 35</span>، <span class="m">(R2) = 35</span> ⇐ <span class="m">0</span>، <b>CC = 00</b> ⇐ <b>5F210000</b>.</li>
+</ul></div>
+
+<h2>مقایسه با حافظه: C و CL</h2>
+<div class="box ex"><span class="t">مثال ۸-۹: C (Compare) — کد 59 — و CL (Compare Logical) — کد 55</span>
+HEY = (R12) + 70h.
+<ul>
+<li><code>C 2,HEY(11)</code> با <span class="m">M = −100</span>، <span class="m">(R2) = −120</span>: <span class="m">−120 &lt; −100</span> ⇐ <b>CC = 01</b> ⇐ <b>592BC070</b>.</li>
+<li><code>C 4,B'11'(B'10',X'A')</code>: X2 = 2، B2 = 10 = A، D2 = 3 ⇐ <span class="m">M[(R2)+(R10)+3] = 33</span> با <span class="m">(R4) = 140</span> ⇐ <b>CC = 10</b> ⇐ <b>5942A003</b>.</li>
+<li><code>C 2,0(1)</code> با 35 و 35 ⇐ <b>CC = 00</b> ⇐ <b>59210000</b>.</li>
+<li><code>CL 2,HEY(11)</code> با <span class="m">M = 100</span>، <span class="m">(R2) = −120 = FFFFFF88h</span>: بدون علامت FFFFFF88h خیلی بزرگ است ⇐ <b>CC = 10</b> ⇐ <b>552BC070</b>.</li>
+<li><code>CL 4,B'11'(B'10',X'A')</code> با <span class="m">M = 3</span>، <span class="m">(R4) = 1</span> ⇐ <b>CC = 01</b> ⇐ <b>5542A003</b>؛ <code>CL 2,0(1)</code> با ‎−5 و ‎−5 ⇐ <b>CC = 00</b> ⇐ <b>55210000</b>.</li>
+</ul></div>
+
+<h2>منطق بیتی با حافظه: N، O، X</h2>
+<div class="box ex long"><span class="t">مثال ۸-۱۰: N (کد 54)، O (کد 56)، X (کد 57)</span>
+ME = (R12) + 70h و در هر سه مورد اول <span class="m">M = 77h = 0…0111 0111</span> و <span class="m">(R0) = −4 = FFFFFFFCh = 1…1111 1100</span>:
+<table class="ltrt small"><thead><tr><th>instr</th><th>code</th><th>bits</th><th>result</th><th>CC</th></tr></thead><tbody>
+<tr><td>N 0,ME(11)</td><td>540BC070</td><td>1…11111100 ∧ 0…01110111</td><td>00000074h</td><td>10</td></tr>
+<tr><td>O 0,ME(11)</td><td>560BC070</td><td>1…11111100 ∨ 0…01110111</td><td>FFFFFFFFh = −1</td><td>01</td></tr>
+<tr><td>X 0,ME(11)</td><td>570BC070</td><td>1…11111100 ⊕ 0…01110111</td><td>FFFFFF8Bh</td><td>01</td></tr>
+</tbody></table>
+با <span class="m">M[(R5)+(R6)+4] = −13 = FFFFFFF3h</span> و <span class="m">(R3) = 1</span>: <code>N 3,4(5,6)</code> ⇐ 1، CC = 10 (54356004)؛ <code>O 3,4(5,6)</code> ⇐ ‎−13، CC = 01 (56356004)؛ <code>X 3,4(5,6)</code> ⇐ FFFFFFF2h = ‎−14، CC = 01 (57356004). و با <span class="m">M = (R2) = −5</span>: <code>N 2,0(1)</code> ⇐ ‎−5 (CC = 01، 54210000)، <code>O 2,0(1)</code> ⇐ ‎−5 (CC = 01، 56210000)، <code>X 2,0(1)</code> ⇐ 0 (CC = 00، 57210000).
+</div>
+<div class="box ins"><span class="t">شهود: آزمودن یک بیت با N</span>
+برای اینکه بفهمیم عددی زوج است یا فرد، فقط بیت شمارهٔ ۰ آن مهم است. اگر آن را با کلمهٔ ONE (= 1) AND کنیم، همهٔ بیت‌ها جز بیت ۰ صفر می‌شوند؛ نتیجه 0 یعنی زوج (CC = 00) و نتیجه 1 یعنی فرد (CC = 10). این ایده در برنامهٔ «شمارش زوج‌ها» در ادامه به کار رفته است. به همین ترتیب با ماسک 80000000h بیت علامت آزموده می‌شود.
+</div>
+
+<h2>LA: محاسبهٔ نشانی (Load Address) — کد 41</h2>
+<div class="box def"><span class="t">LA r1,S2</span>
+<span class="m">r1 ← EA = D2 + (B2) + (X2)</span>. <b>هیچ دسترسی‌ای به حافظه انجام نمی‌شود</b>؛ خودِ نشانی (عدد) در r1 قرار می‌گیرد. CC تغییر نمی‌کند و چون نشانی ۲۴ بیتی است، <b>۸ بیت بالای r1 صفر می‌شوند</b>.
+</div>
+<div class="box ex"><span class="t">مثال ۸-۱۱: کاربردهای LA</span>
+<table class="ltrt small"><thead><tr><th>instr</th><th class="fa">معنا</th><th class="fa">کاربرد</th></tr></thead><tbody>
+<tr><td>LA 2,PUT</td><td>R2 ← address of PUT</td><td class="fa">نشانی یک متغیر (مثلاً برای زیربرنامه)</td></tr>
+<tr><td>LA 5,8</td><td>R5 ← 8</td><td class="fa">بارگذاری ثابت 0 تا 4095 (بدون نیاز به DC)</td></tr>
+<tr><td>LA 1,1(1)</td><td>R1 ← (R1) + 1</td><td class="fa">افزایش یک ثبات با ثابت (شمارنده، اندیس)</td></tr>
+<tr><td>LA 9,77(5,7)</td><td>R9 ← (R5)+(R7)+77</td><td class="fa">جمع دو ثبات و یک ثابت در یک دستور</td></tr>
+<tr><td>LA 9,0(5,7)</td><td>R9 ← (R5)+(R7)</td><td class="fa">جمع دو ثبات در ثبات سوم</td></tr>
+<tr><td>LA 9,800(5)</td><td>R9 ← (R5)+800</td><td class="fa">جمع با ثابت</td></tr>
+</tbody></table>
+مثال‌های اسلاید: <code>LA 3,4(5,6)</code> با <span class="m">(R5)+(R6)+4 = 001AF234h</span> ⇐ <span class="m">R3 ← 001AF234h</span> ⇐ <b>41356004</b>. و <code>LA 1,1(1)</code> با <span class="m">(R1) = 77</span> ⇐ <span class="m">R1 ← 78</span> ⇐ <b>41110001</b>.
+</div>
+<div class="box warn"><span class="t">دام‌های LA</span>
+<ul style="margin-bottom:0">
+<li><b>LA در برابر L:</b> <code>LA 5,8</code> عدد 8 را در R5 می‌گذارد، ولی <code>L 5,8</code> <b>محتوای خانهٔ 8 حافظه</b> را می‌آورد. (در شبیه‌ساز: اگر M[8] = 1234 باشد، L 5,8 ⇐ R5 = 1234.)</li>
+<li>جابه‌جایی منفی ندارد: <code>LA 4,-1</code> غلط است. برای کم کردن از <code>BCTR r,0</code> یا S استفاده کنید.</li>
+<li>نتیجه ۲۴ بیتی است: اگر <span class="m">(R5) = −1 = FFFFFFFFh</span> باشد، <code>LA 5,1(5)</code> نتیجهٔ <b>00000000h</b> می‌دهد (درست به نظر می‌رسد، ولی فقط تصادفاً!) و اگر <span class="m">(R5) = −5</span> باشد نتیجه 00FFFFFCh است، نه ‎−4. پس LA فقط برای عددهای نامنفی کوچک‌تر از <span class="m">2<sup>24</sup></span> مناسب است.</li>
+<li>CC را تغییر نمی‌دهد؛ پس <code>LA 3,1(3)</code> بین یک مقایسه و پرش آن خرابی به بار نمی‌آورد.</li>
+</ul></div>
+<div class="box ins"><span class="t">شهود: LA یعنی «از ماشین‌حساب نشانی، به‌جای جمع‌کننده استفاده کن»</span>
+CPU برای هر دستور RX یک جمع‌کنندهٔ سه‌ورودی (D + پایه + اندیس) دارد. LA همین مدار را به کار می‌گیرد و جوابش را به‌جای فرستادن به حافظه، در ثبات می‌ریزد. نتیجه: یک جمع سریع، بدون دسترسی به حافظه و بدون خراب کردن CC. برای همین برنامه‌نویسان 360 برای افزایش شمارنده‌ها تقریباً همیشه <code>LA r,1(r)</code> و برای پیمایش آرایه <code>LA r,4(r)</code> می‌نویسند.
+</div>
+
+<h2>BCT: حلقهٔ شمارشی (Branch on Count) — کد 46</h2>
+<div class="box def"><span class="t">BCT r1,S2</span>
+<span class="m">r1 ← (r1) − 1</span>؛ اگر <span class="m">(r1) ≠ 0</span> آنگاه <span class="m">PC ← EA</span>. همان BCTR فصل ۷ است ولی مقصد پرش یک نشانی RX است (نه محتوای ثبات). CC تغییر نمی‌کند.
+</div>
+<div class="box ex"><span class="t">مثال ۸-۱۲</span>
+<ul style="margin-bottom:0">
+<li><code>BCT 3,LOOP</code> با LOOP = (R12)+1FFh و <span class="m">(R3) = 2</span> ⇐ R3 ← 1، ≠ 0 ⇐ <span class="m">PC ← (R12) + 1FFh</span> ⇐ <b>4630C1FF</b>.</li>
+<li><code>BCT 1,2(3,4)</code> با <span class="m">(R1) = 1</span> ⇐ R1 ← 0 ⇐ پرش نمی‌شود و اجرا با دستور بعدی ادامه می‌یابد ⇐ <b>46134002</b>.</li>
+</ul></div>
+<p><b>الگوی حلقهٔ N باره</b>:</p>
+<pre class="code">         LA    5,N            counter = N   (N ≥ 1)
+LOOP     ...                  loop body
+         BCT   5,LOOP         counter−−; repeat while counter ≠ 0</pre>
+<div class="box warn"><span class="t">حلقه با شمارندهٔ صفر</span>
+بدنه قبل از اولین آزمون اجرا می‌شود (حلقهٔ do-while). اگر شمارنده با <b>0</b> شروع شود، BCT آن را ‎−1 می‌کند که ≠ 0 است و حلقه <span class="m">2<sup>32</sup></span> بار تکرار می‌شود (تا شمارنده دور بزند و دوباره به 0 برسد). اگر N ممکن است صفر باشد، قبل از حلقه آن را بیازمایید.
+</div>
+
+<h2>پرش شرطی با ماسک: BC — کد 47</h2>
+<div class="fmt"><div class="op360">47<small>8 bits</small></div><div>M1<small>4</small></div><div>X2<small>4</small></div><div>B2<small>4</small></div><div>D2<small>12 bits</small></div></div>
+<div class="fmt-cap">BC: به‌جای r1، یک ماسک ۴ بیتی M1</div>
+<div class="box def"><span class="t">ماسک M1</span>
+هر یک از ۴ بیت ماسک به <b>یکی از چهار مقدار ممکن CC</b> مربوط است:
+<table class="ltrt" style="margin-top:2mm"><thead><tr><th class="fa">بیت ماسک (از چپ)</th><th>0</th><th>1</th><th>2</th><th>3</th></tr></thead><tbody>
+<tr><td class="fa">ارزش عددی</td><td>8</td><td>4</td><td>2</td><td>1</td></tr>
+<tr><td class="fa">مربوط به CC =</td><td>00</td><td>01</td><td>10</td><td>11</td></tr>
+<tr><td class="fa">بعد از حسابی</td><td class="fa">صفر</td><td class="fa">منفی</td><td class="fa">مثبت</td><td class="fa">سرریز</td></tr>
+<tr><td class="fa">بعد از مقایسه</td><td class="fa">برابر</td><td class="fa">اولی کوچک‌تر (low)</td><td class="fa">اولی بزرگ‌تر (high)</td><td>—</td></tr>
+</tbody></table>
+<b>قاعده:</b> اگر بیتِ مربوط به CC فعلی در ماسک 1 باشد ⇐ <span class="m">PC ← EA</span> (پرش)؛ وگرنه دستور بعدی اجرا می‌شود. BC کد شرط را تغییر نمی‌دهد.
+</div>
+{{fig:bcmux360()}}
+<div class="box ins"><span class="t">شهود: ماسک یعنی «فهرست حالت‌هایی که در آن‌ها می‌پرم»</span>
+تصور کنید CC چهار چراغ دارد و در هر لحظه دقیقاً یکی روشن است. ماسک یک برگهٔ چهارخانه است که روی خانه‌های دلخواه تیک زده‌اید. اگر چراغ روشن روی خانهٔ تیک‌دار بیفتد، می‌پرید. سخت‌افزار این را با یک <b>مالتی‌پلکسر ۴ به ۱</b> می‌سازد (شکل بالا): ۴ بیت ماسک ورودی‌های MUX هستند، CC خط انتخاب است و خروجی MUX تعیین می‌کند PC بار شود یا نه. نتیجه: <b>یک کد عمل برای ۱۶ نوع پرش</b>؛ در حالی که ماشین‌های فرضی درس برای هر شرط (jz، jn، …) یک دستور جدا داشتند.
+</div>
+<div class="box step"><span class="t">روش گام‌به‌گام ساختن ماسک</span>
+<ol style="margin-bottom:0">
+<li>بپرس: «در کدام مقدارهای CC باید پرش کنم؟»</li>
+<li>ارزش هر کدام را بنویس: CC=00 ⇐ 8، CC=01 ⇐ 4، CC=10 ⇐ 2، CC=11 ⇐ 1.</li>
+<li>جمع کن. مثال: «بعد از C، پرش اگر اولی ≥ دومی» ⇐ برابر (8) یا بزرگ‌تر (2) ⇐ <span class="m">8 + 2 = 10</span>؟ <b>خیر!</b> با قرارداد اسلاید BNL = 11 است (8 + 2 + 1)؛ چون مقایسه هرگز CC = 11 نمی‌دهد، اضافه کردن بیت 1 بی‌اثر است و این‌طوری «نه کوچک‌تر» = متمم دقیق «کوچک‌تر» (4) یعنی <span class="m">15 − 4 = 11</span> می‌شود.</li>
+<li>قانون متمم: ماسک «not X» = <span class="m">15 − ماسک X</span>. (BNE = 15 − 8 = 7، BNH = 15 − 2 = 13، BNO = 15 − 1 = 14.)</li>
+</ol></div>
+<h3>جدول کامل ۱۶ ماسک (اسلاید)</h3>
+<table class="ltrt small">
+<thead><tr><th>M1</th><th>bits</th><th>CC</th><th>Meaning</th><th>Extended</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>0000</td><td>—</td><td>No operation</td><td>NOP</td></tr>
+<tr><td>1</td><td>0001</td><td>11</td><td>Branch on overflow</td><td>BO</td></tr>
+<tr><td>2</td><td>0010</td><td>10</td><td>Branch on plus / high</td><td>BP / BH</td></tr>
+<tr><td>3</td><td>0011</td><td>10, 11</td><td>plus/high or overflow</td><td>—</td></tr>
+<tr><td>4</td><td>0100</td><td>01</td><td>Branch on minus / low</td><td>BM / BL</td></tr>
+<tr><td>5</td><td>0101</td><td>01, 11</td><td>minus/low or overflow</td><td>—</td></tr>
+<tr><td>6</td><td>0110</td><td>01, 10</td><td>plus or minus (high or low)</td><td>—</td></tr>
+<tr><td>7</td><td>0111</td><td>01, 10, 11</td><td>not zero / not equal</td><td>BNZ / BNE</td></tr>
+<tr><td>8</td><td>1000</td><td>00</td><td>zero / equal</td><td>BZ / BE</td></tr>
+<tr><td>9</td><td>1001</td><td>00, 11</td><td>zero/equal or overflow</td><td>—</td></tr>
+<tr><td>10</td><td>1010</td><td>00, 10</td><td>zero/equal or plus/high</td><td>—</td></tr>
+<tr><td>11</td><td>1011</td><td>00, 10, 11</td><td>not minus / not low</td><td>BNM / BNL</td></tr>
+<tr><td>12</td><td>1100</td><td>00, 01</td><td>zero/equal or minus/low</td><td>—</td></tr>
+<tr><td>13</td><td>1101</td><td>00, 01, 11</td><td>not plus / not high</td><td>BNP / BNH</td></tr>
+<tr><td>14</td><td>1110</td><td>00, 01, 10</td><td>not overflow</td><td>BNO</td></tr>
+<tr><td>15</td><td>1111</td><td>all</td><td>Branch always</td><td>B</td></tr>
+</tbody></table>
+<div class="box note"><span class="t">نیمونیک‌های گسترش‌یافته (Extended Mnemonics)</span>
+اسمبلر برای ماسک‌های پرکاربرد نام آماده دارد تا مجبور نباشیم عدد ماسک را حفظ کنیم. <code>BE LOOP</code> دقیقاً همان <code>BC 8,LOOP</code> است و همان کد ماشین را تولید می‌کند: 4780…. نام‌های H/L/E (high، low، equal) برای <b>بعد از مقایسه</b> و نام‌های P/M/Z/O (plus، minus، zero، overflow) برای <b>بعد از حساب</b> هستند، ولی ماسکشان یکی است (BH = BP = 2). <b>B</b> پرش بی‌شرط (15) و <b>NOP</b> «هیچ کار» (0) است.
+</div>
+<div class="box ex long"><span class="t">مثال ۸-۱۳: مثال‌های اسلاید BC</span>
+<ul style="margin-bottom:0">
+<li><code>BC 3,LOOP</code> (LOOP = (R12)+1FFh) با <b>CC = 11</b>: ماسک 0011؛ بیت مربوط به CC=11 (ارزش 1) روشن است ⇐ پرش: <span class="m">PC ← (R12)+1FFh</span> ⇐ <b>4730C1FF</b>.</li>
+<li><code>BC B'1011',2(3,4)</code> با <b>CC = 10</b>: ماسک 1011 = 11؛ بیت ارزش 2 روشن است ⇐ <span class="m">PC ← (R3)+(R4)+2</span> ⇐ <b>47B34002</b>.</li>
+<li><code>BNE LOP1</code> (LOP1 = (R12)+100h) با <b>CC = 00</b>: BNE = 7 = 0111؛ بیت ارزش 8 خاموش ⇐ <b>پرش نمی‌شود</b> ⇐ <b>4770C100</b>.</li>
+<li><code>BNO 12(3,4)</code> با <b>CC = 10</b>: BNO = 14 = 1110؛ بیت ارزش 2 روشن ⇐ <span class="m">PC ← (R3)+(R4)+12</span> ⇐ <b>47E3400C</b>.</li>
+</ul></div>
+<div class="box warn"><span class="t">دام: BNE 8(14)</span>
+برای نیمونیک‌های گسترش‌یافته، اسمبلر خودش ماسک را در جای r1 می‌گذارد و شما فقط عملوند دوم را می‌نویسید. پس <code>BNE 8(14)</code> یعنی <b>D2 = 8 و X2 = 14</b> (یک عدد داخل پرانتز = اندیس!) ⇐ کد <b>477E0008</b>، نه 4770E008. نشانی مقصد در هر دو یکی است: <span class="m">(R14) + 8</span>.
+</div>
+
+<h2>BCR: پرش شرطی به نشانی داخل ثبات — کد 07</h2>
+<div class="fmt"><div class="op360">07<small>8 bits</small></div><div>M1<small>4</small></div><div>r2<small>4</small></div></div>
+<div class="fmt-cap">BCR M1,r2 (قالب RR)</div>
+<p>همان ماسک و همان قاعده، ولی مقصد پرش <b>محتوای ثبات r2</b> است: اگر بیت CC در M1 روشن باشد <span class="m">PC ← (r2)</span>. اگر <b>r2 = 0</b> باشد هرگز پرش نمی‌کند (مثل BCTR).</p>
+{{fig:bcmux360(True)}}
+<table class="ltrt small">
+<thead><tr><th>M1</th><th>RR extended</th><th>Meaning</th></tr></thead><tbody>
+<tr><td>1</td><td>BOR r2</td><td>overflow</td></tr><tr><td>2</td><td>BPR / BHR r2</td><td>plus / high</td></tr>
+<tr><td>4</td><td>BMR / BLR r2</td><td>minus / low</td></tr><tr><td>7</td><td>BNZR / BNER r2</td><td>not zero / not equal</td></tr>
+<tr><td>8</td><td>BZR / BER r2</td><td>zero / equal</td></tr><tr><td>11</td><td>BNMR / BNLR r2</td><td>not minus / not low</td></tr>
+<tr><td>13</td><td>BNPR / BNHR r2</td><td>not plus / not high</td></tr><tr><td>14</td><td>BNOR r2</td><td>not overflow</td></tr>
+<tr><td>15</td><td>BR r2</td><td>always</td></tr><tr><td>0</td><td>NOPR r2</td><td>never</td></tr>
+</tbody></table>
+<p class="small muted">(در جدول اسلاید جلوی ماسک 11 «not minus/not plus» نوشته شده که باید «not minus/not low» باشد.)</p>
+<div class="box ex"><span class="t">مثال ۸-۱۴</span>
+<ul style="margin-bottom:0">
+<li><code>BCR 8,7</code> با <b>CC = 00</b> ⇐ <span class="m">PC ← (R7)</span> ⇐ <b>0787</b>.</li>
+<li><code>BOR 5</code> (= <code>BCR 1,5</code>) با <b>CC = 01</b> ⇐ بیت ارزش 4 در ماسک 0001 خاموش ⇐ هیچ کاری ⇐ <b>0715</b>.</li>
+<li><code>BR 14</code> = <code>BCR 15,14</code> ⇐ <b>07FE</b>: پرش بی‌شرط به نشانی داخل R14؛ <b>بازگشت از زیربرنامه</b> (پایین‌تر).</li>
+</ul></div>
+
+<h2>ترجمهٔ ساختارهای سطح بالا به اسمبلی 360</h2>
+<p>هر ساختار کنترلی زبان‌های سطح بالا با «مقایسه + پرش شرطی + پرش بی‌شرط» ساخته می‌شود. این الگوها را یک بار یاد بگیرید، در همهٔ برنامه‌ها تکرار می‌شوند.</p>
+<div class="box step"><span class="t">الگوی if-else: «با شرط برعکس، از روی then بپر»</span>
+<div class="twocol">
+<pre class="code">if (a &gt; b)
+    max = a;
+else
+    max = b;</pre>
+<pre class="code">         L     3,A
+         C     3,B
+         BNH   ELSE       NOT (a &gt; b)
+         ST    3,MAX      then
+         B     ENDIF
+ELSE     L     3,B        else
+         ST    3,MAX
+ENDIF    ...</pre>
+</div>
+چرا شرط برعکس؟ چون پرش یعنی «رد شدن از کد». اگر شرط درست باشد باید then اجرا شود، یعنی <b>نپریم</b>؛ پس وقتی شرط <b>نادرست</b> است می‌پریم (به ELSE). و آخر then یک <code>B ENDIF</code> لازم است تا وارد else نشویم.
+</div>
+{{asm360:ifmax}}
+<p class="small">نتیجه با شبیه‌ساز: <span class="m">a = −8، b = 13</span> ⇐ MAX = 13 (و برای ‎(20, 13)، ‎(13, 13) و ‎(−5, −9) هم درست است). به کد <code>47D0C014</code> نگاه کنید: <b>D</b> = 13 = ماسک BNH.</p>
+<div class="box step"><span class="t">الگوهای حلقه</span>
+<table class="ltrt small"><thead><tr><th class="fa">ساختار</th><th>C</th><th>IBM 360</th></tr></thead><tbody>
+<tr><td class="fa">for با شمارنده (N ≥ 1)</td><td>for (k = N; k &gt; 0; k--) body;</td><td><pre class="code">         L     5,N
+LOOP     ...  body
+         BCT   5,LOOP</pre></td></tr>
+<tr><td class="fa">while (آزمون در ابتدا)</td><td>while (i &lt; j) body;</td><td><pre class="code">LOOP     CR    4,5
+         BNL   DONE      NOT (i &lt; j)
+         ...  body
+         B     LOOP
+DONE     ...</pre></td></tr>
+<tr><td class="fa">do-while (آزمون در انتها)</td><td>do body; while (x != 0);</td><td><pre class="code">LOOP     ...  body (sets CC on x)
+         BNZ   LOOP</pre></td></tr>
+<tr><td class="fa">پیمایش آرایهٔ کلمه‌ای</td><td>for (i = 0; i &lt; 10; i++) … A[i] …</td><td><pre class="code">         SR    4,4       byte offset = 0
+         LA    5,10
+LOOP     L     6,A(4)    A[i]
+         ...
+         LA    4,4(4)    next word
+         BCT   5,LOOP</pre></td></tr>
+</tbody></table></div>
+<div class="box ins"><span class="t">شهود: اندیس بر حسب بایت، نه بر حسب عنصر</span>
+در C می‌نویسیم <code>A[i]</code> و کامپایلر خودش i را در ۴ ضرب می‌کند. در اسمبلی خودمان باید این کار را بکنیم: ثبات اندیس <b>فاصله بر حسب بایت</b> را نگه می‌دارد، پس به‌جای <span class="m">i++</span> می‌نویسیم <span class="m">offset += 4</span> (یعنی <code>LA 4,4(4)</code>). اگر شمارهٔ عنصر را هم لازم داریم (مثلاً برای خروجی)، یک ثبات جدا با گام ۱ نگه می‌داریم.
+</div>
+
+<h2>زیربرنامه: BALR و BR</h2>
+<p>در فصل ۳ دیدیم که CALL نشانی بازگشت را در <b>پشته</b> ذخیره می‌کند. 360 پشتهٔ سخت‌افزاری ندارد؛ نشانی بازگشت در یک <b>ثبات</b> (طبق قرارداد R14) ذخیره می‌شود:</p>
+<ol>
+<li><code>LA 15,SUB</code> ⇐ نشانی زیربرنامه در R15.</li>
+<li><code>BALR 14,15</code> ⇐ <span class="m">R14 ← نشانی دستور بعد از BALR</span> و سپس <span class="m">PC ← (R15)</span>. (Branch And Link: «بپر و پیوند را نگه دار».)</li>
+<li>آخر زیربرنامه: <code>BR 14</code> ⇐ <span class="m">PC ← (R14)</span>؛ یعنی برگرد به همان‌جا که صدا زده شدی.</li>
+</ol>
+{{asm360:callsub}}
+<p class="small">نتیجه با شبیه‌ساز: X2 = 144 و Y2 = 49. زیربرنامهٔ SQR فقط دو دستور است: <code>MR 0,1</code> (مربع R1 در جفت R0:R1) و <code>BR 14</code>.</p>
+<div class="box ins"><span class="t">شهود: BALR همان BALR 11,0 فصل ۶ است!</span>
+در ابتدای هر برنامه نوشتیم <code>BALR 12,0</code>: «نشانی بعدی را در R12 بگذار و (چون r2 = 0) نپر». حالا با <code>BALR 14,15</code> هم نشانی بعدی را نگه می‌داریم و هم می‌پریم. «پیوند» (link) همان نشانی بازگشت است. چون فقط یک ثبات برای آن داریم، اگر زیربرنامه خودش زیربرنامهٔ دیگری صدا بزند، باید R14 را قبلش در حافظه ذخیره کند (با ST) وگرنه راه برگشت گم می‌شود؛ کاری که پشته در فصل ۳ خودکار انجام می‌داد.
+</div>
+
+<h2>برنامه‌های کامل حل‌شده</h2>
+<p>در همهٔ برنامه‌های زیر الگوی ابتدایی یکی است: <code>BALR 12,0</code> و <code>USING *,12</code> (R12 = 2 چون برنامه از نشانی 0 شروع می‌شود و BALR دو بایت است)؛ پس جابه‌جایی هر متغیر = نشانی آن − 2. مثلاً در برنامهٔ اول ARR در نشانی 1Ch است ⇐ D2 = 1Ah ⇐ <code>A 3,ARR(4)</code> = 5A34C01A. آرایهٔ نمونه در همهٔ برنامه‌ها: <span class="m">ARR = 5, −2, 7, 10, 0, 3, −8, 1, 4, 6</span>.</p>
+
+<h3>برنامهٔ ۸-۱: جمع عناصر آرایه</h3>
+<p><b>ایده:</b> R3 جمع، R4 فاصلهٔ بایتی عنصر جاری و R5 شمارندهٔ BCT. در هر دور <code>A 3,ARR(4)</code> عنصر جاری را اضافه می‌کند و <code>LA 4,4(4)</code> به کلمهٔ بعد می‌رود.</p>
+{{asm360:sumarr}}
+<div class="box ex long"><span class="t">ردگیری اجرای برنامهٔ ۸-۱ (شبیه‌ساز)</span>
+<table class="ltrt small"><thead><tr><th>PC</th><th>instr</th><th>R3 (sum)</th><th>R4 (offset)</th><th>R5 (count)</th><th class="fa">PC بعدی</th></tr></thead><tbody>
+<tr><td>0006</td><td>LA 5,10</td><td>0</td><td>0</td><td>10</td><td>000A</td></tr>
+<tr><td>000A</td><td>A 3,ARR(4)</td><td>5</td><td>0</td><td>10</td><td>000E</td></tr>
+<tr><td>000E</td><td>LA 4,4(4)</td><td>5</td><td>4</td><td>10</td><td>0012</td></tr>
+<tr><td>0012</td><td>BCT 5,LOOP</td><td>5</td><td>4</td><td>9</td><td class="fa">000A (پرش)</td></tr>
+<tr><td>000A</td><td>A 3,ARR(4)</td><td>3</td><td>4</td><td>9</td><td>000E</td></tr>
+<tr><td>000E</td><td>LA 4,4(4)</td><td>3</td><td>8</td><td>9</td><td>0012</td></tr>
+<tr><td>0012</td><td>BCT 5,LOOP</td><td>3</td><td>8</td><td>8</td><td class="fa">000A (پرش)</td></tr>
+<tr><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td></tr>
+<tr><td>0012</td><td>BCT 5,LOOP</td><td>26</td><td>40</td><td>0</td><td class="fa">0016 (بدون پرش)</td></tr>
+<tr><td>0016</td><td>ST 3,SUM</td><td>26</td><td>40</td><td>0</td><td>001A</td></tr>
+</tbody></table>
+جمع = 26 و در کل <span class="m">4 + 3 × 10 + 2 = 36</span> دستور اجرا می‌شود.
+</div>
+
+<h3>برنامهٔ ۸-۲: بیشینهٔ آرایه</h3>
+<p><b>ایده:</b> فرض کن ARR[0] بیشینه است؛ ۹ عنصر بعدی را یکی‌یکی با آن مقایسه کن و اگر بزرگ‌تر بود جایگزین کن. <code>C 3,ARR(4)</code> و سپس <code>BNL NEXT</code>: «اگر max کوچک‌تر نیست، کاری نکن».</p>
+{{asm360:maxarr}}
+<p class="small">نتیجه: MAX = 10. (برای کمینه فقط BNL را به BNH تبدیل کنید.)</p>
+
+<h3>برنامهٔ ۸-۳: شمارش عناصر منفی</h3>
+<p><b>ایده:</b> R7 = 0 را با هر عنصر مقایسه کن. اگر <span class="m">0 &gt; ARR[i]</span> (CC = 10) عنصر منفی است؛ پس با BNH (یعنی «0 ≤ ARR[i]») از شمارش رد شو. شمارش با <code>LA 3,1(3)</code>.</p>
+{{asm360:cntneg}}
+<p class="small">نتیجه: COUNT = 2 (‎−2 و ‎−8).</p>
+
+<h3>برنامهٔ ۸-۴: شمارش عددهای زوج با N</h3>
+<p><b>ایده:</b> هر عنصر را در R6 بیاور، با ONE (=1) AND کن؛ نتیجه ناصفر یعنی فرد ⇐ BNZ از شمارش رد می‌شود.</p>
+{{asm360:evens}}
+<p class="small">نتیجه: COUNT = 6 (‎−2، 10، 0، ‎−8، 4، 6). دقت کنید N مقدار R6 را خراب می‌کند؛ برای همین هر دور دوباره L می‌کنیم.</p>
+
+<h3>برنامهٔ ۸-۵: میانگین (M برای گسترش علامت، سپس D)</h3>
+<p><b>ایده:</b> جمع را در R3 حساب کن. برای تقسیم، مقسوم باید در جفت R2:R3 باشد؛ <code>M 2,ONE</code> (ضرب در ۱) R2 را گسترش علامت R3 می‌کند. بعد <code>D 2,N</code>.</p>
+{{asm360:avg}}
+<p class="small">نتیجه: <span class="m">26 ÷ 10</span> ⇐ MEAN = 2 و REM = 6.</p>
+
+<h3>برنامهٔ ۸-۶: تقسیم یک عدد منفی</h3>
+<p><b>ایده:</b> همان آماده‌سازی جفت ثبات، این بار با <code>LA 4,1</code> و <code>MR 2,4</code> (بدون نیاز به ثابت ONE در حافظه). اگر این گام را فراموش کنیم و R2 = 0 باشد، مقسوم یک عدد مثبت بسیار بزرگ تفسیر می‌شود.</p>
+{{asm360:divneg}}
+<p class="small">نتیجه: <span class="m">−47 ÷ 5</span> ⇐ Q = ‎−9، R = ‎−2 (بررسی: <span class="m">−9 × 5 − 2 = −47</span>).</p>
+
+<h3>برنامهٔ ۸-۷: جمع ۱ تا N</h3>
+<p><b>ایده:</b> خود شمارندهٔ BCT مقدارهای N، N−1، …، 1 را می‌گیرد؛ پس کافی است در هر دور آن را به جمع اضافه کنیم (<code>AR 3,5</code>).</p>
+{{asm360:sumn}}
+<p class="small">نتیجه: SUM = 5050 برای N = 100.</p>
+
+<h3>برنامهٔ ۸-۸: فاکتوریل</h3>
+<p><b>ایده:</b> مثل برنامهٔ قبل، ولی با ضرب: <code>MR 2,5</code> یعنی <span class="m">R2:R3 ← R3 × R5</span>؛ حاصل‌ضرب جاری در ثبات فرد R3 می‌ماند و R2 (نیمهٔ بالا) تا وقتی جواب در ۳۲ بیت جا شود صفر است.</p>
+{{asm360:fact}}
+<p class="small">نتیجه: <span class="m">6! = 720</span>. (از 13! به بعد جواب در ۳۲ بیت جا نمی‌شود و نیمهٔ بالا در R2 ناصفر می‌شود.)</p>
+
+<h3>برنامهٔ ۸-۹: توان‌های ۲</h3>
+<p><b>ایده:</b> <code>AR 3,3</code> هر بار R3 را دو برابر می‌کند (همان شیفت به چپ).</p>
+{{asm360:pow2}}
+<p class="small">نتیجه: <span class="m">2<sup>10</sup> = 1024</span>.</p>
+
+<h3>برنامهٔ ۸-۱۰: دنبالهٔ فیبوناچی</h3>
+<p><b>ایده:</b> دو جملهٔ آخر را در R3 (a) و R4 (b) نگه دار؛ در هر دور a را ذخیره کن، <span class="m">t = a + b</span>، سپس <span class="m">a ← b</span> و <span class="m">b ← t</span>. ST با اندیس R6 جمله‌ها را پشت سر هم در آرایهٔ F می‌نویسد.</p>
+{{asm360:fib}}
+<p class="small">نتیجه: F = 0، 1، 1، 2، 3، 5، …، 4181 (۲۰ جمله).</p>
+
+<h3>برنامهٔ ۸-۱۱: جابه‌جایی دو متغیر با XOR</h3>
+{{asm360:swap}}
+<p class="small">نتیجه: X = ‎−77 و Y = 1234؛ بدون هیچ ثبات کمکی (سه XR فصل ۷).</p>
+
+<h3>برنامهٔ ۸-۱۲: جمع دو عدد ۶۴ بیتی</h3>
+<p><b>ایده:</b> هر عدد ۶۴ بیتی دو کلمه است (HI و LO). نیمه‌های پایین را با <b>AL</b> (بدون علامت) جمع کن؛ اگر نقلی رخ داد (CC = 11) یک واحد به نیمهٔ بالا اضافه کن. BNO یعنی «اگر CC ≠ 11 از اضافه کردن نقلی رد شو». این دقیقاً جمع دستی ستونی است: «یکی می‌رود بالا».</p>
+{{asm360:add64}}
+<p class="small">نتیجه: <span class="m">(00000001 FFFFFFFFh) + (00000002 00000005h) = 00000004 00000004h</span>.</p>
+
+<h3>برنامهٔ ۸-۱۳: مرتب‌سازی Gnome</h3>
+<p><b>ایده (شهود کوتوله‌ٔ باغبان):</b> کوتوله‌ای جلوی ردیف گلدان‌ها ایستاده است. اگر گلدان جلویی از گلدان کنارش کوچک‌تر یا برابر باشد (مرتب‌اند) یک قدم جلو می‌رود؛ وگرنه آن دو را جابه‌جا می‌کند و یک قدم عقب می‌رود (مگر در ابتدای ردیف باشد). وقتی به انتهای ردیف رسید، همه مرتب‌اند. فقط یک اندیس (R4) لازم است. R8 = 0 برای آزمون «ابتدای ردیف» و R9 = 36 (فاصلهٔ آخرین عنصر) برای آزمون پایان.</p>
+{{asm360:gnome}}
+<p class="small">نتیجه: آرایه صعودی شد (‎−8، ‎−2، 0، 1، 3، 4، 5، 6، 7، 10)؛ با ۲۰ آرایهٔ تصادفی دیگر (با عددهای تکراری) هم آزموده شد.</p>
+
+<h2>تمرین‌های حل‌شدهٔ فصل ۸</h2>
+<div class="box hw long"><span class="t">تمرین ۸-۱: کدگذاری</span>
+فرض کنید TAB = (R12)+3A0h و LOOP = (R12)+20h. کد ماشین هر دستور را بنویسید.
+<div class="sol"><span class="t">حل (با اسمبلر بررسی شده)</span>
+<table class="ltrt small"><thead><tr><th>instr</th><th>op</th><th>r1/M1</th><th>X2</th><th>B2</th><th>D2</th><th>code</th><th class="fa">نکته</th></tr></thead><tbody>
+<tr><td>L 5,TAB(6)</td><td>58</td><td>5</td><td>6</td><td>C</td><td>3A0</td><td>5856C3A0</td><td class="fa">S2(X2)</td></tr>
+<tr><td>ST 7,0(,9)</td><td>50</td><td>7</td><td>0</td><td>9</td><td>000</td><td>50709000</td><td class="fa">ویرگول ⇐ پایه</td></tr>
+<tr><td>LA 1,4095(2,3)</td><td>41</td><td>1</td><td>2</td><td>3</td><td>FFF</td><td>41123FFF</td><td class="fa">بیشترین D2</td></tr>
+<tr><td>BC 4,LOOP</td><td>47</td><td>4</td><td>0</td><td>C</td><td>020</td><td>4740C020</td><td class="fa">= BL / BM</td></tr>
+<tr><td>BNE 8(14)</td><td>47</td><td>7</td><td>E</td><td>0</td><td>008</td><td>477E0008</td><td class="fa">14 اندیس است</td></tr>
+<tr><td>BCT 6,LOOP</td><td>46</td><td>6</td><td>0</td><td>C</td><td>020</td><td>4660C020</td><td></td></tr>
+<tr><td>C 0,TAB+8</td><td>59</td><td>0</td><td>0</td><td>C</td><td>3A8</td><td>5900C3A8</td><td class="fa">نماد + عدد</td></tr>
+<tr><td>A 3,12(0,5)</td><td>5A</td><td>3</td><td>0</td><td>5</td><td>00C</td><td>5A30500C</td><td class="fa">X2 = 0</td></tr>
+<tr><td>BR 14</td><td>07</td><td>F</td><td colspan="3">r2 = E</td><td>07FE</td><td class="fa">RR</td></tr>
+<tr><td>NOPR 0</td><td>07</td><td>0</td><td colspan="3">r2 = 0</td><td>0700</td><td class="fa">RR</td></tr>
+</tbody></table>
+</div></div>
+<div class="box hw"><span class="t">تمرین ۸-۲: رمزگشایی</span>
+<code>4180000C</code> · <code>47F0C100</code> · <code>5C46B008</code> · <code>07F7</code> · <code>4720C010</code> · <code>0710</code>
+<div class="sol"><span class="t">حل</span>
+<ol style="margin-bottom:0">
+<li><code>41 8 0 0 00C</code> = <code>LA 8,12</code> ⇐ R8 ← 12.</li>
+<li><code>47 F 0 C 100</code> = <code>B 256(0,12)</code> ⇐ پرش بی‌شرط به (R12) + 100h.</li>
+<li><code>5C 4 6 B 008</code> = <code>M 4,8(6,11)</code> ⇐ R4:R5 ← (R5) × M[(R6)+(R11)+8].</li>
+<li><code>07 F 7</code> = <code>BR 7</code> ⇐ پرش بی‌شرط به نشانی داخل R7.</li>
+<li><code>47 2 0 C 010</code> = <code>BH</code> (یا BP) <code>16(0,12)</code> ⇐ پرش اگر CC = 10.</li>
+<li><code>07 1 0</code> = <code>BCR 1,0</code> ⇐ چون r2 = 0 هرگز پرش نمی‌کند.</li>
+</ol></div></div>
+<div class="box hw"><span class="t">تمرین ۸-۳: نشانی مؤثر و ترتیب کارها</span>
+(الف) <span class="m">(R3) = 00012000h، (R4) = 10h</span>؛ نشانی مؤثر <code>L 2,20(4,3)</code>؟ آیا هم‌تراز است؟ (ب) <span class="m">(R2) = 0، (R3) = 100، (R9) = 40000h</span> و <span class="m">M[40000h] = 7</span>؛ نتیجهٔ <code>D 2,0(2,9)</code>؟ (ج) <span class="m">(R4) = 8، (R5) = −3، (R9) = 40000h</span> و <span class="m">M[40008h] = 11</span>؛ نتیجهٔ <code>M 4,0(4,9)</code>؟
+<div class="sol"><span class="t">حل</span>
+(الف) <span class="m">14h + 12000h + 10h = 12024h</span>؛ رقم آخر 4 ⇐ مضرب ۴ ⇐ هم‌تراز. (ب) EA = 0 + 40000h + 0 (R2 هنوز 0 است) ⇐ <span class="m">100 ÷ 7</span> ⇐ R3 = 14، R2 = 2، CC = 10. (ج) EA با مقدار قدیمی R4: <span class="m">40000h + 8 = 40008h</span> ⇐ <span class="m">(−3) × 11 = −33</span> ⇐ R4 = ‎−1، R5 = ‎−33، CC = 01. <b>نکته:</b> نشانی همیشه قبل از تغییر ثبات‌ها حساب می‌شود.
+</div></div>
+<div class="box hw"><span class="t">تمرین ۸-۴: انتخاب ماسک</span>
+برای هر حالت ماسک (و نیمونیک اگر هست) را بنویسید: (۱) بعد از <code>C 3,X</code> پرش اگر R3 ≥ X؛ (۲) بعد از C پرش اگر R3 ≠ X؛ (۳) بعد از A پرش اگر نتیجه صفر یا منفی ولی بدون سرریز؛ (۴) بعد از AL پرش اگر نقلی رخ داد؛ (۵) اگر CC = 10 باشد، کدام ماسک‌ها پرش می‌کنند؟
+<div class="sol"><span class="t">حل</span>
+(۱) <span class="m">15 − 4 = 11</span> ⇐ <b>BNL</b>. (۲) <span class="m">15 − 8 = 7</span> ⇐ <b>BNE</b>. (۳) <span class="m">8 + 4 = 12</span> ⇐ <code>BC 12,…</code> (نیمونیک ندارد؛ BNP = 13 در سرریز هم می‌پرد!). (۴) CC = 11 ⇐ 1 ⇐ <b>BO</b> (و «بدون نقلی» ⇐ 14 ⇐ BNO، مثل برنامهٔ ۸-۱۲). (۵) ماسک‌هایی که بیت ارزش 2 دارند: 2، 3، 6، 7، 10، 11، 14، 15 (شبیه‌ساز همین را تأیید می‌کند).
+</div></div>
+<div class="box hw"><span class="t">تمرین ۸-۵: چند بار؟</span>
+در حلقهٔ <code>LA 5,N</code> / <code>LOOP …</code> / <code>BCT 5,LOOP</code>، بدنه برای N = 10، N = 1 و N = 0 چند بار اجرا می‌شود؟
+<div class="sol"><span class="t">حل</span>
+N = 10 ⇐ ۱۰ بار؛ N = 1 ⇐ ۱ بار (BCT ⇐ 0 ⇐ خروج)؛ N = 0 ⇐ بدنه یک بار اجرا می‌شود، BCT شمارنده را ‎−1 می‌کند و حلقه <span class="m">2<sup>32</sup></span> بار تکرار می‌شود.
+</div></div>
+<div class="box hw long"><span class="t">تمرین ۸-۶: جست‌وجوی خطی</span>
+برنامه‌ای بنویسید که اندیس (شمارهٔ عنصر، از 0) اولین خانهٔ ARR برابر KEY را در POS بنویسد و اگر نبود ‎−1.
+<div class="sol"><span class="t">حل</span>
+R4 فاصلهٔ بایتی و R6 شمارهٔ عنصر است (دو اندیس با گام‌های ۴ و ۱). به محض برابری (BE) به FOUND می‌پریم؛ اگر حلقه کامل تمام شد، R6 را ‎−1 می‌کنیم. چون ‎−1 را نمی‌توان با LA ساخت، از ثابت MINUS1 استفاده شده است.
+{{asm360:search}}
+نتیجه: KEY = 1 ⇐ POS = 7؛ آزموده با KEY = 5 ⇐ 0، KEY = 6 ⇐ 9، KEY = ‎−8 ⇐ 6 و KEY = 99 ⇐ ‎−1.
+</div></div>
+<div class="box hw long"><span class="t">تمرین ۸-۷: وارونه کردن آرایه در جا</span>
+<div class="sol"><span class="t">حل</span>
+دو اندیس: R4 از ابتدا (0) و R5 از انتها (36). تا وقتی <span class="m">i &lt; j</span> (الگوی while با BNL)، دو عنصر را با دو ثبات کمکی جابه‌جا کن، i را ۴ تا جلو و j را ۴ تا عقب ببر. چون LA نمی‌تواند کم کند، از <code>S 5,FOUR</code> استفاده شده (<code>SR 5,10</code> با R10 = 4 هم درست است).
+{{asm360:reverse}}
+نتیجه: ARR = 6، 4، 1، ‎−8، 3، 0، 10، 7، ‎−2، 5.
+</div></div>
+<div class="box hw long"><span class="t">تمرین ۸-۸: شمارش بیت‌های ۱ (ترفند x AND (x−1))</span>
+<div class="sol"><span class="t">حل</span>
+<b>شهود:</b> در <span class="m">x − 1</span>، پایین‌ترین بیت ۱ صفر می‌شود و همهٔ صفرهای زیر آن ۱ می‌شوند؛ پس <span class="m">x ∧ (x − 1)</span> دقیقاً پایین‌ترین ۱ را پاک می‌کند. مثلاً <span class="bits">10110100 ∧ 10110011 = 10110000</span>. هر دور حلقه یک بیت ۱ پاک می‌شود، پس تعداد دورها = تعداد بیت‌های ۱. <code>OR 4,4</code> مقدار را عوض نمی‌کند ولی CC را تنظیم می‌کند (برای حالت x = 0)، و <code>BCTR 5,0</code> ارزان‌ترین «منهای یک» است.
+{{asm360:popcnt}}
+نتیجه: <span class="m">x = 0000B6F1h</span> ⇐ COUNT = 10؛ آزموده با 0، 1، ‎−1 (=32)، 80000000h (=1) و 12345678h (=13).
+</div></div>
+
+<div class="summary"><span class="t">خلاصهٔ فصل ۸</span>
+<ul>
+<li>RX: ۴ بایت = op، r1، X2، B2، D2؛ <span class="m">EA = D2 + (B2) + (X2)</span> (۲۴ بیت)؛ 0 در جای پایه یا اندیس یعنی «ندارد». یک عدد تنها داخل پرانتز = اندیس.</li>
+<li>کد RX = کد RR + 40h: L 58، ST 50، A 5A، S 5B، M 5C، D 5D، AL 5E، SL 5F، C 59، CL 55، N 54، O 56، X 57، LA 41، BCT 46، BC 47.</li>
+<li>L، ST، LA، BCT، BC و BCR کد شرط را تغییر نمی‌دهند. نشانی مؤثر L/ST/A/… باید مضرب ۴ باشد.</li>
+<li>LA = جمع‌کنندهٔ نشانی بدون دسترسی به حافظه: ثابت 0..4095، افزایش، جمع دو ثبات؛ نتیجه ۲۴ بیتی و نامنفی.</li>
+<li>BC M1: ارزش بیت‌ها 8 ↔ CC00، 4 ↔ 01، 2 ↔ 10، 1 ↔ 11؛ ماسک «not X» = 15 − X. B = 15، NOP = 0، BE = BZ = 8، BNE = 7، BH = BP = 2، BL = BM = 4، BNH = 13، BNL = 11، BO = 1، BNO = 14.</li>
+<li>BCR M1,r2 همان با مقصد (r2)؛ BR 14 = 07FE بازگشت از زیربرنامه؛ فراخوانی با LA 15,SUB و BALR 14,15.</li>
+<li>if: با شرط برعکس از روی then بپر؛ for: BCT؛ while: آزمون در ابتدا + B به ابتدا؛ آرایه: اندیس بر حسب بایت با LA r,4(r).</li>
+</ul></div>
