@@ -179,3 +179,5 @@ table.lst.mini td.in .lb{color:#9a3d00}
 table.err td{vertical-align:top}
 table.err td.mw{font-family:"JBMono";font-size:.92em}
 h2{text-align:right}
+.f360{display:inline-block;margin-left:1.2mm;color:#1f5fbf;text-align:center}
+.f360 small{display:block;font-size:.62em;color:#6b7a90;line-height:1;font-family:"Vazirmatn"}

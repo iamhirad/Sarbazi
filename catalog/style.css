@@ -155,3 +155,5 @@ table.idx td:first-child{text-align:center;width:7mm}
 .prog h3 .mk{color:#fff}
 .part .mk{color:#1f5fbf}
 .prog h3,h2,.pmeta,.pfoot,.pres{text-align:right}
+.f360{display:inline-block;margin-left:1.2mm;color:#1f5fbf;text-align:center}
+.f360 small{display:block;font-size:.62em;color:#6b7a90;line-height:1;font-family:"Vazirmatn"}

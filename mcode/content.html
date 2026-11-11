@@ -33,8 +33,8 @@
 <tr><td>بیت‌های آدرس</td><td><span class="m">log<sub>2</sub>(#واحدها)</span></td><td>2<sup>21</sup> واحد ⇐ ۲۱ بیت</td></tr>
 <tr><td>حافظه بر حسب کلمه</td><td><span class="m">#واحدها = #کلمه‌ها × k</span></td><td>۱۳۹۸: 2<sup>29</sup>×8 = 2<sup>32</sup></td></tr>
 <tr><td>فیلد ثبات</td><td><span class="m">log<sub>2</sub>(#ثبات‌ها)</span></td><td>R0..R63 ⇐ ۶ بیت</td></tr>
-<tr><td>ترتیب بایت</td><td>همهٔ ماشین‌های درس Big Endian</td><td>بیت/واحد پرارزش اول</td></tr>
-<tr><td>هم‌ترازی</td><td>ناهم‌تراز ⇐ کلمه از هر آدرسی شروع می‌شود</td><td>داده بلافاصله بعد از کد</td></tr>
+<tr><td>ترتیب بایت</td><td>همهٔ ماشین‌های درس (و IBM 360) Big Endian</td><td>بیت/واحد پرارزش اول</td></tr>
+<tr><td>هم‌ترازی</td><td>ناهم‌تراز ⇐ کلمه از هر آدرسی شروع می‌شود؛ IBM 360 هم‌تراز (F مضرب ۴)</td><td>داده بلافاصله بعد از کد (360: با جای خالی)</td></tr>
 <tr><td>نمایش اعداد</td><td>مکمل دو؛ ممیز شناور IEEE 754</td><td>‎−1 = همه یک</td></tr>
 <tr><td>ثبات‌های خاص</td><td>R0 = 0، آدرس بازگشت در R31 یا خانهٔ ثابت</td><td>۱۳۹۸، ۱۳۹۹، ۱۴۰۰، ۱۴۰۱</td></tr>
 </tbody></table>
@@ -339,6 +339,50 @@
 {{full:worked_1402}}
 </div>
 
+<h2>IBM 360: کدگذاری دستورها (جلسه‌های ۶ تا ۸)</h2>
+<div>
+<div class="card k">
+<h3><span class="lvl l1">۱</span>تفاوت‌های 360 با ماشین‌های فرضی</h3>
+<p class="sm rule"><b class="n">۵۷</b> <b>واحد = بایت، کد = هگز بایتی:</b> هر دستور ۲، ۴ یا ۶ بایت است و همیشه با ۴، ۸ یا ۱۲ رقم هگز نوشته می‌شود. <b>دو بیت اول کد عمل طول را می‌گوید:</b> 00 ⇐ RR (۲B)، 01 ⇐ RX (۴B)، 10 ⇐ RS/SI (۴B)، 11 ⇐ SS (۶B).</p>
+<p class="sm rule"><b class="n">۵۸</b> <b>همهٔ فیلدها مرز رقم هگز دارند</b> (۴، ۸ یا ۱۲ بیت)؛ پس لازم نیست به دودویی بروید: op دو رقم، هر ثبات یک رقم، D سه رقم، L−1 دو رقم.</p>
+<p class="sm rule"><b class="n">۵۹</b> <b>هم‌ترازی اجباری:</b> برخلاف ماشین‌های امتحان، کلمه باید در نشانی مضرب ۴ باشد؛ اسمبلر قبل از DC/DS از نوع F/H/D <b>خودکار جا خالی می‌گذارد</b> (LC را بالا می‌برد) ولی C و X را نه. در گذر ۱ این پرش LC را فراموش نکنید.</p>
+<p class="sm rule"><b class="n">۶۰</b> <b>نشانی کامل در دستور نیست:</b> به‌جای آدرس ۲۴ بیتی، <span class="m">B (۴ بیت) + D (۱۲ بیت)</span>. برای نماد: <span class="m">D = addr − (base)</span> با پایهٔ اعلام‌شده در USING. اگر D از FFFh بیشتر شد، پایهٔ دیگری لازم است (یا خطای اسمبلر).</p>
+<p class="sm rule"><b class="n">۶۱</b> <b>مقدار پایه:</b> <code>BALR 12,0</code> در نشانی P ⇐ R12 = P + 2 و <code>USING *,12</code> همان P + 2 را اعلام می‌کند. STOCK: P = 100h ⇐ R11 = 102h ⇐ OLDOH (114h) ⇐ D = 012h ⇐ <span class="mw">5830B012</span>.</p>
+<p class="sm rule"><b class="n">۶۲</b> <b>EOJ = SVC 14 = 0A0E</b> (۲ بایت)؛ داده‌ها بعد از آن با هم‌ترازی می‌آیند.</p>
+</div>
+<div class="card">
+<h3><span class="lvl l1">۱</span>RR: op r1 r2</h3>
+{{m360:rr}}
+<p class="sm rule"><b class="n">۶۳</b> شمارهٔ ثبات یک رقم هگز: R10..R15 = A..F. عملوند ثبات را با هر مبنایی (B''، X''، EQU) می‌توان نوشت؛ فقط <b>مقدار</b> مهم است.</p>
+<p class="sm rule"><b class="n">۶۴</b> MR/DR/M/D: r1 باید <b>زوج</b> باشد (کد 1D35 نامعتبر است). در BCR/BC به‌جای r1 <b>ماسک</b> می‌آید.</p>
+</div>
+<div class="card">
+<h3><span class="lvl l2">۲</span>RX: op r1 X2 B2 D2</h3>
+{{m360:rx}}
+<p class="sm rule"><b class="n">۶۵</b> <b>پرانتز در RX:</b> <code>D(X,B)</code>؛ <b>یک عدد تنها = X</b> (<code>0(5)</code> ⇐ X=5، B=0)؛ فقط پایه ⇐ <code>D(,B)</code>. با نماد: <code>S(X)</code> ⇐ X از پرانتز، B و D از USING.</p>
+<p class="sm rule"><b class="n">۶۶</b> D همیشه <b>سه رقم</b> با صفرهای جلو (20 ⇐ 014، 8 ⇐ 008) و بدون علامت (0..4095)؛ <code>LA r,-1</code> ترجمه‌پذیر نیست.</p>
+</div>
+<div class="card">
+<h3><span class="lvl l3">۳</span>پرش‌ها: ماسک در جای r1</h3>
+{{m360:br}}
+<p class="sm rule"><b class="n">۶۷</b> ماسک = جمع ارزش‌های CC (00 ⇐ 8، 01 ⇐ 4، 10 ⇐ 2، 11 ⇐ 1). نیمونیک گسترش‌یافته = همان BC با ماسک آماده: B = F، BE/BZ = 8، BNE = 7، BH/BP = 2، BL/BM = 4، BNH = D، BNL = B، BO = 1، BNO = E، NOP = 0.</p>
+<p class="sm rule"><b class="n">۶۸</b> در نسخهٔ RR (BCR و BR/BER/…) فیلد دوم <b>ثباتِ نشانی</b> است: <code>BR 14</code> = 07FE؛ با r2 = 0 هرگز نمی‌پرد (0700 = NOPR).</p>
+</div>
+<div class="card">
+<h3><span class="lvl l3">۳</span>RS، SI و SS</h3>
+{{m360:ss}}
+<p class="sm rule"><b class="n">۶۹</b> <b>SI:</b> بایت بی‌واسطه I2 <b>بلافاصله بعد از op</b> می‌آید (نه آخر)؛ نویسه‌ها با EBCDIC: <code>C'*'</code> = 5C، فاصله = 40، A = C1، 0 = F0. پرانتز: <code>D(B)</code>.</p>
+<p class="sm rule"><b class="n">۷۰</b> <b>SS:</b> طول به شکل <b>L−1</b> (۱۰۰ ⇐ 63h، ۱۰ ⇐ 09)؛ SS2 (AP) دو طول ۴ بیتی L1−1|L2−1 (۶ و ۵ ⇐ 54). پرانتز اول <code>D(L,B)</code>.</p>
+<p class="sm rule"><b class="n">۷۱</b> <b>RS:</b> در SLL/SRL فیلد r3 بی‌استفاده (0) است و مقدار شیفت همان نشانی مؤثر D(B) است؛ در LM/STM فیلد دوم r3 (آخرین ثبات) است.</p>
+</div>
+<div class="card w">
+<h3><span class="lvl l4">۴</span>رمزگشایی 360 و دام‌ها</h3>
+<p class="sm rule"><b class="n">۷۲</b> <b>رمزگشایی:</b> دو رقم اول ⇐ دستور و قالب (جدول کد عمل)؛ طول از دو بیت اول. بعد رقم‌ها را طبق قالب تقسیم کن: <span class="mw">5C46B008</span> ⇐ 5C|4|6|B|008 ⇐ <code>M 4,8(6,11)</code>؛ <span class="mw">47F0C100</span> ⇐ <code>B 256(0,12)</code>؛ <span class="mw">4180000C</span> ⇐ <code>LA 8,12</code>.</p>
+<p class="sm rule"><b class="n">۷۳</b> <b>کد RX = کد RR + 40h</b> (AR 1A ⇐ A 5A، CR 19 ⇐ C 59، BCTR 06 ⇐ BCT 46) و رقم دوم 4/5/6/7 = AND/CL/OR/XOR در همهٔ قالب‌ها؛ برای بازسازی جدول کد عمل در امتحان کافی است.</p>
+<p class="sm rule"><b class="n">۷۴</b> <b>نشانی‌های اسلاید:</b> بعضی مثال‌ها جابه‌جایی ناهم‌تراز دارند (123h، 11Bh)؛ کد ماشین همان است که نوشته شده، ولی در اجرا فقط وقتی درست است که (B)+(X)+D مضرب ۴ شود.</p>
+</div>
+</div>
+
 <h2>وارسی نهایی و خطاهای رایج</h2>
 <div class="grid">
 <div class="card x">
@@ -372,6 +416,10 @@
 <tr><td>شمارهٔ دستور به‌جای آدرس</td><td class="mw bad">jnz loop ⇒ 4</td><td class="mw good">آدرس loop</td></tr>
 <tr><td>Little Endian نوشتن</td><td class="mw bad">0102h ⇒ 02 01</td><td class="mw good">01 02</td></tr>
 <tr><td>آدرس OS حدسی</td><td class="mw bad">0000</td><td class="mw good">???? + توضیح</td></tr>
+<tr><td>360: یک عدد در پرانتز = پایه</td><td class="mw bad">L 2,0(5) ⇒ 58205000</td><td class="mw good">58250000 (X = 5)</td></tr>
+<tr><td>360: طول SS بدون −1</td><td class="mw bad">MVC ..(100) ⇒ D264</td><td class="mw good">D263</td></tr>
+<tr><td>360: D دو رقمی</td><td class="mw bad">L 2,20(4,3) ⇒ 5824314</td><td class="mw good">58243014</td></tr>
+<tr><td>360: D = نشانی نماد</td><td class="mw bad">D = 114h</td><td class="mw good">D = 114h − 102h = 012h</td></tr>
 </tbody></table>
 </div>
 </div>

@@ -1,6 +1,6 @@
 <div class="banner">
   <h1>ایده‌ها و الگوهای حل مسئله + حل کامل میان‌ترم‌های ۹۸ تا ۱۴۰۲</h1>
-  <div class="sub">ساختار و زبان کامپیوتر — دکتر سربازی‌آزاد — از ساده تا پیشرفته، با کد. همهٔ کدها روی شبیه‌ساز همان ماشین اجرا و آزموده شده‌اند.</div>
+  <div class="sub">ساختار و زبان کامپیوتر — دکتر سربازی‌آزاد — از ساده تا پیشرفته، با کد (ماشین‌های میان‌ترم و IBM 360). همهٔ کدها روی شبیه‌ساز همان ماشین اجرا و آزموده شده‌اند.</div>
   <div class="legend">
     <span style="background:#dff3e6">سطح ۱ پایه</span><span style="background:#e4edfb">سطح ۲ آرایه</span><span style="background:#fff0d0">سطح ۳ حساب و بیت</span><span style="background:#fbe2e0">سطح ۴ مرتب‌سازی</span><span style="background:#eee5f9">سطح ۵ ترفند و خودتغییرده</span>
   </div>
@@ -318,6 +318,131 @@
 <li><b>برخورد اشاره‌گرها:</b> p − q منفی/صفر (۹۹).</li>
 <li><b>رسیدن یک فیلد به مقدار هدف:</b> <code>jne Arr+5,#B-8,Arr</code> (۱۴۰۰).</li>
 <li><b>شمارنده‌ای که دو بار کم می‌شود:</b> چند <code>loop-</code> پشت‌سرهم (۹۸) ⇒ هنگام خروج دستورهای بعدی هم یک بار اجرا می‌شوند.</li>
+</ul>
+</div>
+</div>
+
+<h2>الگوهای IBM 360 (جلسه‌های ۶ تا ۸)</h2>
+<p class="sm">همهٔ برنامه‌های این بخش با اسمبلر و شبیه‌ساز IBM 360 ترجمه و اجرا شده‌اند (ستون اول نشانی، ستون دوم کد ماشین). قالب ثابت شروع: <code>BALR 12,0</code> + <code>USING *,12</code> ⇐ R12 = 2، پس جابه‌جایی هر متغیر = نشانی − 2. آرایهٔ نمونه: <span class="m">5, −2, 7, 10, 0, 3, −8, 1, 4, 6</span>.</p>
+<div class="grid">
+<div class="card d">
+<h3><span class="lvl l1">۱</span>انتخاب پرش بعد از مقایسه / حساب</h3>
+<table class="t tiny"><thead><tr><th class="l">شرط پرش (بعد از C/CR)</th><th>mask</th><th class="l">mn</th></tr></thead><tbody>
+<tr><td class="l">a = b</td><td>8</td><td class="l">BE</td></tr><tr><td class="l">a ≠ b</td><td>7</td><td class="l">BNE</td></tr>
+<tr><td class="l">a &lt; b</td><td>4</td><td class="l">BL</td></tr><tr><td class="l">a ≥ b</td><td>11</td><td class="l">BNL</td></tr>
+<tr><td class="l">a &gt; b</td><td>2</td><td class="l">BH</td></tr><tr><td class="l">a ≤ b</td><td>13</td><td class="l">BNH</td></tr>
+<tr><td class="l">result 0 / ≠0 (after A,S,N…)</td><td>8 / 7</td><td class="l">BZ / BNZ</td></tr>
+<tr><td class="l">result &lt;0 / &gt;0</td><td>4 / 2</td><td class="l">BM / BP</td></tr>
+<tr><td class="l">overflow or carry (AL)</td><td>1 / 14</td><td class="l">BO / BNO</td></tr>
+<tr><td class="l">always / never</td><td>15 / 0</td><td class="l">B / NOP</td></tr>
+</tbody></table>
+<p class="sm"><b>if:</b> با شرط <b>برعکس</b> از روی then بپر. ماسک = جمع ارزش CCها (8، 4، 2، 1)؛ not X = 15 − X.</p>
+</div>
+<div class="card k">
+<h3><span class="lvl l1">۱</span>ابزارهای یک‌خطی</h3>
+<table class="t tiny"><tbody>
+<tr><td class="l mw">SR r,r</td><td class="fa">r = 0 (CC=00)</td></tr>
+<tr><td class="l mw">LA r,n</td><td class="fa">ثابت 0..4095 (بی CC)</td></tr>
+<tr><td class="l mw">LA r,1(r) / LA r,4(r)</td><td class="fa">شمارنده++ / اندیس کلمهٔ بعد</td></tr>
+<tr><td class="l mw">BCTR r,0</td><td class="fa">r−− بدون پرش و بی CC</td></tr>
+<tr><td class="l mw">OR r,r</td><td class="fa">تنظیم CC از روی r (بدون تغییر)</td></tr>
+<tr><td class="l mw">AR r,r</td><td class="fa">r × 2</td></tr>
+<tr><td class="l mw">LA 4,1 / MR 2,4</td><td class="fa">گسترش علامت R3 در R2 (قبل از D)</td></tr>
+<tr><td class="l mw">BCT r,LOOP</td><td class="fa">حلقهٔ N باره (N ≥ 1)</td></tr>
+<tr><td class="l mw">LA 15,SUB / BALR 14,15 / BR 14</td><td class="fa">فراخوانی و بازگشت</td></tr>
+</tbody></table>
+</div>
+<div class="card">
+<h3><span class="lvl l2">۲</span>پیمایش آرایه: جمع با BCT و اندیس بایتی</h3>
+<p class="sm">R4 = فاصلهٔ بایتی (+4 در هر دور)، R5 = شمارنده. <code>A 3,ARR(4)</code> = <span class="m">sum += ARR[i]</span>.</p>
+{{c360:sumarr}}
+</div>
+<div class="card">
+<h3><span class="lvl l2">۲</span>بیشینه: C و BNL</h3>
+<p class="sm">max = ARR[0]؛ برای ۹ عنصر بعد: اگر max ≥ ARR[i] رد شو، وگرنه جایگزین کن. کمینه: BNL ⇐ BNH.</p>
+{{c360:maxarr}}
+</div>
+<div class="card">
+<h3><span class="lvl l2">۲</span>شمارش با شرط: منفی‌ها</h3>
+<p class="sm">0 را با عنصر مقایسه کن: CC = 10 یعنی عنصر منفی؛ BNH از شمارش رد می‌شود.</p>
+{{c360:cntneg}}
+</div>
+<div class="card">
+<h3><span class="lvl l2">۲</span>جست‌وجوی خطی با خروج زودهنگام</h3>
+<p class="sm">دو اندیس: بایتی (R4، گام ۴) و شمارهٔ عنصر (R6، گام ۱). پیدا نشد ⇐ ‎−1 (از حافظه، چون LA منفی نمی‌سازد).</p>
+{{c360:search}}
+</div>
+<div class="card">
+<h3><span class="lvl l2">۲</span>وارونه‌سازی در جا با دو اندیس</h3>
+<p class="sm">i از ابتدا، j از انتها؛ تا i &lt; j جابه‌جا کن. کم کردن ۴ با <code>S 5,FOUR</code>.</p>
+{{c360:reverse}}
+</div>
+<div class="card">
+<h3><span class="lvl l2">۲</span>پر کردن آرایه: فیبوناچی</h3>
+{{c360:fib}}
+</div>
+<div class="card">
+<h3><span class="lvl l3">۳</span>if-else: بزرگ‌تر دو عدد</h3>
+{{c360:ifmax}}
+</div>
+<div class="card">
+<h3><span class="lvl l3">۳</span>زوج/فرد با ماسک بیتی (N)</h3>
+<p class="sm"><code>N 6,ONE</code> فقط بیت ۰ را نگه می‌دارد؛ BNZ ⇐ فرد.</p>
+{{c360:evens}}
+</div>
+<div class="card">
+<h3><span class="lvl l3">۳</span>میانگین: M برای گسترش علامت، سپس D</h3>
+<p class="sm">خارج‌قسمت در ثبات فرد (R3)، باقی‌مانده در زوج (R2) با علامت مقسوم.</p>
+{{c360:avg}}
+</div>
+<div class="card">
+<h3><span class="lvl l3">۳</span>تقسیم عدد منفی</h3>
+{{c360:divneg}}
+</div>
+<div class="card">
+<h3><span class="lvl l3">۳</span>فاکتوریل با MR و BCT</h3>
+<p class="sm"><code>MR 2,5</code>: R2:R3 = R3 × R5؛ خود شمارنده ضرب‌کننده است (مثل جمع ۱..N).</p>
+{{c360:fact}}
+</div>
+<div class="card">
+<h3><span class="lvl l3">۳</span>جمع ۱ تا N و توان ۲</h3>
+{{c360:sumn}}
+{{c360:pow2}}
+</div>
+<div class="card">
+<h3><span class="lvl l3">۳</span>جمع ۶۴ بیتی با AL و نقلی</h3>
+<p class="sm">پایین‌ها با AL (بدون علامت)؛ CC = 11 یعنی نقلی ⇐ +1 به بالا (BNO از آن رد می‌شود).</p>
+{{c360:add64}}
+</div>
+<div class="card">
+<h3><span class="lvl l3">۳</span>شمارش بیت‌های ۱: x ∧ (x−1)</h3>
+<p class="sm">هر دور پایین‌ترین ۱ پاک می‌شود. <code>OR 4,4</code> فقط CC را برای x = 0 تنظیم می‌کند.</p>
+{{c360:popcnt}}
+</div>
+<div class="card">
+<h3><span class="lvl l1">۱</span>جابه‌جایی با سه XR</h3>
+{{c360:swap}}
+</div>
+<div class="card">
+<h3><span class="lvl l4">۴</span>مرتب‌سازی Gnome در 360</h3>
+<p class="sm">مرتب ⇐ i++ ؛ نامرتب ⇐ جابه‌جا و i−− (مگر i = 0). R8 = 0 و R9 = 36 برای آزمون‌های ابتدا و انتها.</p>
+{{c360:gnome}}
+</div>
+<div class="card">
+<h3><span class="lvl l5">۵</span>زیربرنامه با BALR و BR 14</h3>
+<p class="sm">نشانی بازگشت در R14 (نه پشته). زیربرنامهٔ تودرتو باید R14 را با ST ذخیره کند.</p>
+{{c360:callsub}}
+</div>
+<div class="card w">
+<h3>تله‌های پرتکرار 360</h3>
+<ul class="sm">
+<li><code>L 2,0(5)</code>: عدد تنها در پرانتز = <b>اندیس</b> (58250000)؛ پایه ⇐ <code>0(,5)</code>.</li>
+<li><code>LA 5,8</code> ≠ <code>L 5,8</code>؛ LA بی‌CC، ۲۴ بیتی، 0..4095.</li>
+<li>MR/DR با r1 فرد ⇐ خطا؛ MR مضروب را از r1+1 می‌خواند.</li>
+<li>قبل از D، ثبات زوج را گسترش علامت کن.</li>
+<li>BCT با شمارندهٔ 0 ⇐ <span class="m">2<sup>32</sup></span> دور.</li>
+<li>نشانی کلمه باید مضرب ۴ باشد؛ متغیرها را F تعریف کن.</li>
+<li>EOJ را فراموش نکن (وگرنه CPU داده‌ها را اجرا می‌کند).</li>
 </ul>
 </div>
 </div>

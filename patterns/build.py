@@ -41,6 +41,34 @@ def code(pid):
     return f'<pre class="code" data-m="{m.name}">{body}</pre>'
 
 
+# ------------------------------------------------------------------ IBM 360 listings
+import ibm360  # noqa: E402
+import programs360  # noqa: E402
+
+
+def c360(pid):
+    """Listing (address, machine code, source) of a verified IBM 360 program."""
+    a = ibm360.assemble(programs360.P360[pid][1])
+    out = []
+    for r in a.rows:
+        if r["kind"] == "comment":
+            continue
+        loc = "%04X" % r["loc"] if r["kind"] in ("ins", "dc", "ds") else "    "
+        obj = r.get("obj", b"").hex().upper()
+        if r["kind"] == "ins":
+            obj = " ".join(obj[i:i + 4] for i in range(0, len(obj), 4))
+        if len(obj) > 9:
+            obj = obj[:8] + "…"
+        lab = r.get("label") or ""
+        src = f'{lab:<7} {r.get("mn") or "":<5} {r.get("ops") or ""}'.rstrip()
+        if len(src) > 30:
+            src = src[:29] + "…"
+        line = html.escape(f"{loc} {obj:<9} ") + (f'<span class="lb">{html.escape(lab)}</span>' + html.escape(src[len(lab):]) if lab else html.escape(src))
+        out.append(line)
+    res = programs360.RESULTS360.get(pid, "")
+    return f'<pre class="code" data-m="IBM 360">' + "\n".join(out) + "</pre>" + (f'<p class="sm">نتیجه (شبیه‌ساز): {res}</p>' if res else "")
+
+
 # ------------------------------------------------------------------ Q4 listings
 FIELDS = {
     "1402": {"I": [3, 24, 3, 24], "II": [3, 24, 3]},
@@ -127,6 +155,8 @@ PRESYM = {"e1402": {"OS_Control_Point": 0xFFFF00}, "e1398": {"OS_control_point":
 def assemble_doc(pages=None, markers=False):
     body = (ROOT / "content.html").read_text(encoding="utf-8")
     body = re.sub(r"\{\{code:(\w+)\}\}", lambda m: code(m.group(1)), body)
+    programs360.run_programs360(verbose=False)
+    body = re.sub(r"\{\{c360:(\w+)\}\}", lambda m: c360(m.group(1)), body)
     body = re.sub(r"\{\{q4:(\w+)\}\}", lambda m: q4(m.group(1), PRESYM.get(m.group(1))), body)
     toc, n = [], 0
 

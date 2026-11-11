@@ -23,6 +23,8 @@ from lecture import L1, L1A, L2, L3, L4, L5, L6, L7  # noqa: E402
 from lecture_programs import LECTURE, run_lecture  # noqa: E402
 from machines import M1398, M1399, M1400, M1401, M1402  # noqa: E402
 from programs import PROGRAMS, run_all  # noqa: E402
+import ibm360  # noqa: E402
+import programs360  # noqa: E402
 
 
 def load_module(name, path):
@@ -175,6 +177,20 @@ MACHINES.update({
 })
 
 
+MACHINES["360"] = dict(
+    cls=None, title="ماشین IBM System/360", table=lambda: CS.GEN["i360ops"](),
+    spec="<span class=m>2<sup>24</sup></span> بایت، Big Endian؛ نیم‌کلمه/کلمه/مضاعف = ۲/۴/۸ بایت و <b>هم‌تراز</b>؛ R0..R15 (۳۲ بیت)، ۴ ثبات ممیز شناور ۶۴ بیتی؛ "
+         "آدرس‌دهی پایه-جابه‌جایی <span class=m>EA = D + (B) + (X)</span> با D دوازده بیتی و R0 = «بدون پایه/اندیس»؛ کد شرط ۲ بیتی در PSW. "
+         "در همهٔ برنامه‌ها <code>BALR 12,0</code> و <code>USING *,12</code> ⇐ R12 = 2.",
+    regs="MAR = PC = 24، MBR = 32، IR = 48، GPR = 32، FPR = 64، PSW = 64 بیت.",
+    formats=[("RR (۲ بایت)", [("op", 8), ("r1", 4), ("r2", 4)]),
+             ("RX (۴ بایت)", [("op", 8), ("r1", 4), ("X2", 4), ("B2", 4), ("D2", 12)]),
+             ("RS (۴ بایت)", [("op", 8), ("r1", 4), ("r3", 4), ("B2", 4), ("D2", 12)]),
+             ("SI (۴ بایت)", [("op", 8), ("I2", 8), ("B1", 4), ("D1", 12)]),
+             ("SS1 (۶ بایت)", [("op", 8), ("L−1", 8), ("B1", 4), ("D1", 12), ("B2", 4), ("D2", 12)]),
+             ("SS2 (۶ بایت)", [("op", 8), ("L1−1", 4), ("L2−1", 4), ("B1", 4), ("D1", 12), ("B2", 4), ("D2", 12)])])
+
+
 def split_table(rows):
     """Two side-by-side opcode tables (split at a group boundary near the middle)."""
     if len(rows) <= 14:
@@ -219,6 +235,13 @@ def lec(pid, mkey, title, source, purpose):
 
 def pat(pid, title, purpose, ext=("OS",)):
     return P(pid, "1402", title, "برگهٔ الگوها", purpose, PROGRAMS[pid][1], ext)
+
+
+def P360(pid, source, purpose):
+    title, src = programs360.P360[pid]
+    e = P("i360_" + pid, "360", title, source, purpose)
+    e["p360"] = pid
+    return e
 
 
 SECTIONS = [
@@ -283,6 +306,29 @@ SECTIONS = [
             pat("selfmod_walk", "پیمایش آرایه با تغییر فیلد آدرس", "add loop+5,#4 روی فیلد addr2"),
             pat("toggle", "دستور «چشمک‌زن» با XOR", "داده بین ۱ و ۰ جابه‌جا می‌شود"),
         ]),
+    ]),
+    ("بخش ۴: ماشین IBM System/360 (جلسه‌های ۶ تا ۸)", [
+        ("360", [P360("stock", "جزوه فصل ۶ (برنامهٔ اسلاید)", "BALR/USING، L، A، S، ST و EOJ؛ کدها بایت‌به‌بایت مثل اسلاید"),
+                 P360("vardef", "جزوه فصل ۶ (مثال اسلاید)", "DS و DC و هم‌ترازی خودکار F"),
+                 P360("vardef2", "جزوه فصل ۶ (تمرین ۶-۱)", "هم‌ترازی H، F و D و بایت‌های C و X"),
+                 P360("sumarr", "جزوه فصل ۸ (برنامهٔ ۸-۱)", "اندیس بایتی با LA r,4(r) و حلقهٔ BCT"),
+                 P360("maxarr", "جزوه فصل ۸ (برنامهٔ ۸-۲)", "C و BNL"),
+                 P360("cntneg", "جزوه فصل ۸ (برنامهٔ ۸-۳)", "مقایسهٔ 0 با عنصر و BNH"),
+                 P360("evens", "جزوه فصل ۸ (برنامهٔ ۸-۴)", "N با ماسک ۱ و BNZ"),
+                 P360("avg", "جزوه فصل ۸ (برنامهٔ ۸-۵)", "M 2,ONE برای گسترش علامت و D"),
+                 P360("divneg", "جزوه فصل ۸ (برنامهٔ ۸-۶)", "LA 4,1 و MR 2,4 قبل از D"),
+                 P360("sumn", "جزوه فصل ۸ (برنامهٔ ۸-۷)", "شمارندهٔ BCT خودش جمع‌شونده است"),
+                 P360("fact", "جزوه فصل ۸ (برنامهٔ ۸-۸)", "MR 2,5 روی جفت R2:R3"),
+                 P360("pow2", "جزوه فصل ۸ (برنامهٔ ۸-۹)", "AR r,r = دو برابر"),
+                 P360("fib", "جزوه فصل ۸ (برنامهٔ ۸-۱۰)", "ST با اندیس برای پر کردن آرایه"),
+                 P360("swap", "جزوه فصل ۸ (برنامهٔ ۸-۱۱)", "سه XR بدون ثبات کمکی"),
+                 P360("add64", "جزوه فصل ۸ (برنامهٔ ۸-۱۲)", "AL، نقلی با CC = 11 و BNO"),
+                 P360("gnome", "جزوه فصل ۸ (برنامهٔ ۸-۱۳)", "یک اندیس، CR و BNH/BE/BL"),
+                 P360("ifmax", "جزوه فصل ۸ (الگوی if-else)", "پرش با شرط برعکس + B ENDIF"),
+                 P360("callsub", "جزوه فصل ۸ (زیربرنامه)", "LA 15,SQR / BALR 14,15 / BR 14"),
+                 P360("search", "جزوه فصل ۸ (تمرین ۸-۶)", "خروج زودهنگام با BE"),
+                 P360("reverse", "جزوه فصل ۸ (تمرین ۸-۷)", "دو اندیس تا i < j"),
+                 P360("popcnt", "جزوه فصل ۸ (تمرین ۸-۸)", "x AND (x−1)")]),
     ]),
 ]
 
@@ -401,6 +447,43 @@ def listing(entry):
             code_units, data_units, syms, ext, m.unit)
 
 
+def listing360(entry):
+    a = ibm360.assemble(programs360.P360[entry["p360"]][1])
+    rows, code, data = [], 0, 0
+    for r in a.rows:
+        if r["kind"] == "comment":
+            continue
+        lab = html.escape(r.get("label") or "")
+        ins = html.escape(((r.get("mn") or "").ljust(6) + " " + (r.get("ops") or "")).rstrip())
+        cm = comment_html(r.get("comment", ""))
+        if r["kind"] in ("dir", "equ"):
+            loc = "%06X" % r["loc"] if r["mn"] in ("START", "EQU") else ""
+            rows.append(f'<tr class="dir"><td class="ad">{loc}</td><td class="mc"></td><td class="fd"></td>'
+                        f'<td class="lb">{lab}</td><td class="in">{ins}</td>{cm}</tr>')
+            continue
+        obj = r.get("obj", b"")
+        if r["kind"] == "ins":
+            code += len(obj)
+            hx = obj.hex().upper()
+            mc = " ".join(hx[i:i + 4] for i in range(0, len(hx), 4))
+            fd = " ".join(f'<span class="f360"><small>{html.escape(n)}</small>{html.escape(v)}</span>' for n, v in r["fields"])
+            cls = ""
+        else:
+            data += r.get("size", len(obj))
+            hx = obj.hex().upper()
+            words = [hx[i:i + 8] for i in range(0, len(hx), 8)]
+            mc = (" ".join(words[:2]) + (" …" if len(words) > 2 else "")) if hx else "—"
+            fd = (f'<span class="more">{len(words)} × F</span>' if r["kind"] == "dc" and len(words) > 1
+                  else f'<span class="more">{r.get("size", 0)} بایت رزرو</span>' if r["kind"] == "ds" else "")
+            cls = ' class="data"'
+        rows.append(f'<tr{cls}><td class="ad">{r["loc"]:06X}</td><td class="mc">{mc}</td><td class="fd">{fd}</td>'
+                    f'<td class="lb">{lab}</td><td class="in">{ins}</td>{cm}</tr>')
+    head = ('<thead><tr><th class="ad">Loc</th><th class="mc">Object code</th><th class="fd">Fields (instruction format)</th>'
+            '<th class="lb">Label</th><th class="in">Assembly</th><th class="cm">توضیح</th></tr></thead>')
+    syms = ", ".join(f"{k} = {v[0]:X}h" for k, v in a.sym.items())
+    return (f'<table class="lst">{head}<tbody>{"".join(rows)}</tbody></table>', code, data, syms, "", 8)
+
+
 # ====================================================================== document
 def machine_card(key):
     d = MACHINES[key]
@@ -429,7 +512,7 @@ def build_doc(results, pages=None, markers=False):
                 n_prog += 1
                 pid = f"p{n_prog}"
                 mkp = f'<span class="mk">QQP{n_prog:02d}QQ</span>' if markers else ""
-                tbl, cu, du, syms, ext, unit = listing(e)
+                tbl, cu, du, syms, ext, unit = listing360(e) if e["m"] == "360" else listing(e)
                 res = results.get(e["pid"]) or PATTERN_RESULTS.get(e["pid"], "")
                 foot = f'<b>اندازه:</b> کد {fa(cu)} واحد، داده {fa(du)} واحد (واحد = {fa(unit)} بیت)'
                 if syms:
@@ -480,6 +563,7 @@ if __name__ == "__main__":
     results = {}
     results.update(run_lecture())
     results.update(run_exam_q3())
+    results.update({"i360_" + k: v for k, v in programs360.run_programs360(verbose=False).items()})
     check_jozveh()
     build_doc(results, markers=True)
     tmp = ROOT / "_pass1.pdf"

@@ -1,6 +1,6 @@
 <div class="banner">
   <h1>چیت‌شیت جامع ساختار و زبان کامپیوتر</h1>
-  <div class="sub">بر اساس اسلایدهای دکتر سربازی‌آزاد — جلسه‌های ۱ تا ۵ — برای امتحان کتاب‌باز (Open-book)</div>
+  <div class="sub">بر اساس اسلایدهای دکتر سربازی‌آزاد — جلسه‌های ۱ تا ۸ — برای امتحان کتاب‌باز (Open-book)</div>
   <div class="legend">
     <span style="background:#fff5df">فرمول/قاعده</span><span style="background:#eef4fd">تعریف</span><span style="background:#ebf6ef">مثال حل‌شده</span><span style="background:#fdeceb">تله/خطای رایج</span><span style="background:#f3eefa">پرسش تشریحی</span>
   </div>
@@ -645,6 +645,152 @@ C2F00000 = 1 10000101 111000.. = -1.111 x 2^6 = -120
 <p class="sm"><b>FLOPS</b> = عمل ممیز شناور در ثانیه؛ TOP500 هر ۶ ماه؛ <span class="m">K 10<sup>3</sup>, M 10<sup>6</sup>, G 10<sup>9</sup>, T 10<sup>12</sup>, P 10<sup>15</sup>, E 10<sup>18</sup></span>. ده رتبهٔ اول (ژوئن ۲۰۲۶): LineShine، El Capitan، Frontier، Aurora، JUPITER، Eagle، HPC6، Fugaku، Alps، LUMI. مغز: ≈1.2 PF، 20W، 1400cm³ (≈۱۱۵۰ برابر کم‌مصرف‌تر)؛ K-Computer (10 PF) یک ثانیه از مغز را در ۴۰ دقیقه.</p>
 </div>
 
+<h2>IBM 360: معماری، قالب‌ها و اسمبلر</h2>
+<div class="card d">
+<ul>
+<li><b>حافظه:</b> <span class="m">2<sup>24</sup></span> بایت (16MB)، بایت‌آدرس‌پذیر، Big Endian. نیم‌کلمه H = 2B، کلمه F = 4B، مضاعف D = 8B.</li>
+<li><b>هم‌ترازی:</b> نشانی H زوج، F مضرب ۴ (رقم هگز آخر 0/4/8/C)، D مضرب ۸ (0/8)؛ وگرنه <b>specification exception</b>.</li>
+<li><b>ثبات‌ها:</b> ۱۶ ثبات همه‌منظورهٔ ۳۲ بیتی R0–R15، ۴ ثبات ممیز شناور ۶۴ بیتی (0،2،4،6). MR/DR/M/D: <b>جفت زوج-فرد</b> (r1 زوج).</li>
+<li><b>PSW</b> ۶۴ بیتی: ILC بیت 32–33، <b>CC بیت 34–35</b>، ماسک برنامه 36–39، <b>PC بیت 40–63</b> (۲۴ بیت).</li>
+<li><b>طول ثبات‌های داخلی</b> (سؤال پرتکرار): MAR = PC = 24، IR = 48 (بلندترین دستور ۶ بایت)، MBR = 32، GPR = 32، FPR = 64، PSW = 64.</li>
+<li><b>پایه-جابه‌جایی:</b> <span class="m">EA = D + (B) [+ (X)]</span>؛ D دوازده بیتی بدون علامت (0..4095 ⇐ پنجرهٔ 4KB)؛ جمع ۲۴ بیتی (دور می‌زند)؛ <b>R0 در جای B یا X یعنی 0</b>.</li>
+</ul>
+</div>
+<div class="card k">
+<h3>شش قالب (دو بیت اول کد عمل = قالب)</h3>
+<table class="t tiny"><thead><tr><th>Fmt</th><th>len</th><th>op</th><th class="l">fields (hex digits)</th><th class="l">asm</th></tr></thead><tbody>
+<tr><td>RR</td><td>2B</td><td>00/01</td><td class="l mw">op op r1 r2</td><td class="l mw">AR 2,7</td></tr>
+<tr><td>RX</td><td>4B</td><td>01</td><td class="l mw">op op r1 X2 B2 DDD</td><td class="l mw">L r1,D2(X2,B2)</td></tr>
+<tr><td>RS</td><td>4B</td><td>10</td><td class="l mw">op op r1 r3 B2 DDD</td><td class="l mw">LM r1,r3,D2(B2)</td></tr>
+<tr><td>SI</td><td>4B</td><td>10</td><td class="l mw">op op I2 I2 B1 DDD</td><td class="l mw">MVI D1(B1),I2</td></tr>
+<tr><td>SS1</td><td>6B</td><td>11</td><td class="l mw">op op LL B1 DDD B2 DDD</td><td class="l mw">MVC D1(L,B1),D2(B2)</td></tr>
+<tr><td>SS2</td><td>6B</td><td>11</td><td class="l mw">op op L1 L2 B1 DDD B2 DDD</td><td class="l mw">AP D1(L1,B1),D2(L2,B2)</td></tr>
+</tbody></table>
+<ul class="sm">
+<li><b>پرانتز:</b> RX ⇐ <code>D(X,B)</code>؛ یک عدد تنها <code>D(5)</code> = <b>اندیس</b>؛ فقط پایه ⇐ <code>D(,5)</code>. RS/SI ⇐ <code>D(B)</code>. SS ⇐ <code>D(L,B)</code>.</li>
+<li><b>طول در SS:</b> در کد <b>L−1</b> ذخیره می‌شود (۱..۲۵۶ بایت در یک بایت؛ AP: هر طول ۴ بیت ⇐ ۱..۱۶).</li>
+<li>کد RX = کد RR + 40h. رقم پایین: 4 AND، 5 مقایسهٔ منطقی، 6 OR، 7 XOR (در RR 1x، RX 5x، SI 9x، SS Dx).</li>
+</ul>
+</div>
+<div class="card k">
+<h3>اسمبلر 360</h3>
+<ul class="sm">
+<li>ستون ۱: برچسب یا <code>*</code> (توضیح)؛ نیمونیک از ستون ۲ به بعد؛ جداکننده = فاصله.</li>
+<li><code>name START addr</code> (پیش‌فرض 0) · <code>END entry</code> · <code>USING *,12</code> (به اسمبلر: R12 = این نقطه) · <code>DROP 12</code> · <code>R5 EQU 5</code>.</li>
+<li><code>DS</code> فقط جا (۳F = ۱۲ بایت)؛ <code>DC</code> با مقدار: <code>F'-5'</code>، <code>H'5'</code>، <code>D'..'</code>، <code>C'AB'</code>، <code>X'FF'</code>، <code>B'101'</code>، <code>2F'100'</code>. F/H/D <b>خودکار هم‌تراز</b> می‌شوند؛ C/X/B نه.</li>
+<li>عددها: <span class="m">B'000001010111' = O'0127' = X'057' = 87</span>.</li>
+<li><b>EBCDIC:</b> فاصله 40، * 5C، A–I = C1–C9، J–R = D1–D9، S–Z = E2–E9، 0–9 = F0–F9.</li>
+</ul>
+<pre><span class="cm">* program skeleton</span>
+<span class="lb">PROG</span>   START 0
+<span class="lb">BEGIN</span>  BALR  12,0      <span class="cm">R12 = next addr</span>
+       USING *,12
+       ...
+       EOJ             <span class="cm">SVC 14 = 0A0E</span>
+<span class="lb">X</span>      DC    F'9'
+<span class="lb">Y</span>      DS    F
+       END   BEGIN</pre>
+<p class="sm"><b>جابه‌جایی نماد</b> = نشانی نماد − مقدار پایه. چون BALR در نشانی P، پایه = P+2. مثال STOCK (START 256): R11 = 102h، OLDOH = 114h ⇐ <code>L 3,OLDOH</code> = <span class="mw">5830B012</span>.</p>
+</div>
+
+<h2>IBM 360: جدول دستورها، کد شرط و ماسک پرش</h2>
+<div class="card long">{{gen:i360ops}}</div>
+<div class="card k">
+<h3>کد شرط (CC، قرارداد اسلایدها)</h3>
+<table class="t tiny"><thead><tr><th>CC</th><th class="fa">حسابی/بیتی</th><th class="fa">مقایسه</th><th class="fa">AL/SL</th><th>BC bit</th></tr></thead><tbody>
+<tr><td>00</td><td class="fa">صفر</td><td class="fa">برابر</td><td class="fa">صفر، بی‌نقلی</td><td>8</td></tr>
+<tr><td>01</td><td class="fa">منفی</td><td class="fa">اولی &lt;</td><td>—</td><td>4</td></tr>
+<tr><td>10</td><td class="fa">مثبت</td><td class="fa">اولی &gt;</td><td class="fa">ناصفر، بی‌نقلی</td><td>2</td></tr>
+<tr><td>11</td><td class="fa">سرریز</td><td>—</td><td class="fa">نقلی/قرض</td><td>1</td></tr>
+</tbody></table>
+<p class="sm"><b>CC را تغییر نمی‌دهند:</b> LR، L، ST، LA، BCT، BCTR، BC، BCR، BALR. <b>ماسک:</b> جمع ارزش CCهایی که در آن‌ها باید پرید؛ «not X» = 15 − X.</p>
+</div>
+<div class="card">{{gen:i360mask}}<p class="sm">بعد از مقایسه H/L/E، بعد از حساب P/M/Z/O (ماسک یکسان). <code>BNE 8(14)</code> ⇐ 14 <b>اندیس</b> ⇐ <span class="mw">477E0008</span>.</p></div>
+
+<h2>IBM 360: کدگذاری، رمزگشایی و تله‌ها</h2>
+<div class="card x">{{gen:i360enc}}</div>
+<div class="card k">
+<h3>کدگذاری و رمزگشایی گام‌به‌گام</h3>
+<ol class="sm">
+<li>کد عمل (۲ هگز) ⇐ دو بیت اول قالب و طول (2/4/6 بایت) را می‌گوید.</li>
+<li>r1 (یا ماسک M1 در BC/BCR) یک رقم.</li>
+<li>عملوند حافظه: نماد ⇐ <span class="m">D = addr − (base)</span> و B از USING؛ صریح ⇐ از روی پرانتز (قالب را نگاه کن!).</li>
+<li>X، B یک رقم؛ D <b>سه رقم</b> (8 ⇐ 008)؛ SS: L−1 (۲ رقم) یا L1−1|L2−1.</li>
+<li>رمزگشایی: 1A3F ⇐ AR 3,15 · 1C67 ⇐ MR 6,7 · 07FE ⇐ BR 14 · 4180000C ⇐ LA 8,12 · 47F0C100 ⇐ B 256(0,12) · 5C46B008 ⇐ M 4,8(6,11).</li>
+</ol>
+</div>
+<div class="card w">
+<h3>تله‌های 360</h3>
+<ul class="sm">
+<li><b>L در برابر LA:</b> <code>LA 5,8</code> ⇐ R5 = 8؛ <code>L 5,8</code> ⇐ R5 = M[8].</li>
+<li><b>LA</b>: بدون CC، ۲۴ بیتی (۸ بیت بالا صفر)، D ≤ 4095، منفی ندارد (<code>LA 5,1(5)</code> با R5 = −1 ⇐ 0).</li>
+<li><b>MR/DR/M/D</b> با r1 فرد ⇐ specification. ضرب: مضروب از <b>r1+1</b>. تقسیم: خارج‌قسمت در <b>فرد</b>، باقی‌مانده در <b>زوج</b> با <b>علامت مقسوم</b>؛ تقسیم بر 0 ⇐ divide exception.</li>
+<li><b>گسترش علامت قبل از D:</b> <code>M 2,ONE</code> یا <code>LA 4,1</code> + <code>MR 2,4</code> (وگرنه R2 زباله ⇐ مقسوم غلط).</li>
+<li>‎−2<sup>31</sup> در LCR/LPR ⇐ CC 11؛ LNR هرگز سرریز ندارد.</li>
+<li>CR در برابر CLR: R1 = −1، R2 = 1 ⇐ CR: 01، CLR: 10.</li>
+<li><b>BCT/BCTR</b> با شمارندهٔ 0 ⇐ <span class="m">2<sup>32</sup></span> دور. BCTR r,0 ⇐ فقط کم کن (ارزان‌ترین ‎−1).</li>
+<li>نشانی <b>قبل از</b> اجرا با مقدار قدیمی ثبات‌ها حساب می‌شود (<code>D 2,Hokm(2)</code> درست است).</li>
+<li>در ST داده از r1 به حافظه می‌رود. R0 به‌عنوان ثبات داده مجاز است.</li>
+<li>اشتباه‌های اسلاید: جابه‌جایی‌های ناهم‌تراز (123h، 11Bh)، ∧ به‌جای ∨ در OR 5,6، «not plus» برای ماسک 11 در جدول BCR.</li>
+</ul>
+</div>
+
+<h2>IBM 360: الگوهای برنامه‌نویسی</h2>
+<div class="card x">
+<h3>if / while / for / آرایه</h3>
+<pre><span class="cm">* if (a&gt;b) max=a else max=b</span>
+       L     3,A
+       C     3,B
+       BNH   ELSE      <span class="cm">opposite cond.</span>
+       ST    3,MAX
+       B     ENDIF
+<span class="lb">ELSE</span>   L     3,B
+       ST    3,MAX
+<span class="lb">ENDIF</span>  ...
+<span class="cm">* while (i&lt;j) {...}</span>
+<span class="lb">LOOP</span>   CR    4,5
+       BNL   DONE
+       ...
+       B     LOOP
+<span class="cm">* for N times over a word array</span>
+       SR    4,4       <span class="cm">byte offset</span>
+       LA    5,10      <span class="cm">count</span>
+<span class="lb">LOOP</span>   A     3,ARR(4)
+       LA    4,4(4)    <span class="cm">+4 bytes</span>
+       BCT   5,LOOP</pre>
+</div>
+<div class="card x">
+<h3>برنامهٔ کامل: جمع آرایه (SUM = 26)</h3>
+{{gen:i360sum}}
+<p class="sm">R12 = 2 ⇐ ARR (1Ch) با D = 1Ah. ۳۶ دستور اجرا می‌شود.</p>
+</div>
+<div class="card x">
+<h3>زیربرنامه: LA 15,SUB / BALR 14,15 / BR 14</h3>
+{{gen:i360call}}
+<p class="sm">X2 = 144، Y2 = 49. زیربرنامهٔ تودرتو ⇐ R14 را قبلش با ST ذخیره کن.</p>
+</div>
+<div class="card x">
+<h3>مرتب‌سازی Gnome در 360</h3>
+{{gen:i360gnome}}
+</div>
+<div class="card k">
+<h3>ترفندهای یک‌خطی 360</h3>
+<table class="t tiny"><tbody>
+<tr><td class="fa">صفر کردن</td><td class="l mw">SR r,r / XR r,r</td></tr>
+<tr><td class="fa">ثابت 0..4095</td><td class="l mw">LA r,n</td></tr>
+<tr><td class="fa">r += k (بی‌CC)</td><td class="l mw">LA r,k(r)</td></tr>
+<tr><td class="fa">r −= 1 (بی‌CC)</td><td class="l mw">BCTR r,0</td></tr>
+<tr><td class="fa">CC از علامت r</td><td class="l mw">OR r,r / NR r,r</td></tr>
+<tr><td class="fa">دو برابر</td><td class="l mw">AR r,r</td></tr>
+<tr><td class="fa">مربع R7</td><td class="l mw">MR 6,7</td></tr>
+<tr><td class="fa">swap بی‌کمکی</td><td class="l mw">XR 1,2 / XR 2,1 / XR 1,2</td></tr>
+<tr><td class="fa">زوج/فرد</td><td class="l mw">N r,ONE ; BZ EVEN</td></tr>
+<tr><td class="fa">پاک کردن پایین‌ترین ۱</td><td class="l mw">LR 5,4; BCTR 5,0; NR 4,5</td></tr>
+<tr><td class="fa">جمع ۶۴ بیتی</td><td class="l mw">AL lo; BNO +; A hi,ONE</td></tr>
+<tr><td class="fa">گسترش علامت R3</td><td class="l mw">LA 4,1; MR 2,4</td></tr>
+</tbody></table>
+</div>
+
 <h2>پرسش‌های تشریحی با پاسخ کوتاه</h2>
 <div class="card q long">
 <ol class="sm">
@@ -665,6 +811,11 @@ C2F00000 = 1 10000101 111000.. = -1.111 x 2^6 = -120
 <li><b>نمادگذاری لهستانی چرا؟</b> بدون پرانتز/اولویت، مستقیم روی پشته محاسبه می‌شود.</li>
 <li><b>فرق Register File و Isolated؟</b> یکی در هر لحظه / دسترسی موازی.</li>
 <li><b>فایدهٔ نگهبان؟</b> حذف بررسی مرز در حلقه (کد ساده‌تر و سریع‌تر).</li>
+<li><b>چرا پایه-جابه‌جایی در 360؟</b> نشانی کامل ۲۴ بیتی دستور را بلند می‌کرد؛ ۴ بیت پایه + ۱۲ بیت جابه‌جایی کوتاه‌تر است و برنامه با عوض کردن ثبات پایه جابه‌جاپذیر می‌شود.</li>
+<li><b>چرا طول در SS به شکل L−1؟</b> طول 0 بی‌معناست؛ با L−1 یک بایت طول‌های ۱ تا ۲۵۶ را پوشش می‌دهد.</li>
+<li><b>چرا جفت ثبات در ضرب و تقسیم؟</b> حاصل‌ضرب ۳۲×۳۲ تا ۶۴ بیت است و مقسوم تقسیم ۶۴ بیتی؛ خارج‌قسمت و باقی‌مانده دو نتیجه‌اند.</li>
+<li><b>چرا CC و ماسک؟</b> دستور حسابی شکل نتیجه را یادداشت می‌کند و یک دستور BC با ۱۶ ماسک همهٔ پرش‌های شرطی را پوشش می‌دهد (MUX ۴ به ۱).</li>
+<li><b>BALR 12,0 چرا؟</b> نشانی واقعی بارگذاری را هنگام اجرا در ثبات پایه می‌گذارد؛ USING همان را به اسمبلر می‌گوید.</li>
 </ol>
 </div>
 

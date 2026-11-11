@@ -315,6 +315,10 @@ GEN = {
     "hex": hextable, "pow2": pow2, "signed4": signed4, "ieee": ieee_common, "ascii": ascii_table,
     "gray": gray, "fib": fib, "primes": primes,
 }
+import sys as _sys  # noqa: E402
+_sys.path.insert(0, str(ROOT))
+from i360 import GEN360  # noqa: E402
+GEN.update(GEN360)
 
 
 # ------------------------------------------------------------------ assemble

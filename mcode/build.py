@@ -208,6 +208,47 @@ def full(key):
     return tbl + f'<p class="pfoot"><b>نمادها:</b> <span class="mw">{html.escape(syms)}</span></p>'
 
 
+# ====================================================================== IBM 360 snippets
+import ibm360  # noqa: E402
+
+B360 = {12: 0x10000, 11: 0x20000, 9: 0x40000}
+MINI360 = {
+    "rr": ([("LR 3,5", "r1 = 3، r2 = 5"), ("LR B'101',X'D'", "هر مبنایی: 5 و 13"), ("MR 8,4", "r1 زوج (جفت R8:R9)"),
+            ("BCTR 5,0", "r2 = 0 ⇐ بدون پرش"), ("BR 14", "= BCR 15,14"), ("BALR 12,0", "پایه‌گذاری")], {}),
+    "rx": ([("L 2,ARR(4)", "S2(X2): X = 4، B و D از USING"), ("L 2,ARR", "X = 0"), ("L 2,20(4,3)", "D(X,B): 20 = 014h"),
+            ("L 2,0(5)", "یک عدد = اندیس!"), ("L 2,10(,5)", "ویرگول ⇐ پایه"), ("A 7,ABS(6)", "ABS با پایهٔ R11"),
+            ("LA 5,8", "ثابت؛ X = B = 0"), ("ST 3,ABS+8", "نماد + عدد")], {"ARR": 0x10123, "ABS": 0x20234}),
+    "br": ([("BC 3,LOOP", "ماسک در جای r1"), ("BC B'1011',2(3,4)", "ماسک 11"), ("BNE LOP1", "BNE = 7"),
+            ("BNO 12(3,4)", "BNO = 14"), ("B LOOP", "15 = F"), ("BNE 8(14)", "14 اندیس است"), ("BCT 3,LOOP", "")],
+           {"LOOP": 0x101FF, "LOP1": 0x10100}),
+    "ss": ([("SLL 5,3", "RS: r3 = 0، شیفت = D"), ("LM 2,5,A", "RS: r1، r3، B، D"), ("MVI T1,X'5F'", "SI: I2 بعد از op"),
+            ("OI 100(3),C'*'", "SI: * = 5C (EBCDIC)"), ("MVC DST(100),SRC", "SS: L−1 = 99 = 63h"),
+            ("OC AREA(10),10(4)", "SS: D(L,B) ⇐ 4 پایه"), ("AP NUM1(6),NUM2(5)", "SS2: 5|4 = L1−1|L2−1")],
+           {"A": 0x1001B, "T1": 0x100BA, "DST": 0x1000A, "SRC": 0x10110, "AREA": 0x4011B, "NUM1": 0x1010A, "NUM2": 0x10F10}),
+}
+
+
+def mini360(key):
+    lines, syms = MINI360[key]
+    pre = {f"B{r}": v for r, v in B360.items()}
+    pre.update(syms)
+    src = ("T        START X'8000'\n" + "".join(f"         USING B{r},{r}\n" for r in B360)
+           + "".join(f"         {l}\n" for l, _ in lines) + "         END")
+    a = ibm360.assemble(src, pre)
+    ins = [r for r in a.rows if r["kind"] == "ins"]
+    rows = []
+    for r, (_, note) in zip(ins, lines):
+        fd = " ".join(f'<span class="f360"><small>{html.escape(n)}</small>{html.escape(v)}</span>' for n, v in r["fields"])
+        hx = r["obj"].hex().upper()
+        code = " ".join(hx[i:i + 4] for i in range(0, len(hx), 4))
+        txt = html.escape(f'{r["mn"]:<5} {r["ops"]}')
+        rows.append(f'<tr><td class="in">{txt}</td><td class="fd">{fd}</td><td class="mc">{code}</td>{CAT.comment_html(note)}</tr>')
+    head = '<thead><tr><th class="in">Assembly</th><th class="fd">Fields</th><th class="mc">Code (hex bytes)</th><th class="cm">نکته</th></tr></thead>'
+    names = "، ".join(f"{k} = ({'R12' if v < 0x20000 else 'R11' if v < 0x30000 else 'R9'})+{v & 0xFFFF:X}h" for k, v in syms.items())
+    foot = f'<p class="pfoot">نمادها: <span class="mw">{html.escape(names)}</span></p>' if names else ""
+    return f'<table class="lst mini" data-m="360">{head}<tbody>{"".join(rows)}</tbody></table>{foot}'
+
+
 # ====================================================================== generated reference tables
 ORDER = ["M1", "M2", "M3", "M4", "M5", "1A", "M6", "M7", "1398", "1399", "1400", "1401", "1402"]
 
@@ -357,6 +398,7 @@ def assemble_doc(pages=None, markers=False):
     body = re.sub(r"\{\{mini:(\w+)\}\}", lambda m: mini(m.group(1)), body)
     body = re.sub(r"\{\{full:(\w+)\}\}", lambda m: full(m.group(1)), body)
     body = re.sub(r"\{\{gen:(\w+)\}\}", lambda m: GEN[m.group(1)](), body)
+    body = re.sub(r"\{\{m360:(\w+)\}\}", lambda m: mini360(m.group(1)), body)
     toc, n = [], 0
 
     def h2(mm):

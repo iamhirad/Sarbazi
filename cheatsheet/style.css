@@ -17,7 +17,7 @@
 @page{
   size:A4;
   margin:10mm 8mm 10mm 8mm;
-  @top-right{content:"چیت‌شیت ساختار و زبان کامپیوتر — جلسه‌های ۱ تا ۵";font-family:"Vazirmatn";font-size:7pt;color:#7a8394;vertical-align:bottom;padding-bottom:1.5mm}
+  @top-right{content:"چیت‌شیت ساختار و زبان کامپیوتر — جلسه‌های ۱ تا ۸";font-family:"Vazirmatn";font-size:7pt;color:#7a8394;vertical-align:bottom;padding-bottom:1.5mm}
   @top-left{content:"Computer Structure & Language — Open-book cheat sheet";font-family:"Vazirmatn";font-size:7pt;color:#7a8394;vertical-align:bottom;padding-bottom:1.5mm}
   @bottom-center{content:counter(page, persian);font-family:"Vazirmatn";font-size:8pt;color:#333}
 }
